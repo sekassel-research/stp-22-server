@@ -26,4 +26,8 @@ export class MessageService {
   async update(id: string, dto: PutMessageDto): Promise<MessageDocument | undefined> {
     return this.model.findByIdAndUpdate(id, dto).exec();
   }
+
+  async delete(id: string): Promise<MessageDocument | undefined> {
+    return this.model.findByIdAndDelete(id);
+  }
 }

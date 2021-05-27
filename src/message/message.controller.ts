@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -44,6 +45,15 @@ export class MessageController {
   @Put(':id')
   async put(@Param('id') id: string, @Body() dto: PutMessageDto): Promise<MessageDocument> {
     const message = await this.messageService.update(id, dto);
+    if (!message) {
+      throw new NotFoundException(id);
+    }
+    return message;
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<MessageDocument> {
+    const message = await this.messageService.delete(id);
     if (!message) {
       throw new NotFoundException(id);
     }
