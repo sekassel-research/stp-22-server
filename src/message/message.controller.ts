@@ -1,6 +1,18 @@
-import { Body, Controller, Get, NotFoundException, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Message, MessageDocument } from './message.schema';
 import { MessageService } from './message.service';
+import { PutMessageDto } from './put.message.dto';
 
 @Controller('messages')
 @UsePipes(ValidationPipe)
@@ -27,5 +39,14 @@ export class MessageController {
   @Post()
   async post(@Body() message: Message): Promise<MessageDocument> {
     return this.messageService.post(message);
+  }
+
+  @Put(':id')
+  async put(@Param('id') id: string, @Body() dto: PutMessageDto): Promise<MessageDocument> {
+    const message = await this.messageService.update(id, dto);
+    if (!message) {
+      throw new NotFoundException(id);
+    }
+    return message;
   }
 }

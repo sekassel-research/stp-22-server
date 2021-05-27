@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Message, MessageDocument } from './message.schema';
+import { PutMessageDto } from './put.message.dto';
 
 @Injectable()
 export class MessageService {
@@ -20,5 +21,9 @@ export class MessageService {
 
   async post(message: Message): Promise<MessageDocument> {
     return this.model.create(message);
+  }
+
+  async update(id: string, dto: PutMessageDto): Promise<MessageDocument | undefined> {
+    return this.model.findByIdAndUpdate(id, dto).exec();
   }
 }
