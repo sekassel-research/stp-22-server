@@ -10,6 +10,6 @@ export const environment = {
       '\n-----END PUBLIC KEY-----',
     resource: process.env.AUTH_RESOURCE || 'server',
     algorithms: (process.env.AUTH_ALGORITHMS || 'RS256').split(','),
-    issuer: process.env.AUTH_ISSUER || 'https://auth.uniks.de/auth/realms/STP',
+    issuer: process.env.AUTH_ISSUER || 'https://se.uniks.de/auth/realms/STP',
   },
 };
