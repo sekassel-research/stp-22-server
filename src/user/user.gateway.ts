@@ -5,7 +5,7 @@ import { AuthService } from '../auth/auth.service';
 import { UserEvent } from './user.event';
 import { UserService } from './user.service';
 
-@WebSocketGateway({ path: '/ws/users' })
+@WebSocketGateway(3002, { path: '/ws/users' })
 export class UserGateway {
   constructor(
     private authService: AuthService,

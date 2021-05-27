@@ -1,11 +1,9 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { MessageEvent } from './message.event';
-import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
-@WebSocketGateway({path: '/ws/messages'})
+@WebSocketGateway(3001, { path: '/ws/messages' })
 export class MessageGateway {
   constructor(
     private messageService: MessageService,
