@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Message, MessageDocument } from './message.schema';
 import { MessageService } from './message.service';
 
 @Controller('messages')
+@UsePipes(ValidationPipe)
 export class MessageController {
   constructor(
     private messageService: MessageService,
