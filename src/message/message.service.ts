@@ -10,6 +10,10 @@ export class MessageService {
   ) {
   }
 
+  async find(id: string): Promise<MessageDocument | undefined> {
+    return this.model.findById(id).exec();
+  }
+
   async findBy(receiver: string): Promise<MessageDocument[]> {
     return this.model.find().where('receiver', receiver).exec();
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Message, MessageDocument } from './message.schema';
 import { MessageService } from './message.service';
 
@@ -13,6 +13,15 @@ export class MessageController {
   @Get()
   async getAll(@Query('receiver') receiver: string): Promise<MessageDocument[]> {
     return this.messageService.findBy(receiver);
+  }
+
+  @Get(':id')
+  async get(@Param('id') id: string): Promise<MessageDocument> {
+    const message = await this.messageService.find(id);
+    if (!message) {
+      throw new NotFoundException(id);
+    }
+    return message;
   }
 
   @Post()
