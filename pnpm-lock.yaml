@@ -6,8 +6,10 @@ specifiers:
   '@nestjs/core': ^7.6.15
   '@nestjs/mongoose': ^7.2.4
   '@nestjs/platform-express': ^7.6.15
+  '@nestjs/platform-ws': ^7.6.17
   '@nestjs/schematics': ^7.3.0
   '@nestjs/testing': ^7.6.15
+  '@nestjs/websockets': ^7.6.17
   '@types/express': ^4.17.11
   '@types/jest': ^26.0.22
   '@types/node': ^14.14.36
@@ -31,9 +33,11 @@ specifiers:
 
 dependencies:
   '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-  '@nestjs/core': 7.6.17_4abd72a689207fb49212f568a33f7183
+  '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
   '@nestjs/mongoose': 7.2.4_042b89ce266c47707eda0e732ebc5e69
   '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
+  '@nestjs/platform-ws': 7.6.17_720200aaba92f06557cc30d2a06cc50d
+  '@nestjs/websockets': 7.6.17_943bdd73944e8bb4246675cf9b18cb0a
   class-transformer: 0.4.0
   class-validator: 0.13.1
   mongoose: 5.12.11
@@ -710,7 +714,7 @@ packages:
       - debug
     dev: false
 
-  /@nestjs/core/7.6.17_4abd72a689207fb49212f568a33f7183:
+  /@nestjs/core/7.6.17_b0e7058758c7e52365b3d9f6b40e865c:
     resolution: {integrity: sha512-dH7PGDj1dvBfOYgxJlxh54vdnFFSLst7+Spg3E7Jpo+n11Ht5Ee5mTjSzXieRVfFba/sI3NIHF/N1stn36bU9w==}
     requiresBuild: true
     peerDependencies:
@@ -730,6 +734,7 @@ packages:
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
       '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
+      '@nestjs/websockets': 7.6.17_943bdd73944e8bb4246675cf9b18cb0a
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.0.7
       iterare: 1.2.1
@@ -751,7 +756,7 @@ packages:
       rxjs: ^6.0.0
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_4abd72a689207fb49212f568a33f7183
+      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
       mongoose: 5.12.11
       reflect-metadata: 0.1.13
       rxjs: 6.6.7
@@ -764,12 +769,29 @@ packages:
       '@nestjs/core': ^7.0.0
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_4abd72a689207fb49212f568a33f7183
+      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
       body-parser: 1.19.0
       cors: 2.8.5
       express: 4.17.1
       multer: 1.4.2
       tslib: 2.2.0
+    dev: false
+
+  /@nestjs/platform-ws/7.6.17_720200aaba92f06557cc30d2a06cc50d:
+    resolution: {integrity: sha512-Zd6+x7rYKcLLPxqvF1DsX7Qb+r5bl9XGIZ1IM61oorML0Odb4sOz0PParOWlEvvQD8nSHKcE5tNGQ7CBAAtN/g==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0
+      '@nestjs/websockets': ^7.0.0
+      rxjs: ^6.0.0
+    dependencies:
+      '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
+      '@nestjs/websockets': 7.6.17_943bdd73944e8bb4246675cf9b18cb0a
+      rxjs: 6.6.7
+      tslib: 2.2.0
+      ws: 7.4.5
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /@nestjs/schematics/7.3.1_typescript@4.2.3:
@@ -813,10 +835,26 @@ packages:
     dependencies:
       optional: 0.1.4
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_4abd72a689207fb49212f568a33f7183
+      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
       '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
       tslib: 2.2.0
     dev: true
+
+  /@nestjs/websockets/7.6.17_943bdd73944e8bb4246675cf9b18cb0a:
+    resolution: {integrity: sha512-xU+nqEQF8ky7gOFcWRMVLtYiIZDRSXFAb6E/TwLSKO8Fb4IvHpXHHtKD0xFcnZboLyv84kzoSfn+NwZw2x572Q==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0
+      '@nestjs/core': ^7.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0
+    dependencies:
+      '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
+      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      iterare: 1.2.1
+      reflect-metadata: 0.1.13
+      rxjs: 6.6.7
+      tslib: 2.2.0
+    dev: false
 
   /@nodelib/fs.scandir/2.1.4:
     resolution: {integrity: sha512-33g3pMJk3bg5nXbL/+CY6I2eJDzZAni49PfJnL5fghPTggPvBd/pFNSgJsdAgWptuFu7qq/ERvOYFlhvsLTCKA==}
@@ -5985,6 +6023,19 @@ packages:
       signal-exit: 3.0.3
       typedarray-to-buffer: 3.1.5
     dev: true
+
+  /ws/7.4.5:
+    resolution: {integrity: sha512-xzyu3hFvomRfXKH8vOFMU3OguG6oOvhXMo3xsGy3xWExqaM2dxBbVxuD99O7m3ZUFMvvscsZDqxfgMaRr/Nr1g==}
+    engines: {node: '>=8.3.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
 
   /ws/7.4.6:
     resolution: {integrity: sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==}
