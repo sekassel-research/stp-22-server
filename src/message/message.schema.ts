@@ -2,7 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({
+  timestamps: true,
+})
 export class Message {
   @Prop()
   @IsMongoId()
@@ -16,9 +18,6 @@ export class Message {
   @IsString()
   @IsNotEmpty()
   body: string;
-
-  @Prop({ type: Date })
-  timestamp: Date;
 }
 
 export type MessageDocument = Message & Document;
