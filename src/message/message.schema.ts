@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString, IsUUID, Validate } from 'class-validator';
 import { Document } from 'mongoose';
 
 @Schema({
@@ -18,7 +18,7 @@ export class Message {
   updatedAt!: Date;
 
   @Prop()
-  @IsMongoId()
+  @IsUUID()
   @ApiProperty()
   sender: string;
 
