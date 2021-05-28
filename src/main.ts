@@ -12,8 +12,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('STP Server')
     .setDescription('The STP server for summer term 2022')
-    .setVersion('1.0')
-    .addTag('stp')
+    .setVersion('1.0.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
