@@ -5,13 +5,21 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateMessageDto, PutMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
@@ -26,9 +34,35 @@ export class MessageController {
   }
 
   @Get()
+  @ApiOperation({ description: 'Lists the last (limit) messages sent to the (receiver) before (createdBefore).' })
   @ApiOkResponse({ type: [Message] })
-  async getAll(@Query('receiver') receiver: string): Promise<Message[]> {
-    return this.messageService.findBy(receiver);
+  @ApiQuery({
+    name: 'receiver',
+    description: 'The expected receiver of the message',
+  })
+  @ApiQuery({
+    name: 'createdBefore',
+    description: 'The timestamp before which messages are requested',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'The maximum number of results',
+    required: false,
+    schema: { minimum: 1, maximum: 100, type: 'number', default: 100 },
+  })
+  async getAll(
+    @Query('receiver') receiver: string,
+    @Query('createdBefore') createdBefore?: Date,
+    @Query('limit', ParseIntPipe) limit = 100,
+  ): Promise<Message[]> {
+    if (limit < 1) {
+      limit = 1;
+    }
+    if (limit > 100) {
+      limit = 100;
+    }
+    return this.messageService.findBy(receiver, createdBefore, limit);
   }
 
   @Get(':id')

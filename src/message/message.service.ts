@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { MessageEvent } from './message.event';
@@ -20,8 +20,20 @@ export class MessageService {
     return this.model.findById(id).exec();
   }
 
-  async findBy(receiver: string): Promise<MessageDocument[]> {
-    return this.model.find().where('receiver', receiver).exec();
+  async findBy(receiver: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
+    const filter: FilterQuery<MessageDocument> = {
+      receiver,
+    };
+    if (createdBefore) {
+      filter.createdAt = { $lt: createdBefore };
+    }
+    let query = this.model.find(filter).sort('-createdAt');
+    if (limit) {
+      query = query.limit(limit);
+    }
+    const messages = await query.exec();
+    messages.reverse();
+    return messages;
   }
 
   async post(message: CreateMessageDto): Promise<MessageDocument> {
