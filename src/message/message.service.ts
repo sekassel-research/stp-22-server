@@ -5,7 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { MessageEvent } from './message.event';
 import { Message, MessageDocument } from './message.schema';
-import { PutMessageDto } from './put.message.dto';
+import { CreateMessageDto, PutMessageDto } from './message.dto';
 
 @Injectable()
 export class MessageService {
@@ -24,7 +24,7 @@ export class MessageService {
     return this.model.find().where('receiver', receiver).exec();
   }
 
-  async post(message: Message): Promise<MessageDocument> {
+  async post(message: CreateMessageDto): Promise<MessageDocument> {
     const document = await this.model.create(message);
     this.events.next({ event: 'created', data: document });
     return document;

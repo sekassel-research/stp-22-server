@@ -11,11 +11,13 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Message, MessageDocument } from './message.schema';
+import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { CreateMessageDto, PutMessageDto } from './message.dto';
+import { Message } from './message.schema';
 import { MessageService } from './message.service';
-import { PutMessageDto } from './put.message.dto';
 
 @Controller('messages')
+@ApiTags('Messages')
 @UsePipes(ValidationPipe)
 export class MessageController {
   constructor(
@@ -24,12 +26,15 @@ export class MessageController {
   }
 
   @Get()
-  async getAll(@Query('receiver') receiver: string): Promise<MessageDocument[]> {
+  @ApiOkResponse({ type: [Message] })
+  async getAll(@Query('receiver') receiver: string): Promise<Message[]> {
     return this.messageService.findBy(receiver);
   }
 
   @Get(':id')
-  async get(@Param('id') id: string): Promise<MessageDocument> {
+  @ApiOkResponse({ type: Message })
+  @ApiNotFoundResponse()
+  async get(@Param('id') id: string): Promise<Message> {
     const message = await this.messageService.find(id);
     if (!message) {
       throw new NotFoundException(id);
@@ -38,12 +43,15 @@ export class MessageController {
   }
 
   @Post()
-  async post(@Body() message: Message): Promise<MessageDocument> {
+  @ApiCreatedResponse({ type: Message })
+  async post(@Body() message: CreateMessageDto): Promise<Message> {
     return this.messageService.post(message);
   }
 
   @Put(':id')
-  async put(@Param('id') id: string, @Body() dto: PutMessageDto): Promise<MessageDocument> {
+  @ApiOkResponse({ type: Message })
+  @ApiNotFoundResponse()
+  async put(@Param('id') id: string, @Body() dto: PutMessageDto): Promise<Message> {
     const message = await this.messageService.update(id, dto);
     if (!message) {
       throw new NotFoundException(id);
@@ -52,7 +60,9 @@ export class MessageController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<MessageDocument> {
+  @ApiOkResponse({ type: Message })
+  @ApiNotFoundResponse()
+  async delete(@Param('id') id: string): Promise<Message> {
     const message = await this.messageService.delete(id);
     if (!message) {
       throw new NotFoundException(id);
