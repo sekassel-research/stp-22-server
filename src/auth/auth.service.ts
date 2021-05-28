@@ -3,11 +3,21 @@ import { JwtService } from '@nestjs/jwt';
 import { environment } from '../environment';
 import { User } from './auth.interface';
 
+const AUTH_SCHEMA = 'Bearer';
+
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
   ) {
+  }
+
+  getTokenFromAuthHeader(authHeader: string): string | undefined {
+    const words = authHeader.split(' ');
+    if (words[0] !== AUTH_SCHEMA) {
+      throw new UnauthorizedException(`Unsupported authentication method, use '${AUTH_SCHEMA}' instead`);
+    }
+    return words[1];
   }
 
   parseToken(token: string): User {
