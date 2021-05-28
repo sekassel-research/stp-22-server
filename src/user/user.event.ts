@@ -1,6 +1,6 @@
 import { WsResponse } from '@nestjs/websockets';
-import { User } from '../auth/auth.interface';
+import { User } from './user.dto';
 
-export interface UserEvent extends WsResponse<Pick<User, 'id' | 'name'>> {
+export interface UserEvent extends WsResponse<User> {
   event: 'online' | 'offline';
 }

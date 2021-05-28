@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Observable, Subject } from 'rxjs';
-import { User } from '../auth/auth.interface';
+import { UserToken } from '../auth/auth.interface';
+import { User } from './user.dto';
 import { UserEvent } from './user.event';
 
 @Injectable()
@@ -9,10 +10,10 @@ export class UserService {
   private events = new Subject<UserEvent>();
 
   async getOnlineUsers(): Promise<User[]> {
-    return [...this.online.values()];
+    return [...this.online.values()].map(({id, name}) => ({id, name}));
   }
 
-  async login(user: User) {
+  async login(user: UserToken) {
     this.online.set(user.id, user);
     this.events.next({
       event: 'online',
@@ -23,14 +24,7 @@ export class UserService {
     });
   }
 
-  async logout(user: string | User) {
-    if (typeof user === 'string') {
-      user = this.online.get(user);
-      if (!user) {
-        return;
-      }
-    }
-
+  async logout(user: UserToken) {
     this.online.delete(user.id);
     this.events.next({
       event: 'offline',

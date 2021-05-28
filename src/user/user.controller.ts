@@ -1,8 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { User } from '../auth/auth.interface';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { User } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('users')
+@ApiTags('Users')
 export class UserController {
   constructor(
     private userService: UserService,
@@ -10,6 +12,8 @@ export class UserController {
   }
 
   @Get()
+  @ApiOperation({ description: 'Lists all online users.' })
+  @ApiOkResponse({ type: [User] })
   async getUsers(): Promise<User[]> {
     return this.userService.getOnlineUsers();
   }

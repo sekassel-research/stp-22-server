@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { environment } from '../environment';
-import { User } from './auth.interface';
+import { UserToken } from './auth.interface';
 
 const AUTH_SCHEMA = 'Bearer';
 
@@ -20,7 +20,7 @@ export class AuthService {
     return words[1];
   }
 
-  parseToken(token: string): User {
+  parseToken(token: string): UserToken {
     const { resource, algorithms, issuer } = environment.auth;
     try {
       const validToken = this.jwtService.verify(token, { algorithms: algorithms as any[], issuer });

@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-export interface User {
+export interface UserToken {
   id: string;
   name: string;
   clientId: string;
@@ -9,5 +9,5 @@ export interface User {
 }
 
 export interface ExtendedRequest extends Request {
-  user: User;
+  user: UserToken;
 }
