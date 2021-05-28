@@ -23,9 +23,9 @@ export class Message {
   sender: string;
 
   @Prop()
-  @IsMongoId()
+  @IsUUID()
   @ApiProperty()
-  receiver: string; // channel or user
+  receiver: string;
 
   @Prop()
   @IsString()
