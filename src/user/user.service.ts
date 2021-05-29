@@ -10,29 +10,33 @@ export class UserService {
   private events = new Subject<UserEvent>();
 
   async getOnlineUsers(): Promise<User[]> {
-    return [...this.online.values()].map(({id, name}) => ({id, name}));
+    return [...this.online.values()];
   }
 
-  async login(user: UserToken) {
-    this.online.set(user.id, user);
+  async getOnlineUser(id: string): Promise<User | undefined> {
+    return this.online.get(id);
+  }
+
+  async login(token: UserToken) {
+    const user = this.tokenToUser(token);
+    this.online.set(token.id, user);
     this.events.next({
       event: 'online',
-      data: {
-        id: user.id,
-        name: user.name,
-      },
+      data: user,
     });
   }
 
-  async logout(user: UserToken) {
+  async logout(token: UserToken) {
+    const user = this.tokenToUser(token);
     this.online.delete(user.id);
     this.events.next({
       event: 'offline',
-      data: {
-        id: user.id,
-        name: user.name,
-      },
+      data: user,
     });
+  }
+
+  private tokenToUser({ id, name }: UserToken): User {
+    return { id, name };
   }
 
   watch(): Observable<UserEvent> {
