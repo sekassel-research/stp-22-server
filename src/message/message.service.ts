@@ -20,9 +20,12 @@ export class MessageService {
     return this.model.findById(id).exec();
   }
 
-  async findBy(receiver: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
+  async findBy(chatPartnerA: string, chatPartnerB: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
     const filter: FilterQuery<MessageDocument> = {
-      receiver,
+      $or: [
+        { sender: chatPartnerA, receiver: chatPartnerB },
+        { sender: chatPartnerB, receiver: chatPartnerA },
+      ],
     };
     if (createdBefore) {
       filter.createdAt = { $lt: createdBefore };

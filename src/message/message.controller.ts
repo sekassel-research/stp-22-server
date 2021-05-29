@@ -5,7 +5,6 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -34,11 +33,15 @@ export class MessageController {
   }
 
   @Get()
-  @ApiOperation({ description: 'Lists the last (limit) messages sent to the (receiver) before (createdBefore).' })
+  @ApiOperation({ description: 'Lists the last (limit) messages sent between (between) and (and) before (createdBefore).' })
   @ApiOkResponse({ type: [Message] })
   @ApiQuery({
-    name: 'receiver',
-    description: 'The expected receiver of the message',
+    name: 'between',
+    description: 'The expected primary chat partner of the message',
+  })
+  @ApiQuery({
+    name: 'and',
+    description: 'The expected secondary chat partner of the message',
   })
   @ApiQuery({
     name: 'createdBefore',
@@ -52,17 +55,19 @@ export class MessageController {
     schema: { minimum: 1, maximum: 100, type: 'number', default: 100 },
   })
   async getAll(
-    @Query('receiver') receiver: string,
+    @Query('between') chatPartnerA: string,
+    @Query('and') chatPartnerB: string,
     @Query('createdBefore') createdBefore?: Date,
-    @Query('limit', ParseIntPipe) limit = 100,
+    @Query('limit') limit = 100,
   ): Promise<Message[]> {
+    limit = +limit;
     if (limit < 1) {
       limit = 1;
     }
     if (limit > 100) {
       limit = 100;
     }
-    return this.messageService.findBy(receiver, createdBefore, limit);
+    return this.messageService.findBy(chatPartnerA, chatPartnerB, createdBefore, limit);
   }
 
   @Get(':id')
