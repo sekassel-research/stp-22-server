@@ -9,7 +9,9 @@ import {
 import { IncomingMessage } from 'http';
 import { Observable } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
-import { UserToken } from './user.dto';
+import { AuthService } from '../auth/auth.service';
+import { JwtStrategy } from '../auth/jwt.strategy';
+import { UserToken } from '../auth/user-token.interface';
 import { UserEvent } from './user.event';
 import { UserService } from './user.service';
 
@@ -17,14 +19,16 @@ import { UserService } from './user.service';
 export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private jwtService: JwtService,
+    private jwtStrategy: JwtStrategy,
     private userService: UserService,
   ) {
   }
 
-  handleConnection(client: any, message: IncomingMessage): any {
+  async handleConnection(client: any, message: IncomingMessage): Promise<void> {
     const token = this.getToken(message);
     if (token) {
-      client.user = this.jwtService.verify(token) as UserToken;
+      const parsedToken = this.jwtService.verify(token);
+      client.user = await this.jwtStrategy.validate(parsedToken);
     }
   }
 
