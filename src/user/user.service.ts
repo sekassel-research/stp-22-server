@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Observable, Subject } from 'rxjs';
-import { UserToken } from '../auth/auth.interface';
-import { User } from './user.dto';
+import { User, UserToken } from './user.dto';
 import { UserEvent } from './user.event';
 
 @Injectable()
@@ -19,7 +18,7 @@ export class UserService {
 
   async login(token: UserToken) {
     const user = this.tokenToUser(token);
-    this.online.set(token.id, user);
+    this.online.set(user.id, user);
     this.events.next({
       event: 'online',
       data: user,
@@ -35,8 +34,11 @@ export class UserService {
     });
   }
 
-  private tokenToUser({ id, name }: UserToken): User {
-    return { id, name };
+  private tokenToUser({ sub, preferred_username }: UserToken): User {
+    return {
+      id: sub,
+      name: preferred_username,
+    };
   }
 
   watch(): Observable<UserEvent> {

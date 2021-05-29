@@ -1,3 +1,4 @@
+import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
   OnGatewayConnection,
@@ -8,14 +9,14 @@ import {
 import { IncomingMessage } from 'http';
 import { Observable } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
-import { AuthService } from '../auth/auth.service';
+import { UserToken } from './user.dto';
 import { UserEvent } from './user.event';
 import { UserService } from './user.service';
 
 @WebSocketGateway(3002, { path: '/ws/users' })
 export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
-    private authService: AuthService,
+    private jwtService: JwtService,
     private userService: UserService,
   ) {
   }
@@ -23,14 +24,14 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: any, message: IncomingMessage): any {
     const token = this.getToken(message);
     if (token) {
-      client.user = this.authService.parseToken(token);
+      client.user = this.jwtService.verify(token) as UserToken;
     }
   }
 
   private getToken(message: IncomingMessage): string | undefined {
     const authHeader = message.headers.authorization;
     if (authHeader) {
-      const headerToken = this.authService.getTokenFromAuthHeader(authHeader);
+      const headerToken = authHeader.startsWith('Bearer ') ? authHeader.substring('Bearer '.length) : undefined;
       if (headerToken) {
         return headerToken;
       }
