@@ -8,10 +8,13 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -26,6 +29,8 @@ import { MessageService } from './message.service';
 @Controller('messages')
 @ApiTags('Messages')
 @UsePipes(ValidationPipe)
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 export class MessageController {
   constructor(
     private messageService: MessageService,
