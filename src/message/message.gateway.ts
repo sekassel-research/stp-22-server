@@ -23,4 +23,9 @@ export class MessageGateway {
   async send(@MessageBody() message: CreateMessageDto): Promise<void> {
     await this.messageService.create(message);
   }
+
+  @SubscribeMessage('delete')
+  async delete(@MessageBody() id: string): Promise<void> {
+    await this.messageService.delete(id);
+  }
 }
