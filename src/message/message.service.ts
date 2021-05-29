@@ -36,7 +36,7 @@ export class MessageService {
     return messages;
   }
 
-  async post(message: CreateMessageDto): Promise<MessageDocument> {
+  async create(message: CreateMessageDto): Promise<MessageDocument> {
     const document = await this.model.create(message);
     this.events.next({ event: 'created', data: document });
     return document;

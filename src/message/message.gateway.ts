@@ -19,8 +19,8 @@ export class MessageGateway {
     return this.messageService.stream(senderOrReceiver);
   }
 
-  @SubscribeMessage('post')
+  @SubscribeMessage('send')
   async send(@MessageBody() message: CreateMessageDto): Promise<void> {
-    await this.messageService.post(message);
+    await this.messageService.create(message);
   }
 }

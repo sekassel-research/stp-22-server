@@ -78,8 +78,8 @@ export class MessageController {
 
   @Post()
   @ApiCreatedResponse({ type: Message })
-  async post(@Body() message: CreateMessageDto): Promise<Message> {
-    return this.messageService.post(message);
+  async create(@Body() message: CreateMessageDto): Promise<Message> {
+    return this.messageService.create(message);
   }
 
   @Put(':id')
