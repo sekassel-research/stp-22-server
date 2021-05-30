@@ -5,7 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { MessageEvent } from './message.event';
 import { Message, MessageDocument } from './message.schema';
-import { CreateMessageDto, PutMessageDto } from './message.dto';
+import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 
 @Injectable()
 export class MessageService {
@@ -45,7 +45,7 @@ export class MessageService {
     return document;
   }
 
-  async update(id: string, dto: PutMessageDto): Promise<MessageDocument | undefined> {
+  async update(id: string, dto: UpdateMessageDto): Promise<MessageDocument | undefined> {
     const document = await this.model.findByIdAndUpdate(id, dto).exec();
     if (document) {
       this.events.next({ event: 'updated', data: document });

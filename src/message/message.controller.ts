@@ -23,7 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
-import { CreateMessageDto, PutMessageDto } from './message.dto';
+import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
@@ -95,7 +95,7 @@ export class MessageController {
   @Put(':id')
   @ApiOkResponse({ type: Message })
   @ApiNotFoundResponse()
-  async put(@Param('id') id: string, @Body() dto: PutMessageDto): Promise<Message> {
+  async update(@Param('id') id: string, @Body() dto: UpdateMessageDto): Promise<Message> {
     const message = await this.messageService.update(id, dto);
     if (!message) {
       throw new NotFoundException(id);

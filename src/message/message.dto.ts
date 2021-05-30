@@ -8,7 +8,7 @@ export class CreateMessageDto extends PickType(Message, [
 ] as const) {
 }
 
-export class PutMessageDto extends PickType(Message, [
+export class UpdateMessageDto extends PickType(Message, [
   'body',
 ] as const) {
 }
