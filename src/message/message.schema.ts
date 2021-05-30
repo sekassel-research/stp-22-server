@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsString, IsUUID, Validate } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Document } from 'mongoose';
 
 @Schema({
@@ -8,7 +8,7 @@ import { Document } from 'mongoose';
   versionKey: false,
 })
 export class Message {
-  @ApiProperty()
+  @ApiProperty({ format: 'objectid', example: '507f191e810c19729de860ea' })
   _id!: string;
 
   @ApiProperty()
@@ -19,12 +19,12 @@ export class Message {
 
   @Prop()
   @IsUUID()
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid' })
   sender: string;
 
   @Prop()
   @IsUUID()
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid' })
   receiver: string;
 
   @Prop()

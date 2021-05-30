@@ -4,6 +4,6 @@ export class User {
   @ApiProperty()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid' })
   id: string;
 }
