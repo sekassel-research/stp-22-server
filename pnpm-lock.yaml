@@ -12,6 +12,7 @@ specifiers:
   '@nestjs/schematics': ^7.3.0
   '@nestjs/swagger': ^4.8.0
   '@nestjs/testing': ^7.6.15
+  '@nestjs/throttler': ^1.1.4
   '@nestjs/websockets': ^7.6.17
   '@types/express': ^4.17.11
   '@types/jest': ^26.0.22
@@ -47,6 +48,7 @@ dependencies:
   '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
   '@nestjs/platform-ws': 7.6.17_720200aaba92f06557cc30d2a06cc50d
   '@nestjs/swagger': 4.8.0_2be1f05073d7d45e647809f46d75c158
+  '@nestjs/throttler': 1.1.4_6b32aa95adcab787f605e09a6fe441af
   '@nestjs/websockets': 7.6.17_943bdd73944e8bb4246675cf9b18cb0a
   class-transformer: 0.4.0
   class-validator: 0.13.1
@@ -913,6 +915,19 @@ packages:
       '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
       tslib: 2.2.0
     dev: true
+
+  /@nestjs/throttler/1.1.4_6b32aa95adcab787f605e09a6fe441af:
+    resolution: {integrity: sha512-4ewtIx+pREVzhvvhSam+Zdbm6mr8Vo81MC4a1ETj4Aql+61VTjJ7avT2PBjMb0wwcdju9N7OTrUGST8hRkvnZA==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0
+      '@nestjs/core': ^7.0.0
+      reflect-metadata: ^0.1.13
+    dependencies:
+      '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
+      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      md5: 2.3.0
+      reflect-metadata: 0.1.13
+    dev: false
 
   /@nestjs/websockets/7.6.17_943bdd73944e8bb4246675cf9b18cb0a:
     resolution: {integrity: sha512-xU+nqEQF8ky7gOFcWRMVLtYiIZDRSXFAb6E/TwLSKO8Fb4IvHpXHHtKD0xFcnZboLyv84kzoSfn+NwZw2x572Q==}
@@ -1948,6 +1963,10 @@ packages:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}
     dev: true
 
+  /charenc/0.0.2:
+    resolution: {integrity: sha1-wKHS86cJLgN3S/qD8UwPxXkKhmc=}
+    dev: false
+
   /chokidar/3.5.1:
     resolution: {integrity: sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw==}
     engines: {node: '>= 8.10.0'}
@@ -2202,6 +2221,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /crypt/0.0.2:
+    resolution: {integrity: sha1-iNf/fsDfuG9xPch7u0LQRNPmxBs=}
+    dev: false
 
   /cssom/0.3.8:
     resolution: {integrity: sha512-b0tGHbfegbhPJpxpiBPU2sCkigAqtM9O121le6bbOlgyV+NyGyCmVfJ6QW9eRjz8CpNfWEOYBIMIGRYkLwsIYg==}
@@ -3271,7 +3294,6 @@ packages:
 
   /is-buffer/1.1.6:
     resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
-    dev: true
 
   /is-ci/2.0.0:
     resolution: {integrity: sha512-YfJT7rkpQB0updsdHLGWrvhBJfcfzNNawYDNIyQXJz0IViGf75O8EBPKSdvw2rF+LGCsX4FZ8tcr3b19LcZq4w==}
@@ -4248,6 +4270,14 @@ packages:
     dependencies:
       object-visit: 1.0.1
     dev: true
+
+  /md5/2.3.0:
+    resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+      is-buffer: 1.1.6
+    dev: false
 
   /media-typer/0.3.0:
     resolution: {integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=}

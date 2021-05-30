@@ -2,6 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { environment } from './environment';
+
+// language=markdown
+const description = `
+## The STP server for summer term 2022
+
+### Rate Limit
+All API operations are rate limited.
+You cannot send more than **${environment.rateLimit.limit}** HTTP requests
+from the same IP address within **${environment.rateLimit.ttl}** seconds.
+WebSockets are exempt from this.
+`;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +23,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('STP Server')
-    .setDescription('The STP server for summer term 2022')
+    .setDescription(description)
     .setVersion('1.0.0')
     .addBearerAuth()
     .build();

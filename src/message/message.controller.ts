@@ -8,13 +8,10 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -23,6 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
+import { Throttled } from '../throttled.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
@@ -31,6 +29,7 @@ import { MessageService } from './message.service';
 @ApiTags('Messages')
 @UsePipes(ValidationPipe)
 @Auth()
+@Throttled()
 export class MessageController {
   constructor(
     private messageService: MessageService,
