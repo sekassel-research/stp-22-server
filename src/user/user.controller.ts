@@ -1,5 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { NotFound } from '../util/not-found.decorator';
 import { User } from './user.dto';
 import { UserService } from './user.service';
 
@@ -21,8 +22,8 @@ export class UserController {
   @Get(':id')
   @ApiOperation({ description: 'Informs about the user with the given ID.' })
   @ApiOkResponse({ type: User })
-  @ApiNotFoundResponse()
-  async getUser(@Param('id') id: string) {
+  @NotFound()
+  async getUser(@Param('id') id: string): Promise<User> {
     return this.userService.getOnlineUser(id);
   }
 }

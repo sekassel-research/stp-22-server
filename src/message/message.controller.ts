@@ -1,26 +1,8 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  Query,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { Throttled } from '../throttled.decorator';
+import { NotFound } from '../util/not-found.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
@@ -76,13 +58,9 @@ export class MessageController {
 
   @Get(':id')
   @ApiOkResponse({ type: Message })
-  @ApiNotFoundResponse()
+  @NotFound()
   async get(@Param('id') id: string): Promise<Message> {
-    const message = await this.messageService.find(id);
-    if (!message) {
-      throw new NotFoundException(id);
-    }
-    return message;
+    return this.messageService.find(id);
   }
 
   @Post()
@@ -93,23 +71,15 @@ export class MessageController {
 
   @Put(':id')
   @ApiOkResponse({ type: Message })
-  @ApiNotFoundResponse()
+  @NotFound()
   async update(@Param('id') id: string, @Body() dto: UpdateMessageDto): Promise<Message> {
-    const message = await this.messageService.update(id, dto);
-    if (!message) {
-      throw new NotFoundException(id);
-    }
-    return message;
+    return this.messageService.update(id, dto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: Message })
-  @ApiNotFoundResponse()
+  @NotFound()
   async delete(@Param('id') id: string): Promise<Message> {
-    const message = await this.messageService.delete(id);
-    if (!message) {
-      throw new NotFoundException(id);
-    }
-    return message;
+    return this.messageService.delete(id);
   }
 }
