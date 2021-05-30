@@ -22,6 +22,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { Auth } from '../auth/auth.decorator';
 import { CreateMessageDto, PutMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
@@ -29,8 +30,7 @@ import { MessageService } from './message.service';
 @Controller('messages')
 @ApiTags('Messages')
 @UsePipes(ValidationPipe)
-@UseGuards(AuthGuard('jwt'))
-@ApiBearerAuth()
+@Auth()
 export class MessageController {
   constructor(
     private messageService: MessageService,
