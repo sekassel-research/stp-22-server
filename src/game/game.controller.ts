@@ -18,12 +18,6 @@ export class GameController {
   ) {
   }
 
-  @Post()
-  @ApiCreatedResponse({ type: Game })
-  create(@Body() createGameDto: CreateGameDto): Promise<Game> {
-    return this.gameService.create(createGameDto);
-  }
-
   @Get()
   @ApiOkResponse({ type: [Game] })
   async findAll(): Promise<Game[]> {
@@ -35,6 +29,12 @@ export class GameController {
   @ApiNotFoundResponse()
   async findOne(@Param('id') id: string): Promise<Game | undefined> {
     return this.gameService.findOne(id);
+  }
+
+  @Post()
+  @ApiCreatedResponse({ type: Game })
+  async create(@Body() createGameDto: CreateGameDto): Promise<Game> {
+    return this.gameService.create(createGameDto);
   }
 
   @Put(':id')
