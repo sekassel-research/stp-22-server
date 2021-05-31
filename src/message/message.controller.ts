@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
-import { Throttled } from '../throttled.decorator';
+import { Throttled } from '../util/throttled.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
