@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { environment } from './environment';
 import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
+import { GameModule } from './game/game.module';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
 
@@ -15,6 +16,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
     MongooseModule.forRoot(mongoUri),
     ThrottlerModule.forRoot(environment.rateLimit),
     MessageModule,
+    GameModule,
     AuthModule,
     UserModule,
   ],
