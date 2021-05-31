@@ -10,6 +10,16 @@ export class Game extends GlobalSchema {
   @ApiProperty()
   @IsNotEmpty()
   name: string;
+
+  @Prop({
+    transform: () => undefined,
+  })
+  passwordSalt: string;
+
+  @Prop({
+    transform: () => undefined,
+  })
+  passwordHash: string;
 }
 
 export type GameDocument = Game & Document;

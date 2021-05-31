@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
 import { Game } from './game.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class GameService {
@@ -11,8 +12,19 @@ export class GameService {
   ) {
   }
 
+  private async hash(dto: CreateGameDto | UpdateGameDto) {
+    const passwordSalt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(dto.password, passwordSalt);
+    return {
+      ...dto,
+      password: undefined,
+      passwordSalt,
+      passwordHash,
+    };
+  }
+
   async create(game: CreateGameDto): Promise<Game> {
-    return this.model.create(game);
+    return this.model.create(await this.hash(game));
   }
 
   async findAll(): Promise<Game[]> {
@@ -24,7 +36,7 @@ export class GameService {
   }
 
   async update(id: string, game: UpdateGameDto): Promise<Game | undefined> {
-    return this.model.findByIdAndUpdate(id, game).exec();
+    return this.model.findByIdAndUpdate(id, await this.hash(game)).exec();
   }
 
   async delete(id: string): Promise<Game | undefined> {
