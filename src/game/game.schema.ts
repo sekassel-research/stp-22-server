@@ -6,7 +6,7 @@ import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Game extends GlobalSchema {
-  @Prop()
+  @Prop({ index: 1 })
   @ApiProperty()
   @IsNotEmpty()
   name: string;

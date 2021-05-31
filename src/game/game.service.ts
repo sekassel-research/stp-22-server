@@ -28,7 +28,7 @@ export class GameService {
   }
 
   async findAll(): Promise<Game[]> {
-    return this.model.find().sort('+name').exec();
+    return this.model.find().sort({ name: 1 }).exec();
   }
 
   async findOne(id: string): Promise<Game | undefined> {
