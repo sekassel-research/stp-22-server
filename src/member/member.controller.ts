@@ -1,5 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Request, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse, ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -32,7 +39,9 @@ export class MemberController {
   }
 
   @Post()
+  @ApiOperation({ description: 'Join a game with the current user.' })
   @ApiCreatedResponse({ type: Member })
+  @ApiBadRequestResponse({ description: 'Incorrect password.' })
   async create(@Param('gameId') gameId: string, @Request() request, @Body() createMemberDto: CreateMemberDto): Promise<Member> {
     return this.memberService.create(gameId, request.user, createMemberDto);
   }

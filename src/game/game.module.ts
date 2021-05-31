@@ -13,6 +13,9 @@ import { GameService } from './game.service';
   ],
   controllers: [GameController],
   providers: [GameService],
+  exports: [
+    GameService,
+  ],
 })
 export class GameModule {
 }

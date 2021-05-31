@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsMongoId, IsUUID } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
@@ -8,7 +8,7 @@ import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
   ...GLOBAL_SCHEMA_OPTIONS,
   id: false,
 })
-export class Member extends GlobalSchema {
+export class Member extends OmitType(GlobalSchema, ['_id' as const]) {
   @Prop()
   @ApiProperty({ format: 'objectid', example: '507f191e810c19729de860ea' })
   @IsMongoId()
