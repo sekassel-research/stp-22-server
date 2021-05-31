@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsMongoId, IsUUID } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
@@ -8,9 +10,13 @@ import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 })
 export class Member extends GlobalSchema {
   @Prop()
+  @ApiProperty({ format: 'objectid', example: '507f191e810c19729de860ea' })
+  @IsMongoId()
   gameId: string;
 
   @Prop()
+  @ApiProperty({ format: 'uuid' })
+  @IsUUID()
   userId: string;
 }
 
