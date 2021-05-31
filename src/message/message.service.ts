@@ -1,18 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { Observable, Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import { MessageEvent } from './message.event';
-import { Message, MessageDocument } from './message.schema';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
+import { Message, MessageDocument } from './message.schema';
 
 @Injectable()
 export class MessageService {
-  private events = new Subject<MessageEvent>();
-
   constructor(
     @InjectModel('messages') private model: Model<Message>,
+    private eventEmitter: EventEmitter2,
   ) {
   }
 
@@ -40,30 +37,20 @@ export class MessageService {
   }
 
   async create(message: CreateMessageDto): Promise<MessageDocument> {
-    const document = await this.model.create(message);
-    this.events.next({ event: 'created', data: document });
-    return document;
+    const created = await this.model.create(message);
+    created && this.eventEmitter.emit('message.created', created);
+    return created;
   }
 
   async update(id: string, dto: UpdateMessageDto): Promise<MessageDocument | undefined> {
-    const document = await this.model.findByIdAndUpdate(id, dto).exec();
-    if (document) {
-      this.events.next({ event: 'updated', data: document });
-    }
-    return document;
+    const updated = await this.model.findByIdAndUpdate(id, dto).exec();
+    updated && this.eventEmitter.emit('message.updated', updated);
+    return updated;
   }
 
   async delete(id: string): Promise<MessageDocument | undefined> {
-    const document = await this.model.findByIdAndDelete(id);
-    if (document) {
-      this.events.next({ event: 'deleted', data: document });
-    }
-    return document;
-  }
-
-  stream(senderOrReceiver: string): Observable<MessageEvent> {
-    return this.events.pipe(
-      filter(({ data }) => data.sender === senderOrReceiver || data.receiver === senderOrReceiver),
-    );
+    const deleted = await this.model.findByIdAndDelete(id).exec();
+    deleted && this.eventEmitter.emit('message.deleted', deleted);
+    return deleted;
   }
 }
