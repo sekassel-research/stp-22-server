@@ -59,9 +59,14 @@ export class MemberController {
   }
 
   @Put(':userId')
+  @ApiOperation({ description: 'Change game membership for the current user.' })
   @ApiOkResponse({ type: Member })
+  @ApiBadRequestResponse({ description: 'Attempting to change membership of another user who is not the current user.' })
   @NotFound()
-  async update(@Param('gameId') gameId: string, @Param('userId') userId: string, @Body() updateMemberDto: UpdateMemberDto): Promise<Member | undefined> {
+  async update(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request, @Body() updateMemberDto: UpdateMemberDto): Promise<Member | undefined> {
+    if (request.user.id !== userId) {
+      throw new BadRequestException('Cannot change membership of another user.');
+    }
     return this.memberService.update(gameId, userId, updateMemberDto);
   }
 
