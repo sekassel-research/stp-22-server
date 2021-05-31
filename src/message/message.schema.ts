@@ -2,21 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Document } from 'mongoose';
+import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
-@Schema({
-  timestamps: true,
-  versionKey: false,
-})
-export class Message {
-  @ApiProperty({ format: 'objectid', example: '507f191e810c19729de860ea' })
-  _id!: string;
-
-  @ApiProperty()
-  createdAt!: Date;
-
-  @ApiProperty()
-  updatedAt!: Date;
-
+@Schema(GLOBAL_SCHEMA_OPTIONS)
+export class Message extends GlobalSchema {
   @Prop()
   @IsUUID()
   @ApiProperty({ format: 'uuid' })
