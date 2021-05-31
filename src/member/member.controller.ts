@@ -1,11 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Request,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
-  ApiOkResponse, ApiOperation,
+  ApiOkResponse,
+  ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
@@ -54,9 +66,14 @@ export class MemberController {
   }
 
   @Delete(':userId')
+  @ApiOperation({ description: 'Leave a game with the current user.' })
   @ApiOkResponse({ type: Member })
+  @ApiBadRequestResponse({ description: 'Attempting to kick another user who is not the current user.' })
   @NotFound()
-  async delete(@Param('gameId') gameId: string, @Param('userId') userId: string): Promise<Member | undefined> {
+  async delete(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request): Promise<Member | undefined> {
+    if (request.user.id !== userId) {
+      throw new BadRequestException('Cannot kick another user.');
+    }
     return this.memberService.delete(gameId, userId);
   }
 }
