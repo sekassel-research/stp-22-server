@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Observable, Subject } from 'rxjs';
-import { UserToken } from '../auth/user-token.interface';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from './user.dto';
-import { UserEvent } from './user.event';
 
 @Injectable()
 export class UserService {
   private online = new Map<string, User>();
-  private events = new Subject<UserEvent>();
+
+  constructor(
+    private eventEmitter2: EventEmitter2,
+  ) {
+  }
 
   async getOnlineUsers(): Promise<User[]> {
     return [...this.online.values()];
@@ -19,21 +21,11 @@ export class UserService {
 
   async login(user: User) {
     this.online.set(user.id, user);
-    this.events.next({
-      event: 'online',
-      data: user,
-    });
+    this.eventEmitter2.emit('user.online', user);
   }
 
   async logout(user: User) {
     this.online.delete(user.id);
-    this.events.next({
-      event: 'offline',
-      data: user,
-    });
-  }
-
-  watch(): Observable<UserEvent> {
-    return this.events;
+    this.eventEmitter2.emit('user.offline', user);
   }
 }
