@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
@@ -9,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 export class GameService {
   constructor(
     @InjectModel('games') private model: Model<Game>,
+    private eventEmitter: EventEmitter2,
   ) {
   }
 
@@ -24,7 +26,9 @@ export class GameService {
   }
 
   async create(game: CreateGameDto): Promise<Game> {
-    return this.model.create(await this.hash(game));
+    const created = await this.model.create(await this.hash(game));
+    created && this.eventEmitter.emit('game.created', created);
+    return created;
   }
 
   async findAll(): Promise<Game[]> {
@@ -36,10 +40,14 @@ export class GameService {
   }
 
   async update(id: string, game: UpdateGameDto): Promise<Game | undefined> {
-    return this.model.findByIdAndUpdate(id, await this.hash(game)).exec();
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(game)).exec();
+    updated && this.eventEmitter.emit('game.updated', updated);
+    return updated;
   }
 
   async delete(id: string): Promise<Game | undefined> {
-    return this.model.findByIdAndDelete(id).exec();
+    const deleted = await this.model.findByIdAndDelete(id).exec();
+    deleted && this.eventEmitter.emit('game.deleted', deleted);
+    return deleted;
   }
 }

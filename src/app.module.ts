@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
@@ -16,6 +17,9 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
   imports: [
     MongooseModule.forRoot(mongoUri),
     ThrottlerModule.forRoot(environment.rateLimit),
+    EventEmitterModule.forRoot({
+      wildcard: true,
+    }),
     MessageModule,
     GameModule,
     MemberModule,
