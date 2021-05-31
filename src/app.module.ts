@@ -10,6 +10,7 @@ import { MemberModule } from './member/member.module';
 import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
 import { GameModule } from './game/game.module';
+import { AppGateway } from './app.gateway';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
 
@@ -29,6 +30,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
   controllers: [AppController],
   providers: [
     AppService,
+    AppGateway,
   ],
 })
 export class AppModule {
