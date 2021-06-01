@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -53,9 +54,17 @@ export class MemberController {
   @Post()
   @ApiOperation({ description: 'Join a game with the current user.' })
   @ApiCreatedResponse({ type: Member })
+  @ApiNotFoundResponse({ description: 'Game not found.' })
   @ApiBadRequestResponse({ description: 'Incorrect password.' })
-  async create(@Param('gameId') gameId: string, @Request() request, @Body() createMemberDto: CreateMemberDto): Promise<Member> {
-    return this.memberService.create(gameId, request.user, createMemberDto);
+  async create(@Param('gameId') gameId: string, @Request() request, @Body() member: CreateMemberDto): Promise<Member> {
+    const passwordMatch = await this.memberService.checkPassword(gameId, member);
+    if (passwordMatch === undefined) {
+      throw new NotFoundException(gameId);
+    } else if (!passwordMatch) {
+      throw new BadRequestException('Incorrect password.');
+    }
+
+    return this.memberService.create(gameId, request.user, member);
   }
 
   @Put(':userId')

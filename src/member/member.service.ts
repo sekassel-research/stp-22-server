@@ -18,17 +18,17 @@ export class MemberService {
   ) {
   }
 
-  async create(gameId: string, user: User, member: CreateMemberDto): Promise<Member | undefined> {
+  async checkPassword(gameId: string, member: CreateMemberDto): Promise<boolean | undefined> {
     const game = await this.gameService.findOne(gameId);
     if (!game) {
       return undefined;
     }
 
     const passwordMatch = await bcrypt.compare(member.password, game.passwordHash);
-    if (!passwordMatch) {
-      throw new BadRequestException('Incorrect password.');
-    }
+    return passwordMatch;
+  }
 
+  async create(gameId: string, user: User, member: CreateMemberDto): Promise<Member | undefined> {
     const created = await this.model.create({ ...member, password: undefined, userId: user.id, gameId });
     created && this.eventEmitter.emit('member.created', created);
     return created;
