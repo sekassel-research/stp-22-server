@@ -17,7 +17,10 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(mongoUri),
+    MongooseModule.forRoot(mongoUri, {
+      useFindAndModify: true,
+      useCreateIndex: true,
+    }),
     ThrottlerModule.forRoot(environment.rateLimit),
     EventEmitterModule.forRoot({
       wildcard: true,
