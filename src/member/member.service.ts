@@ -43,7 +43,10 @@ export class MemberService {
 
   async create(gameId: string, user: User, member: CreateMemberDto): Promise<Member | undefined> {
     const created = await this.model.create({ ...member, password: undefined, userId: user.id, gameId });
-    created && this.eventEmitter.emit('member.created', created);
+    if (created) {
+      await this.gameService.changeMembers(gameId, +1);
+      this.eventEmitter.emit('member.created', created);
+    }
     return created;
   }
 
@@ -63,7 +66,10 @@ export class MemberService {
 
   async delete(gameId: string, userId: string): Promise<Member | undefined> {
     const deleted = await this.model.findOneAndDelete({ gameId, userId }).exec();
-    deleted && this.eventEmitter.emit('member.deleted', deleted);
+    if (deleted) {
+      await this.gameService.changeMembers(gameId, -1);
+      this.eventEmitter.emit('member.deleted', deleted);
+    }
     return deleted;
   }
 }

@@ -47,6 +47,12 @@ export class GameService {
     return updated;
   }
 
+  async changeMembers(id: string, delta: number): Promise<Game | undefined> {
+    const updated = await this.model.findByIdAndUpdate(id, { $inc: { members: delta } });
+    updated && this.eventEmitter.emit('game.updated', updated);
+    return updated;
+  }
+
   async delete(id: string): Promise<Game | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.eventEmitter.emit('game.deleted', deleted);

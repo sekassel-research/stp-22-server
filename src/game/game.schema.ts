@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
@@ -15,6 +15,11 @@ export class Game extends GlobalSchema {
   @ApiProperty()
   @IsUUID()
   owner: string;
+
+  @Prop({ default: 0 })
+  @ApiProperty()
+  @IsNumber()
+  members: number;
 
   @Prop({
     transform: () => undefined,
