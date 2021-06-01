@@ -11,8 +11,13 @@ export class UserService {
   ) {
   }
 
-  async getOnlineUsers(): Promise<User[]> {
-    return [...this.online.values()];
+  async getOnlineUsers(ids?: string[]): Promise<User[]> {
+    let userList = [...this.online.values()];
+    if (ids) {
+      const idSet = new Set<string>(ids);
+      userList = userList.filter(u => idSet.has(u.id));
+    }
+    return userList;
   }
 
   async getOnlineUser(id: string): Promise<User | undefined> {

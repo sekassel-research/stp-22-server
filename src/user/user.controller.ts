@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Post, Request } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { User } from './user.dto';
@@ -16,8 +16,13 @@ export class UserController {
   @Get()
   @ApiOperation({ description: 'Lists all online users.' })
   @ApiOkResponse({ type: [User] })
-  async getUsers(): Promise<User[]> {
-    return this.userService.getOnlineUsers();
+  @ApiQuery({
+    name: 'ids',
+    required: false,
+    description: 'A comma-separated list of IDs that should be included in the response.',
+  })
+  async getUsers(@Query('ids') ids?: string): Promise<User[]> {
+    return this.userService.getOnlineUsers(ids?.split(','));
   }
 
   @Get(':id')
