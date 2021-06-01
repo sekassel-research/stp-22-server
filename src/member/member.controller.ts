@@ -67,7 +67,7 @@ export class MemberController {
       throw new BadRequestException('Incorrect password.');
     }
 
-    return this.memberService.create(gameId, request.user, member);
+    return this.memberService.create(gameId, request.user.id, member);
   }
 
   @Put(':userId')

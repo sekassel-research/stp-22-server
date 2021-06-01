@@ -41,8 +41,8 @@ export class MemberService {
     return 'unauthorized';
   }
 
-  async create(gameId: string, user: User, member: CreateMemberDto): Promise<Member | undefined> {
-    const created = await this.model.create({ ...member, password: undefined, userId: user.id, gameId });
+  async create(gameId: string, userId: string, member: CreateMemberDto): Promise<Member | undefined> {
+    const created = await this.model.create({ ...member, password: undefined, userId, gameId });
     if (created) {
       await this.gameService.changeMembers(gameId, +1);
       this.eventEmitter.emit('member.created', created);
@@ -62,6 +62,10 @@ export class MemberService {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, member).exec();
     updated && this.eventEmitter.emit('member.updated', updated);
     return updated;
+  }
+
+  async deleteAll(gameId: string): Promise<void> {
+    await this.model.deleteMany({ gameId }).exec();
   }
 
   async delete(gameId: string, userId: string): Promise<Member | undefined> {
