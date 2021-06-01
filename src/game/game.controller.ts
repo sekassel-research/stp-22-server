@@ -12,13 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Auth, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -45,20 +39,22 @@ export class GameController {
 
   @Get(':id')
   @ApiOkResponse({ type: Game })
-  @ApiNotFoundResponse()
+  @NotFound()
   async findOne(@Param('id') id: string): Promise<Game | undefined> {
     return this.gameService.findOne(id);
   }
 
   @Post()
+  @ApiOperation({ description: 'Create a game. The current user becomes the owner and is automatically added as a member.' })
   @ApiCreatedResponse({ type: Game })
   async create(@Request() request, @Body() createGameDto: CreateGameDto): Promise<Game> {
     return this.gameService.create(request.user, createGameDto);
   }
 
   @Put(':id')
-  @ApiOkResponse({ type: Game })
   @NotFound()
+  @ApiOperation({ description: 'Change a game as owner.' })
+  @ApiOkResponse({ type: Game })
   @ApiUnauthorizedResponse()
   async update(@Param('id') id: string, @Request() request, @Body() updateGameDto: UpdateGameDto): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
@@ -73,8 +69,9 @@ export class GameController {
   }
 
   @Delete(':id')
-  @ApiOkResponse({ type: Game })
   @NotFound()
+  @ApiOperation({ description: 'Delete a game as owner. All members will be automatically kicked.' })
+  @ApiOkResponse({ type: Game })
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to delete a game that the current user does not own.` })
   async delete(@Param('id') id: string, @Request() request): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
