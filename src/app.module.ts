@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -21,6 +22,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
     EventEmitterModule.forRoot({
       wildcard: true,
     }),
+    ScheduleModule.forRoot(),
     MessageModule,
     GameModule,
     MemberModule,

@@ -58,4 +58,17 @@ export class GameService {
     deleted && this.eventEmitter.emit('game.deleted', deleted);
     return deleted;
   }
+
+  async deleteEmptyGames(olderThanMs: number): Promise<Game[]> {
+    const filterDate = new Date(Date.now() - olderThanMs);
+    const games = await this.model.find({
+      updatedAt: { $lt: filterDate },
+      members: 0,
+    }).exec();
+    await this.model.deleteMany({ _id: { $in: games.map(g => g._id) } });
+    for (const game of games) {
+      this.eventEmitter.emit('game.deleted', game);
+    }
+    return games;
+  }
 }
