@@ -27,6 +27,14 @@ export class MemberService {
     return bcrypt.compare(member.password, game.passwordHash);
   }
 
+  async checkUserModification(gameId: string, actingUser: User, targetUser: string): Promise<boolean | undefined> {
+    const game = await this.gameService.findOne(gameId);
+    if (!game) {
+      return undefined;
+    }
+    return actingUser.id === targetUser || actingUser.id === game.owner;
+  }
+
   async create(gameId: string, user: User, member: CreateMemberDto): Promise<Member | undefined> {
     const created = await this.model.create({ ...member, password: undefined, userId: user.id, gameId });
     created && this.eventEmitter.emit('member.created', created);

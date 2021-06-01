@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
@@ -70,10 +71,14 @@ export class MemberController {
   @Put(':userId')
   @ApiOperation({ description: 'Change game membership for the current user.' })
   @ApiOkResponse({ type: Member })
-  @ApiBadRequestResponse({ description: 'Attempting to change membership of another user who is not the current user.' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid Bearer token, or when a non-owner attempts to change membership of someone else.' })
   @NotFound()
   async update(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request, @Body() updateMemberDto: UpdateMemberDto): Promise<Member | undefined> {
-    if (request.user.id !== userId) {
+    const access = await this.memberService.checkUserModification(gameId, request.user, userId);
+    if (access === undefined) {
+      throw new NotFoundException(gameId);
+    }
+    if (!access) {
       throw new BadRequestException('Cannot change membership of another user.');
     }
     return this.memberService.update(gameId, userId, updateMemberDto);
@@ -82,10 +87,14 @@ export class MemberController {
   @Delete(':userId')
   @ApiOperation({ description: 'Leave a game with the current user.' })
   @ApiOkResponse({ type: Member })
-  @ApiBadRequestResponse({ description: 'Attempting to kick another user who is not the current user.' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid Bearer token, or when a non-owner attempts to kick someone else.' })
   @NotFound()
   async delete(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request): Promise<Member | undefined> {
-    if (request.user.id !== userId) {
+    const access = await this.memberService.checkUserModification(gameId, request.user, userId);
+    if (access === undefined) {
+      throw new NotFoundException(gameId);
+    }
+    if (!access) {
       throw new BadRequestException('Cannot kick another user.');
     }
     return this.memberService.delete(gameId, userId);
