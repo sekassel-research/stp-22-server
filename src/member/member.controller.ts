@@ -46,7 +46,7 @@ export class MemberController {
 
   @Get(':userId')
   @ApiOkResponse({ type: Member })
-  @ApiNotFoundResponse()
+  @NotFound()
   async findOne(@Param('gameId') gameId: string, @Param('userId') userId: string): Promise<Member | undefined> {
     return this.memberService.findOne(gameId, userId);
   }
