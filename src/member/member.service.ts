@@ -24,8 +24,7 @@ export class MemberService {
       return undefined;
     }
 
-    const passwordMatch = await bcrypt.compare(member.password, game.passwordHash);
-    return passwordMatch;
+    return bcrypt.compare(member.password, game.passwordHash);
   }
 
   async create(gameId: string, user: User, member: CreateMemberDto): Promise<Member | undefined> {
