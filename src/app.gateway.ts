@@ -1,16 +1,28 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import { IncomingMessage } from 'http';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { AuthService } from './auth/auth.service';
 
 @WebSocketGateway({ path: '/ws' })
-export class AppGateway {
+export class AppGateway implements OnGatewayConnection {
   constructor(
     private eventEmitter: EventEmitter2,
+    private authService: AuthService,
   ) {
   }
 
   private unsubscribeRequests = new Subject<{ client: any, event: string }>();
+
+  async handleConnection(client: WebSocket, message: IncomingMessage): Promise<void> {
+    try {
+      await this.authService.parseUserForWebSocket(message);
+    } catch (err) {
+      client.send(JSON.stringify(err));
+      client.close();
+    }
+  }
 
   @SubscribeMessage('subscribe')
   subscribe(client: any, event: string): Observable<WsResponse<unknown>> {
