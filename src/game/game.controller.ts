@@ -19,7 +19,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+import { Auth, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
@@ -74,7 +74,7 @@ export class GameController {
   @Delete(':id')
   @ApiOkResponse({ type: Game })
   @NotFound()
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid Bearer token, or attempting to delete a game that the current user does not own.' })
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to delete a game that the current user does not own.` })
   async delete(@Param('id') id: string, @Request() request): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {

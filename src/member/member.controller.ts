@@ -21,7 +21,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+import { Auth, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
@@ -71,8 +71,8 @@ export class MemberController {
   @Put(':userId')
   @ApiOperation({ description: 'Change game membership for the current user.' })
   @ApiOkResponse({ type: Member })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid Bearer token, or when a non-owner attempts to change membership of someone else.' })
-  @NotFound()
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to change membership of someone else.` })
+  @NotFound('Game or membership not found.')
   async update(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request, @Body() updateMemberDto: UpdateMemberDto): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, request.user, userId);
     if (access === undefined) {
@@ -87,8 +87,8 @@ export class MemberController {
   @Delete(':userId')
   @ApiOperation({ description: 'Leave a game with the current user.' })
   @ApiOkResponse({ type: Member })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid Bearer token, or when a non-owner attempts to kick someone else.' })
-  @NotFound()
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to kick someone else.` })
+  @NotFound('Game or membership not found.')
   async delete(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, request.user, userId);
     if (access === undefined) {
