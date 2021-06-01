@@ -9,11 +9,13 @@ import {
   Post,
   Put,
   Request,
+  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -75,11 +77,11 @@ export class MemberController {
   @NotFound('Game or membership not found.')
   async update(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request, @Body() updateMemberDto: UpdateMemberDto): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, request.user, userId);
-    if (access === undefined) {
-      throw new NotFoundException(gameId);
-    }
-    if (!access) {
-      throw new BadRequestException('Cannot change membership of another user.');
+    switch (access) {
+      case 'notfound':
+        throw new NotFoundException(gameId);
+      case 'unauthorized':
+        throw new UnauthorizedException('Cannot change membership of another user.');
     }
     return this.memberService.update(gameId, userId, updateMemberDto);
   }
@@ -88,14 +90,17 @@ export class MemberController {
   @ApiOperation({ description: 'Leave a game with the current user.' })
   @ApiOkResponse({ type: Member })
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to kick someone else.` })
+  @ApiConflictResponse({ description: 'Owner attempted to leave the game.' })
   @NotFound('Game or membership not found.')
   async delete(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, request.user, userId);
-    if (access === undefined) {
-      throw new NotFoundException(gameId);
-    }
-    if (!access) {
-      throw new BadRequestException('Cannot kick another user.');
+    switch (access) {
+      case 'notfound':
+        throw new NotFoundException(gameId);
+      case 'unauthorized':
+        throw new UnauthorizedException('Cannot kick another user.');
+      case 'owner':
+        throw new BadRequestException('Cannot leave game as owner.');
     }
     return this.memberService.delete(gameId, userId);
   }
