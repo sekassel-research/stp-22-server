@@ -55,7 +55,7 @@ export class GameController {
   @NotFound()
   @ApiOperation({ description: 'Change a game as owner.' })
   @ApiOkResponse({ type: Game })
-  @ApiUnauthorizedResponse()
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to change a game that the current user does not own.` })
   async update(@Param('id') id: string, @Request() request, @Body() updateGameDto: UpdateGameDto): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {
