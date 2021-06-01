@@ -17,5 +17,5 @@ export class UpdateGameDto extends PickType(CreateGameDto, [
 ] as const) {
   @ApiProperty()
   @IsUUID()
-  host: string;
+  owner: string;
 }

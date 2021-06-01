@@ -42,7 +42,7 @@ export class GameService {
   }
 
   async update(id: string, game: UpdateGameDto): Promise<Game | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, await this.hash(game.host, game)).exec();
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(game.owner, game)).exec();
     updated && this.eventEmitter.emit('game.updated', updated);
     return updated;
   }
