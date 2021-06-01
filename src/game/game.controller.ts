@@ -68,6 +68,7 @@ export class GameController {
     if (existing.owner !== request.user.id) {
       throw new UnauthorizedException('Only the owner can change the game.');
     }
+    // FIXME this allows changing the owner to someone who is not a member!
     return this.gameService.update(id, updateGameDto);
   }
 
