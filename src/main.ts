@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 import { AppModule } from './app.module';
 import { environment } from './environment';
 
@@ -13,6 +14,8 @@ All API operations are rate limited.
 You cannot send more than **${environment.rateLimit.limit}** HTTP requests
 from the same IP address within **${environment.rateLimit.ttl}** seconds.
 WebSockets are exempt from this.
+
+${fs.readFileSync(`${__dirname}/../WebSocket.md`).toString()}
 `;
 
 async function bootstrap() {
