@@ -1,6 +1,25 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-// import { Auth } from '../auth/auth.decorator';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Request,
+  UnauthorizedException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
@@ -40,14 +59,30 @@ export class GameController {
   @Put(':id')
   @ApiOkResponse({ type: Game })
   @NotFound()
-  async update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game | undefined> {
+  @ApiUnauthorizedResponse()
+  async update(@Param('id') id: string, @Request() request, @Body() updateGameDto: UpdateGameDto): Promise<Game | undefined> {
+    const existing = await this.gameService.findOne(id);
+    if (!existing) {
+      throw new NotFoundException(id);
+    }
+    if (existing.owner !== request.user.id) {
+      throw new UnauthorizedException('Only the owner can change the game.');
+    }
     return this.gameService.update(id, updateGameDto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: Game })
   @NotFound()
-  async delete(@Param('id') id: string): Promise<Game | undefined> {
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid Bearer token, or attempting to delete a game that the current user does not own.' })
+  async delete(@Param('id') id: string, @Request() request): Promise<Game | undefined> {
+    const existing = await this.gameService.findOne(id);
+    if (!existing) {
+      throw new NotFoundException(id);
+    }
+    if (existing.owner !== request.user.id) {
+      throw new UnauthorizedException('Only the owner can delete the game.');
+    }
     return this.gameService.delete(id);
   }
 }
