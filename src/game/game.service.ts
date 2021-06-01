@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { User } from '../user/user.dto';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
 import { Game } from './game.schema';
 import * as bcrypt from 'bcrypt';
@@ -14,10 +15,11 @@ export class GameService {
   ) {
   }
 
-  private async hash(dto: CreateGameDto | UpdateGameDto) {
+  private async hash(owner: string, dto: CreateGameDto | UpdateGameDto) {
     const passwordSalt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(dto.password, passwordSalt);
     return {
+      owner,
       ...dto,
       password: undefined,
       passwordSalt,
@@ -25,8 +27,8 @@ export class GameService {
     };
   }
 
-  async create(game: CreateGameDto): Promise<Game> {
-    const created = await this.model.create(await this.hash(game));
+  async create(owner: User, game: CreateGameDto): Promise<Game> {
+    const created = await this.model.create(await this.hash(owner.id, game));
     created && this.eventEmitter.emit('game.created', created);
     return created;
   }
@@ -40,7 +42,7 @@ export class GameService {
   }
 
   async update(id: string, game: UpdateGameDto): Promise<Game | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, await this.hash(game)).exec();
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(game.host, game)).exec();
     updated && this.eventEmitter.emit('game.updated', updated);
     return updated;
   }

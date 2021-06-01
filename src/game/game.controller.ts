@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+// import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
@@ -33,8 +33,8 @@ export class GameController {
 
   @Post()
   @ApiCreatedResponse({ type: Game })
-  async create(@Body() createGameDto: CreateGameDto): Promise<Game> {
-    return this.gameService.create(createGameDto);
+  async create(@Request() request, @Body() createGameDto: CreateGameDto): Promise<Game> {
+    return this.gameService.create(request.user, createGameDto);
   }
 
   @Put(':id')
