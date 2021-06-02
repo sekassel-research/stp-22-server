@@ -29,7 +29,7 @@ export class GameService {
 
   async create(owner: User, game: CreateGameDto): Promise<Game> {
     const created = await this.model.create(await this.hash(owner.id, game));
-    created && this.eventEmitter.emit('game.created', created);
+    created && this.eventEmitter.emit(`games.${created._id}.created`, created);
     return created;
   }
 
@@ -43,19 +43,19 @@ export class GameService {
 
   async update(id: string, game: UpdateGameDto): Promise<Game | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(game.owner, game)).exec();
-    updated && this.eventEmitter.emit('game.updated', updated);
+    updated && this.eventEmitter.emit(`games.${id}.updated`, updated);
     return updated;
   }
 
   async changeMembers(id: string, delta: number): Promise<Game | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, { $inc: { members: delta } });
-    updated && this.eventEmitter.emit('game.updated', updated);
+    updated && this.eventEmitter.emit(`games.${id}.updated`, updated);
     return updated;
   }
 
   async delete(id: string): Promise<Game | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
-    deleted && this.eventEmitter.emit('game.deleted', deleted);
+    deleted && this.eventEmitter.emit(`games.${id}.deleted`, deleted);
     return deleted;
   }
 
@@ -67,7 +67,7 @@ export class GameService {
     }).exec();
     await this.model.deleteMany({ _id: { $in: games.map(g => g._id) } });
     for (const game of games) {
-      this.eventEmitter.emit('game.deleted', game);
+      this.eventEmitter.emit(`games.${game._id}.deleted`, game);
     }
     return games;
   }

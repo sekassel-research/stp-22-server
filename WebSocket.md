@@ -52,7 +52,7 @@ Similar to commands, events are sent as JSON.
 However, the payload within the `data` field may contain any JSON value, not just strings.
 
 ```json
-{"event":"message.created","data":{"_id": "507f191e810c19729de860ea", "...": "..."}}
+{"event":"groups.507f191e810c19729de860ea.created","data":{"_id": "507f191e810c19729de860ea", "...": "..."}}
 ```
 
 The following table shows which events may be sent.
@@ -60,12 +60,15 @@ Some events are only visible to certain users for privacy reasons.
 
 | Event Name | Payload | Visible to |
 | --- | --- | --- |
-| `user.{online,offline}`<sup>1</sup> | [`User`](#model-User) | Everyone |
-| `group.{created,updated,deleted}` | [`Group`](#model-Group) | Anyone in the `members` array |
-| `game.{created,updated,deleted}` | [`Game`](#model-Game) | Everyone |
-| `game.<gameId>.member.{created,updated,deleted}`<sup>2</sup> | [`Member`](#model-Member) | Everyone |
+| `users.<userId>.{online,offline}`<sup>1, 2</sup> | [`User`](#model-User) | Everyone |
+| `groups.<groupId>.{created,updated,deleted}` | [`Group`](#model-Group) | Anyone in the `members` array |
+| `games.<gameId>.{created,updated,deleted}` | [`Game`](#model-Game) | Everyone |
+| `games.<gameId>.members.<userId>.{created,updated,deleted}` | [`Member`](#model-Member) | Everyone |
 | `{games.<gameId>,groups.<groupId>}.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message) | Everyone |
 
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
 
-<sup>2</sup>: The placeholder `<gameId>` stands for "some fixed Game ID". For example, a possible event could be `game.507f191e810c19729de860ea.member.created`. You can use this to subscribe only to events within a game you are currently part of, instead of receiving events from every game. If you do want events from every game, use the pattern `game.*.member.created`.
+<sup>2</sup>:
+The placeholder `<userId>` stands for "some fixed User ID". For example, a possible event could be `users.3fa85f64-5717-4562-b3fc-2c963f66afa6.online`.
+You can use this to subscribe to events that concern a single resource. If you do want to subscribe to all user events, use the pattern `users.*.*`.
+Similarly, to receive all events regarding the member list of a game, you could use the pattern `games.507f191e810c19729de860ea.members.*`.

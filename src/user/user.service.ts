@@ -26,11 +26,11 @@ export class UserService {
 
   async login(user: User) {
     this.online.set(user.id, user);
-    this.eventEmitter2.emit('user.online', user);
+    this.eventEmitter2.emit(`users.${user.id}.online`, user);
   }
 
   async logout(user: User) {
     this.online.delete(user.id);
-    this.eventEmitter2.emit('user.offline', user);
+    this.eventEmitter2.emit(`users.${user.id}.offline`, user);
   }
 }

@@ -45,7 +45,7 @@ export class MemberService {
     const created = await this.model.create({ ...member, password: undefined, userId, gameId });
     if (created) {
       await this.gameService.changeMembers(gameId, +1);
-      this.eventEmitter.emit(`game.${gameId}.member.created`, created);
+      this.eventEmitter.emit(`games.${gameId}.members.${userId}.created`, created);
     }
     return created;
   }
@@ -60,14 +60,14 @@ export class MemberService {
 
   async update(gameId: string, userId: string, member: UpdateMemberDto): Promise<Member | undefined> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, member).exec();
-    updated && this.eventEmitter.emit(`game.${gameId}.member.updated`, updated);
+    updated && this.eventEmitter.emit(`games.${gameId}.members.${userId}.updated`, updated);
     return updated;
   }
 
   async deleteAll(gameId: string): Promise<Member[]> {
     const members = await this.findAll(gameId);
     for (const member of members) {
-      this.eventEmitter.emit(`game.${gameId}.member.deleted`, member);
+      this.eventEmitter.emit(`games.${gameId}.members.${member.userId}.deleted`, member);
     }
     await this.model.deleteMany({ gameId }).exec();
     return members;
@@ -77,7 +77,7 @@ export class MemberService {
     const deleted = await this.model.findOneAndDelete({ gameId, userId }).exec();
     if (deleted) {
       await this.gameService.changeMembers(gameId, -1);
-      this.eventEmitter.emit(`game.${gameId}.member.deleted`, deleted);
+      this.eventEmitter.emit(`games.${gameId}.members.${userId}.deleted`, deleted);
     }
     return deleted;
   }

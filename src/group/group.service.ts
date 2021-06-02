@@ -29,7 +29,7 @@ export class GroupService {
   async create(dto: CreateGroupDto): Promise<Group> {
     dto.members = this.normalizeMembers(dto.members);
     const created = await this.model.create(dto);
-    created && this.eventEmitter.emit('group.created', created, created.members);
+    created && this.eventEmitter.emit(`groups.${created._id}.created`, created, created.members);
     return created;
   }
 
@@ -37,7 +37,7 @@ export class GroupService {
     dto.members = this.normalizeMembers(dto.members);
     const updated = await this.model.findByIdAndUpdate(id, dto).exec();
     // FIXME when someone is removed from the group, he does not receive the event
-    updated && this.eventEmitter.emit('group.updated', updated, updated.members);
+    updated && this.eventEmitter.emit(`groups.${id}.updated`, updated, updated.members);
     return updated;
   }
 
@@ -47,7 +47,7 @@ export class GroupService {
 
   async delete(id: string): Promise<Group | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
-    deleted && this.eventEmitter.emit('group.deleted', deleted, deleted.members);
+    deleted && this.eventEmitter.emit(`groups.${id}.deleted`, deleted, deleted.members);
     return deleted;
   }
 }
