@@ -55,6 +55,8 @@ The following events may be sent:
 | `user.{online,offline}`<sup>1</sup> | [`User`](#model-User) | 
 | `message.{created,updated,deleted}` | [`Message`](#model-Message) | 
 | `game.{created,updated,deleted}` | [`Game`](#model-Game) | 
-| `member.{created,updated,deleted}` | [`Member`](#model-Member) |
+| `game.<gameId>.member.{created,updated,deleted}`<sup>2</sup> | [`Member`](#model-Member) |
 
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
+
+<sup>2</sup>: The placeholder `<gameId>` stands for "some fixed Game ID". For example, a possible event could be `game.507f191e810c19729de860ea.member.created`. You can use this to subscribe only to events within a game you are currently part of, instead of receiving events from every game. If you do want events from every game, use the pattern `game.*.member.created`.
