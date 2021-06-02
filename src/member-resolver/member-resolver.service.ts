@@ -18,6 +18,8 @@ export class MemberResolverService {
       case 'games':
         const members = await this.memberService.findAll(id);
         return members.map(member => member.userId);
+      default:
+        return [];
     }
   }
 }
