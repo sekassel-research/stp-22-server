@@ -37,36 +37,21 @@ export class MessageService {
     return messages;
   }
 
-  private async getUsersOrThrow(namespace: string, parent: string): Promise<string[]> {
-    const users = await this.resolver.resolve(namespace, parent);
-    if (users.length === 0) {
-      throw new NotFoundException(`${namespace}/${parent}`);
-    }
-    return users;
-  }
-
-  async create(namespace: string, parent: string, sender: string, message: CreateMessageDto): Promise<MessageDocument> {
-    const users = await this.getUsersOrThrow(namespace, parent);
+  async create(namespace: string, parent: string, sender: string, message: CreateMessageDto, users: string[]): Promise<MessageDocument> {
     const created = await this.model.create({ ...message, namespace, parent, sender });
     created && this.eventEmitter.emit(`${namespace}.${parent}.messages.${created._id}.created`, created, users);
     return created;
   }
 
-  async update(id: string, dto: UpdateMessageDto): Promise<MessageDocument | undefined> {
+  async update(id: string, dto: UpdateMessageDto, users: string[]): Promise<MessageDocument | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, dto).exec();
-    if (updated) {
-      const users = await this.getUsersOrThrow(updated.namespace, updated.parent);
-      this.eventEmitter.emit(`${updated.namespace}.${updated.parent}.messages.${updated._id}.updated`, updated, users);
-    }
+    updated && this.eventEmitter.emit(`${updated.namespace}.${updated.parent}.messages.${updated._id}.updated`, updated, users);
     return updated;
   }
 
-  async delete(id: string): Promise<MessageDocument | undefined> {
+  async delete(id: string, users: string[]): Promise<MessageDocument | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
-    if (deleted) {
-      const users = await this.getUsersOrThrow(deleted.namespace, deleted.parent);
-      this.eventEmitter.emit(`${deleted.namespace}.${deleted.parent}.messages.${deleted._id}.deleted`, deleted, users);
-    }
+    deleted && this.eventEmitter.emit(`${deleted.namespace}.${deleted.parent}.messages.${deleted._id}.deleted`, deleted, users);
     return deleted;
   }
 }
