@@ -95,7 +95,7 @@ export class MessageController {
     @Param('id') id: string,
   ): Promise<Message> {
     await this.checkParentAndGetMembers(namespace, parent, request);
-    return await this.messageService.find(id);
+    return await this.messageService.find(namespace, parent, id);
   }
 
   @Post()
@@ -123,14 +123,14 @@ export class MessageController {
     @Body() dto: UpdateMessageDto,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, request);
-    const existing = await this.messageService.find(id);
+    const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
       return undefined;
     }
     if (existing.sender !== request.user.id) {
       throw new UnauthorizedException('Only the sender can change the message.');
     }
-    return this.messageService.update(id, dto, users);
+    return this.messageService.update(namespace, parent, id, dto, users);
   }
 
   @Delete(':id')
@@ -144,13 +144,13 @@ export class MessageController {
     @Param('id') id: string,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, request);
-    const existing = await this.messageService.find(id);
+    const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
       return undefined;
     }
     if (existing.sender !== request.user.id) {
       throw new UnauthorizedException('Only the sender can delete the message.');
     }
-    return this.messageService.delete(id, users);
+    return this.messageService.delete(namespace, parent, id, users);
   }
 }

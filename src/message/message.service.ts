@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
@@ -16,8 +16,8 @@ export class MessageService {
   ) {
   }
 
-  async find(id: string): Promise<MessageDocument | undefined> {
-    return this.model.findById(id).exec();
+  async find(namespace: string, parent: string, _id: string): Promise<MessageDocument | undefined> {
+    return this.model.findOne({ _id, namespace, parent }).exec();
   }
 
   async findBy(namespace: string, parent: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
@@ -43,14 +43,14 @@ export class MessageService {
     return created;
   }
 
-  async update(id: string, dto: UpdateMessageDto, users: string[]): Promise<MessageDocument | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, dto).exec();
+  async update(namespace: string, parent: string, _id: string, dto: UpdateMessageDto, users: string[]): Promise<MessageDocument | undefined> {
+    const updated = await this.model.findOneAndUpdate({ namespace, parent, _id }, dto).exec();
     updated && this.eventEmitter.emit(`${updated.namespace}.${updated.parent}.messages.${updated._id}.updated`, updated, users);
     return updated;
   }
 
-  async delete(id: string, users: string[]): Promise<MessageDocument | undefined> {
-    const deleted = await this.model.findByIdAndDelete(id).exec();
+  async delete(namespace: string, parent: string, _id: string, users: string[]): Promise<MessageDocument | undefined> {
+    const deleted = await this.model.findOneAndDelete({ namespace, parent, _id }).exec();
     deleted && this.eventEmitter.emit(`${deleted.namespace}.${deleted.parent}.messages.${deleted._id}.deleted`, deleted, users);
     return deleted;
   }
