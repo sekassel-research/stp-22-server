@@ -39,19 +39,32 @@ export class MessageService {
 
   async create(namespace: string, parent: string, sender: string, message: CreateMessageDto, users: string[]): Promise<MessageDocument> {
     const created = await this.model.create({ ...message, namespace, parent, sender });
-    created && this.eventEmitter.emit(`${namespace}.${parent}.messages.${created._id}.created`, created, users);
+    created && this.sendEvent('created', created, users);
     return created;
   }
 
   async update(namespace: string, parent: string, _id: string, dto: UpdateMessageDto, users: string[]): Promise<MessageDocument | undefined> {
     const updated = await this.model.findOneAndUpdate({ namespace, parent, _id }, dto).exec();
-    updated && this.eventEmitter.emit(`${updated.namespace}.${updated.parent}.messages.${updated._id}.updated`, updated, users);
+    updated && this.sendEvent('updated', updated, users);
     return updated;
   }
 
   async delete(namespace: string, parent: string, _id: string, users: string[]): Promise<MessageDocument | undefined> {
     const deleted = await this.model.findOneAndDelete({ namespace, parent, _id }).exec();
-    deleted && this.eventEmitter.emit(`${deleted.namespace}.${deleted.parent}.messages.${deleted._id}.deleted`, deleted, users);
+    deleted && this.sendEvent('deleted', deleted, users);
     return deleted;
+  }
+
+  async deleteAll(namespace: string, parent: string, users: string[]): Promise<MessageDocument[]> {
+    const messages = await this.findBy(namespace, parent);
+    for (const message of messages) {
+      this.sendEvent('deleted', message, users);
+    }
+    await this.model.deleteMany({ namespace, parent }).exec();
+    return messages;
+  }
+
+  private sendEvent(event: string, message: Message, users: string[]): void {
+    this.eventEmitter.emit(`${message.namespace}.${message.parent}.messages.${message._id}.${event}`, message, users);
   }
 }
