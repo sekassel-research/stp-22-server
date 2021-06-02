@@ -4,6 +4,13 @@ The asynchronous WebSocket is available under the `/ws` path.
 It accepts incoming commands and sends outgoing events.
 To receive events, you first need to subscribe to them.
 
+#### Authentication
+
+To connect to the WebSocket, you need to authenticate yourself using a JWT.
+You can pass the token either via `Authorization: Bearer <Token>` header,
+or using the query parameter `authHeader` in the endpoint URL.
+Failing to provide a (valid) token will cause the WebSocket to disconnect automatically.
+
 #### Commands
 
 The WebSocket supports the following commands:
@@ -48,14 +55,16 @@ However, the payload within the `data` field may contain any JSON value, not jus
 {"event":"message.created","data":{"_id": "507f191e810c19729de860ea", "...": "..."}}
 ```
 
-The following events may be sent:
+The following table shows which events may be sent.
+Some events are only visible to certain users for privacy reasons.
 
-| Event Name | Payload |
-| --- | --- |
-| `user.{online,offline}`<sup>1</sup> | [`User`](#model-User) | 
-| `message.{created,updated,deleted}` | [`Message`](#model-Message) | 
-| `game.{created,updated,deleted}` | [`Game`](#model-Game) | 
-| `game.<gameId>.member.{created,updated,deleted}`<sup>2</sup> | [`Member`](#model-Member) |
+| Event Name | Payload | Visible to |
+| --- | --- | --- |
+| `user.{online,offline}`<sup>1</sup> | [`User`](#model-User) | Everyone |
+| `group.{created,updated,deleted}` | [`Group`](#model-Group) | Anyone in the `members` array |
+| `message.{created,updated,deleted}` | [`Message`](#model-Message) | Everyone |
+| `game.{created,updated,deleted}` | [`Game`](#model-Game) | Everyone |
+| `game.<gameId>.member.{created,updated,deleted}`<sup>2</sup> | [`Member`](#model-Member) | Everyone |
 
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
 
