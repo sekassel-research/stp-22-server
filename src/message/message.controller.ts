@@ -22,7 +22,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+import { Auth, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { MemberResolverService } from '../member-resolver/member-resolver.service';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -55,7 +55,6 @@ export class MessageController {
 
   @Get()
   @ApiOperation({ description: 'Lists the last (limit) messages sent before (createdBefore).' })
-  @ApiOkResponse({ type: [Message] })
   @ApiQuery({
     name: 'createdBefore',
     description: 'The timestamp before which messages are requested',
@@ -67,6 +66,9 @@ export class MessageController {
     required: false,
     schema: { minimum: 1, maximum: 100, type: 'number', default: 100 },
   })
+  @ApiOkResponse({ type: [Message] })
+  @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to read messages in an inaccessible parent.` })
   async getAll(
     @Request() request,
     @Param('namespace') namespace: string,
@@ -87,6 +89,7 @@ export class MessageController {
 
   @Get(':id')
   @ApiOkResponse({ type: Message })
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to read messages in an inaccessible parent.` })
   @NotFound()
   async get(
     @Request() request,
@@ -101,6 +104,7 @@ export class MessageController {
   @Post()
   @ApiCreatedResponse({ type: Message })
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to create messages in an inaccessible parent.` })
   async create(
     @Request() request,
     @Param('namespace') namespace: string,
@@ -113,7 +117,7 @@ export class MessageController {
 
   @Put(':id')
   @ApiOkResponse({ type: Message })
-  @ApiUnauthorizedResponse({ description: 'Attempting to delete someone else\'s message.' })
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to change messages in an inaccessible parent, or attempting to change someone else's message.` })
   @NotFound()
   async update(
     @Request() request,
@@ -135,7 +139,7 @@ export class MessageController {
 
   @Delete(':id')
   @ApiOkResponse({ type: Message })
-  @ApiUnauthorizedResponse({ description: 'Attempting to delete someone else\'s message.' })
+  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to delete messages in an inaccessible parent, or attempting to delete someone else's message.` })
   @NotFound()
   async delete(
     @Request() request,
