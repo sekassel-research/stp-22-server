@@ -10,12 +10,12 @@ export class MemberHandler {
   ) {
   }
 
-  @OnEvent('game.created')
+  @OnEvent('games.*.created')
   async onGameCreated(game: Game): Promise<void> {
     await this.memberService.create(game._id, game.owner, { password: undefined });
   }
 
-  @OnEvent('game.deleted')
+  @OnEvent('games.*.deleted')
   async onGameDeleted(game: Game): Promise<void> {
     await this.memberService.deleteAll(game._id);
   }
