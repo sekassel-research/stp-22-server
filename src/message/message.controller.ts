@@ -11,7 +11,14 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -69,6 +76,7 @@ export class MessageController {
 
   @Post()
   @ApiCreatedResponse({ type: Message })
+  @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
   async create(
     @Param('namespace') namespace: string,
     @Param('parent') parent: string,
