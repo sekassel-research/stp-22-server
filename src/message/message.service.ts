@@ -36,19 +36,19 @@ export class MessageService {
 
   async create(namespace: string, parent: string, sender: string, message: CreateMessageDto): Promise<MessageDocument> {
     const created = await this.model.create({ ...message, namespace, parent, sender });
-    created && this.eventEmitter.emit('message.created', created);
+    created && this.eventEmitter.emit(`${namespace}.${parent}.messages.${created._id}.created`, created);
     return created;
   }
 
   async update(id: string, dto: UpdateMessageDto): Promise<MessageDocument | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, dto).exec();
-    updated && this.eventEmitter.emit('message.updated', updated);
+    updated && this.eventEmitter.emit(`${updated.namespace}.${updated.parent}.messages.${updated._id}.updated`, updated);
     return updated;
   }
 
   async delete(id: string): Promise<MessageDocument | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
-    deleted && this.eventEmitter.emit('message.deleted', deleted);
+    deleted && this.eventEmitter.emit(`${deleted.namespace}.${deleted.parent}.messages.${deleted._id}.deleted`, deleted);
     return deleted;
   }
 }

@@ -62,9 +62,9 @@ Some events are only visible to certain users for privacy reasons.
 | --- | --- | --- |
 | `user.{online,offline}`<sup>1</sup> | [`User`](#model-User) | Everyone |
 | `group.{created,updated,deleted}` | [`Group`](#model-Group) | Anyone in the `members` array |
-| `message.{created,updated,deleted}` | [`Message`](#model-Message) | Everyone |
 | `game.{created,updated,deleted}` | [`Game`](#model-Game) | Everyone |
 | `game.<gameId>.member.{created,updated,deleted}`<sup>2</sup> | [`Member`](#model-Member) | Everyone |
+| `{games.<gameId>,groups.<groupId>}.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message) | Everyone |
 
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
 
