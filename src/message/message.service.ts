@@ -17,12 +17,10 @@ export class MessageService {
     return this.model.findById(id).exec();
   }
 
-  async findBy(chatPartnerA: string, chatPartnerB: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
+  async findBy(namespace: string, parent: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
     const filter: FilterQuery<MessageDocument> = {
-      $or: [
-        { sender: chatPartnerA, receiver: chatPartnerB },
-        { sender: chatPartnerB, receiver: chatPartnerA },
-      ],
+      namespace,
+      parent,
     };
     if (createdBefore) {
       filter.createdAt = { $lt: createdBefore };
@@ -36,8 +34,8 @@ export class MessageService {
     return messages;
   }
 
-  async create(message: CreateMessageDto): Promise<MessageDocument> {
-    const created = await this.model.create(message);
+  async create(namespace: string, parent: string, sender: string, message: CreateMessageDto): Promise<MessageDocument> {
+    const created = await this.model.create({ ...message, namespace, parent, sender });
     created && this.eventEmitter.emit('message.created', created);
     return created;
   }

@@ -1,13 +1,25 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Request,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
-import { Throttled } from '../util/throttled.decorator';
 import { NotFound } from '../util/not-found.decorator';
+import { Throttled } from '../util/throttled.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
-@Controller('messages')
+@Controller(':namespace/:parent/messages')
 @ApiTags('Messages')
 @UsePipes(ValidationPipe)
 @Auth()
@@ -19,16 +31,8 @@ export class MessageController {
   }
 
   @Get()
-  @ApiOperation({ description: 'Lists the last (limit) messages sent between (between) and (and) before (createdBefore).' })
+  @ApiOperation({ description: 'Lists the last (limit) messages sent before (createdBefore).' })
   @ApiOkResponse({ type: [Message] })
-  @ApiQuery({
-    name: 'between',
-    description: 'The expected primary chat partner of the message',
-  })
-  @ApiQuery({
-    name: 'and',
-    description: 'The expected secondary chat partner of the message',
-  })
   @ApiQuery({
     name: 'createdBefore',
     description: 'The timestamp before which messages are requested',
@@ -41,8 +45,8 @@ export class MessageController {
     schema: { minimum: 1, maximum: 100, type: 'number', default: 100 },
   })
   async getAll(
-    @Query('between') chatPartnerA: string,
-    @Query('and') chatPartnerB: string,
+    @Param('namespace') namespace: string,
+    @Param('parent') parent: string,
     @Query('createdBefore') createdBefore?: Date,
     @Query('limit') limit = 100,
   ): Promise<Message[]> {
@@ -53,7 +57,7 @@ export class MessageController {
     if (limit > 100) {
       limit = 100;
     }
-    return this.messageService.findBy(chatPartnerA, chatPartnerB, createdBefore, limit);
+    return this.messageService.findBy(namespace, parent, createdBefore, limit);
   }
 
   @Get(':id')
@@ -65,8 +69,13 @@ export class MessageController {
 
   @Post()
   @ApiCreatedResponse({ type: Message })
-  async create(@Body() message: CreateMessageDto): Promise<Message> {
-    return this.messageService.create(message);
+  async create(
+    @Param('namespace') namespace: string,
+    @Param('parent') parent: string,
+    @Request() request,
+    @Body() message: CreateMessageDto,
+  ): Promise<Message> {
+    return this.messageService.create(namespace, parent, request.user.id, message);
   }
 
   @Put(':id')
