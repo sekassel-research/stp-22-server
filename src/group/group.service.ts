@@ -19,12 +19,23 @@ export class GroupService {
     return this.model.find({ members: id }).exec();
   }
 
+  async findByMembers(members: string[]): Promise<Group[]> {
+    members = this.normalizeMembers(members);
+    return this.model.find({ members }).exec();
+  }
+
   async create(dto: CreateGroupDto): Promise<Group> {
+    dto.members = this.normalizeMembers(dto.members);
     return this.model.create(dto);
   }
 
   async update(id: string, dto: UpdateGroupDto): Promise<Group | undefined> {
+    dto.members = this.normalizeMembers(dto.members);
     return this.model.findByIdAndUpdate(id, dto).exec();
+  }
+
+  private normalizeMembers(members: string[]): string[] {
+    return [...new Set(members)];
   }
 
   async delete(id: string): Promise<Group | undefined> {

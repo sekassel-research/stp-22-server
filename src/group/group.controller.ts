@@ -6,12 +6,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -31,9 +32,21 @@ export class GroupController {
   }
 
   @Get()
-  @ApiOperation({ description: 'Find all groups in which the current user is a member.' })
+  @ApiQuery({
+    name: 'members',
+    required: false,
+    description: 'A comma-separated list of member user IDs. ' +
+      'If specified, returns only groups with the exact member list (order-insensitive). ' +
+      'Otherwise, returns all groups in which the current user is a member.',
+  })
   @ApiOkResponse({ type: [Group] })
-  async findAll(@Request() request): Promise<Group[]> {
+  @ApiUnauthorizedResponse({ description: 'Attempting to get groups in which the current user is not a member.' })
+  async findAll(@Request() request, @Query('members') members?: string): Promise<Group[]> {
+    if (members) {
+      const memberList = members.split(',');
+      this.checkMemberShip(memberList, request);
+      return this.groupService.findByMembers(memberList);
+    }
     return this.groupService.findByMember(request.user.id);
   }
 
