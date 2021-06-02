@@ -12,6 +12,7 @@ import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
 import { GameModule } from './game/game.module';
 import { AppGateway } from './app.gateway';
+import { GroupModule } from './group/group.module';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
 
@@ -26,6 +27,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
       wildcard: true,
     }),
     ScheduleModule.forRoot(),
+    GroupModule,
     MessageModule,
     GameModule,
     MemberModule,
