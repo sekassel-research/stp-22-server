@@ -1,8 +1,21 @@
-import { Controller, Get, Param, Request, UnauthorizedException, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Request,
+  UnauthorizedException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
+import { CreateGroupDto, UpdateGroupDto } from './group.dto';
 import { Group } from './group.schema';
 import { GroupService } from './group.service';
 
@@ -30,9 +43,48 @@ export class GroupController {
   @NotFound()
   async findOne(@Request() request, @Param('id') id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
-    if (group.members.includes(request.user.id)) {
+    this.checkMemberShip(group.members, request);
+    return group;
+  }
+
+  @Post()
+  @ApiCreatedResponse({ type: Group })
+  @ApiUnauthorizedResponse({ description: 'Attempting to create a group in which the current user is not a member.' })
+  async create(@Request() request, @Body() dto: CreateGroupDto): Promise<Group> {
+    this.checkMemberShip(dto.members, request);
+    return this.groupService.create(dto);
+  }
+
+  @Put(':id')
+  @ApiOkResponse({ type: Group })
+  @ApiUnauthorizedResponse({ description: 'Attempting to change a group in which the current user is not or will not be a member.' })
+  @NotFound()
+  async update(@Request() request, @Param('id') id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
+    this.checkMemberShip(dto.members, request);
+    const existing = await this.groupService.find(id);
+    if (!existing) {
+      return undefined;
+    }
+    this.checkMemberShip(existing.members, request);
+    return this.groupService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @ApiOkResponse({ type: Group })
+  @ApiUnauthorizedResponse({ description: 'Attempting to delete a group in which the current user is not a member.' })
+  @NotFound()
+  async delete(@Request() request, @Param('id') id: string): Promise<Group | undefined> {
+    const existing = await this.groupService.find(id);
+    if (!existing) {
+      return undefined;
+    }
+    this.checkMemberShip(existing.members, request);
+    return this.groupService.delete(id);
+  }
+
+  private checkMemberShip(members: string[], request) {
+    if (members.includes(request.user.id)) {
       throw new UnauthorizedException('You are not a member of this group.');
     }
-    return group;
   }
 }
