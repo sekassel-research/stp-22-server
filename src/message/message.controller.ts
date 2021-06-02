@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Request,
+  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
@@ -88,15 +90,31 @@ export class MessageController {
 
   @Put(':id')
   @ApiOkResponse({ type: Message })
+  @ApiUnauthorizedResponse({ description: 'Attempting to delete someone else\'s message.' })
   @NotFound()
-  async update(@Param('id') id: string, @Body() dto: UpdateMessageDto): Promise<Message> {
+  async update(@Request() request, @Param('id') id: string, @Body() dto: UpdateMessageDto): Promise<Message> {
+    const existing = await this.messageService.find(id);
+    if (!existing) {
+      return undefined;
+    }
+    if (existing.sender !== request.user.id) {
+      throw new UnauthorizedException('Only the sender can change the message.');
+    }
     return this.messageService.update(id, dto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: Message })
+  @ApiUnauthorizedResponse({ description: 'Attempting to delete someone else\'s message.' })
   @NotFound()
-  async delete(@Param('id') id: string): Promise<Message> {
+  async delete(@Request() request, @Param('id') id: string): Promise<Message> {
+    const existing = await this.messageService.find(id);
+    if (!existing) {
+      return undefined;
+    }
+    if (existing.sender !== request.user.id) {
+      throw new UnauthorizedException('Only the sender can delete the message.');
+    }
     return this.messageService.delete(id);
   }
 }
