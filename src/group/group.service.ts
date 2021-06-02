@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateGroupDto, UpdateGroupDto } from './group.dto';
@@ -8,6 +9,7 @@ import { Group } from './group.schema';
 export class GroupService {
   constructor(
     @InjectModel('groups') private model: Model<Group>,
+    private eventEmitter: EventEmitter2,
   ) {
   }
 
@@ -26,12 +28,17 @@ export class GroupService {
 
   async create(dto: CreateGroupDto): Promise<Group> {
     dto.members = this.normalizeMembers(dto.members);
-    return this.model.create(dto);
+    const created = await this.model.create(dto);
+    created && this.eventEmitter.emit('group.created', created, created.members);
+    return created;
   }
 
   async update(id: string, dto: UpdateGroupDto): Promise<Group | undefined> {
     dto.members = this.normalizeMembers(dto.members);
-    return this.model.findByIdAndUpdate(id, dto).exec();
+    const updated = await this.model.findByIdAndUpdate(id, dto).exec();
+    // FIXME when someone is removed from the group, he does not receive the event
+    updated && this.eventEmitter.emit('group.updated', updated, updated.members);
+    return updated;
   }
 
   private normalizeMembers(members: string[]): string[] {
@@ -39,6 +46,8 @@ export class GroupService {
   }
 
   async delete(id: string): Promise<Group | undefined> {
-    return this.model.findByIdAndDelete(id).exec();
+    const deleted = await this.model.findByIdAndDelete(id).exec();
+    deleted && this.eventEmitter.emit('group.deleted', deleted, deleted.members);
+    return deleted;
   }
 }
