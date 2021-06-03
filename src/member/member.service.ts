@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { GameService } from '../game/game.service';
-import { User } from '../user/user.dto';
+import { User } from '../user/user.schema';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
 import { Member } from './member.schema';
 
@@ -32,10 +32,10 @@ export class MemberService {
     if (!game) {
       return 'notfound';
     }
-    if (actingUser.id === game.owner) {
+    if (actingUser._id === game.owner) {
       return 'owner';
     }
-    if (actingUser.id === targetUser) {
+    if (actingUser._id === targetUser) {
       return 'target';
     }
     return 'unauthorized';

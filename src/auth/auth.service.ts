@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
 import { IncomingMessage } from 'http';
-import { User } from '../user/user.dto';
+import { User } from '../user/user.schema';
 import { JwtStrategy } from './jwt.strategy';
 
 @Injectable()

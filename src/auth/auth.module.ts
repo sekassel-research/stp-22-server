@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { environment } from '../environment';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -7,10 +7,11 @@ import { JwtStrategy } from './jwt.strategy';
 @Module({
   imports: [
     JwtModule.register({
-      publicKey: environment.auth.publicKey,
+      secret: environment.auth.secret,
       verifyOptions: {
-        algorithms: environment.auth.algorithms as any[],
-        issuer: environment.auth.issuer,
+      },
+      signOptions: {
+        expiresIn: environment.auth.expiry,
       },
     }),
   ],

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from '../user/user.dto';
+import { User } from '../user/user.schema';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
 import { Game } from './game.schema';
 import * as bcrypt from 'bcrypt';
@@ -28,7 +28,7 @@ export class GameService {
   }
 
   async create(owner: User, game: CreateGameDto): Promise<Game> {
-    const created = await this.model.create(await this.hash(owner.id, game));
+    const created = await this.model.create(await this.hash(owner._id, game));
     created && this.eventEmitter.emit(`games.${created._id}.created`, created);
     return created;
   }
