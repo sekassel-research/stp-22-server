@@ -44,7 +44,9 @@ export class UserService {
       return existing;
     }
 
-    return this.model.create(await this.hash(dto));
+    const created = await this.model.create(await this.hash(dto));
+    created && this.eventEmitter2.emit(`users.${created._id}.created`, created);
+    return created;
   }
 
   private async hash(dto: CreateUserDto) {

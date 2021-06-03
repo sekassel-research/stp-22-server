@@ -60,7 +60,7 @@ Some events are only visible to certain users for privacy reasons.
 
 | Event Name | Payload | Visible to |
 | --- | --- | --- |
-| `users.<userId>.{online,offline}`<sup>1, 2</sup> | [`User`](#model-User) | Everyone |
+| `users.<userId>.{created,online,offline}`<sup>1, 2</sup> | [`User`](#model-User) | Everyone |
 | `groups.<groupId>.{created,updated,deleted}` | [`Group`](#model-Group) | Anyone in the `members` array |
 | `groups.<gameId>.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message) | Anyone in the group's `members` array |
 | `games.<gameId>.{created,updated,deleted}` | [`Game`](#model-Game) | Everyone |
