@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsByteLength, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
@@ -23,7 +23,8 @@ export class Message extends GlobalSchema {
   @Prop()
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @IsByteLength(0, 4096, { message: 'Body must be no more than 4096 characters' })
+  @ApiProperty({ maxLength: 4096 })
   body: string;
 }
 
