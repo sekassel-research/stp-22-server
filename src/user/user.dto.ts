@@ -8,7 +8,7 @@ class UsernameAndPassword extends PickType(User, [
   @IsString()
   @IsNotEmpty()
   @IsByteLength(8, undefined, { message: 'Password must be at least 8 characters' })
-  @ApiProperty({ description: 'The login password. Must be at least 8 characters.' })
+  @ApiProperty({ minLength: 8 })
   password: string;
 }
 
