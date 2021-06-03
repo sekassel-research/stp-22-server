@@ -42,7 +42,7 @@ export class GroupService {
   }
 
   private normalizeMembers(members: string[]): string[] {
-    return [...new Set(members)];
+    return [...new Set(members)].sort();
   }
 
   async delete(id: string): Promise<Group | undefined> {
