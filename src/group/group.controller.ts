@@ -44,7 +44,7 @@ export class GroupController {
   async findAll(@Request() request, @Query('members') members?: string): Promise<Group[]> {
     if (members) {
       const memberList = members.split(',');
-      this.checkMemberShip(memberList, request);
+      this.checkMembership(memberList, request);
       return this.groupService.findByMembers(memberList);
     }
     return this.groupService.findByMember(request.user.id);
@@ -56,7 +56,7 @@ export class GroupController {
   @NotFound()
   async findOne(@Request() request, @Param('id') id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
-    this.checkMemberShip(group.members, request);
+    this.checkMembership(group.members, request);
     return group;
   }
 
@@ -64,7 +64,7 @@ export class GroupController {
   @ApiCreatedResponse({ type: Group })
   @ApiUnauthorizedResponse({ description: 'Attempting to create a group in which the current user is not a member.' })
   async create(@Request() request, @Body() dto: CreateGroupDto): Promise<Group> {
-    this.checkMemberShip(dto.members, request);
+    this.checkMembership(dto.members, request);
     return this.groupService.create(dto);
   }
 
@@ -73,12 +73,12 @@ export class GroupController {
   @ApiUnauthorizedResponse({ description: 'Attempting to change a group in which the current user is not or will not be a member.' })
   @NotFound()
   async update(@Request() request, @Param('id') id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
-    this.checkMemberShip(dto.members, request);
+    this.checkMembership(dto.members, request);
     const existing = await this.groupService.find(id);
     if (!existing) {
       return undefined;
     }
-    this.checkMemberShip(existing.members, request);
+    this.checkMembership(existing.members, request);
     return this.groupService.update(id, dto);
   }
 
@@ -91,12 +91,12 @@ export class GroupController {
     if (!existing) {
       return undefined;
     }
-    this.checkMemberShip(existing.members, request);
+    this.checkMembership(existing.members, request);
     return this.groupService.delete(id);
   }
 
-  private checkMemberShip(members: string[], request) {
-    if (members.includes(request.user.id)) {
+  private checkMembership(members: string[], request) {
+    if (!members.includes(request.user.id)) {
       throw new UnauthorizedException('You are not a member of this group.');
     }
   }
