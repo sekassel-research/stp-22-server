@@ -22,7 +22,6 @@ export class GameService {
       owner,
       ...dto,
       password: undefined,
-      passwordSalt,
       passwordHash,
     };
   }

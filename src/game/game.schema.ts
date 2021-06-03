@@ -24,11 +24,6 @@ export class Game extends GlobalSchema {
   @Prop({
     transform: () => undefined,
   })
-  passwordSalt: string;
-
-  @Prop({
-    transform: () => undefined,
-  })
   passwordHash: string;
 }
 

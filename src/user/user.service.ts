@@ -55,7 +55,6 @@ export class UserService {
     return {
       ...dto,
       password: undefined,
-      passwordSalt,
       passwordHash,
     };
   }

@@ -13,9 +13,6 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
   name: string;
 
   @Prop({ transform: () => undefined })
-  passwordSalt?: string;
-
-  @Prop({ transform: () => undefined })
   passwordHash?: string;
 }
 
