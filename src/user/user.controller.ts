@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
+import { Throttled } from '../util/throttled.decorator';
 import { CreateUserDto, LoginDto } from './user.dto';
 import { User } from './user.schema';
 import { UserService } from './user.service';
@@ -27,6 +28,7 @@ import { UserService } from './user.service';
 @Controller('users')
 @ApiTags('Users')
 @UsePipes(ValidationPipe)
+@Throttled()
 export class UserController {
   constructor(
     private userService: UserService,
