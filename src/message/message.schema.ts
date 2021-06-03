@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { Document } from 'mongoose';
-import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
+import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Message extends GlobalSchema {
@@ -16,8 +16,8 @@ export class Message extends GlobalSchema {
   parent: string;
 
   @Prop()
-  @IsUUID()
-  @ApiProperty({ format: 'uuid' })
+  @IsMongoId()
+  @ApiProperty(MONGO_ID_FORMAT)
   sender: string;
 
   @Prop()

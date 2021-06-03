@@ -70,6 +70,6 @@ Some events are only visible to certain users for privacy reasons.
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
 
 <sup>2</sup>:
-The placeholder `<userId>` stands for "some fixed User ID". For example, a possible event could be `users.3fa85f64-5717-4562-b3fc-2c963f66afa6.online`.
+The placeholder `<userId>` stands for "some fixed User ID". For example, a possible event could be `users.507f191e810c19729de860ea.online`.
 You can use this to subscribe to events that concern a single resource. If you do want to subscribe to all user events, use the pattern `users.*.*`.
 Similarly, to receive all events regarding the member list of a game, you could use the pattern `games.507f191e810c19729de860ea.members.*`.

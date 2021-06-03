@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
@@ -13,7 +13,7 @@ export class Game extends GlobalSchema {
 
   @Prop()
   @ApiProperty()
-  @IsUUID()
+  @IsMongoId()
   owner: string;
 
   @Prop({ default: 0 })

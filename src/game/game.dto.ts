@@ -1,5 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { Game } from './game.schema';
 
 export class CreateGameDto extends PickType(Game, [
@@ -16,6 +16,6 @@ export class UpdateGameDto extends PickType(CreateGameDto, [
   'password',
 ] as const) {
   @ApiProperty()
-  @IsUUID()
+  @IsMongoId()
   owner: string;
 }

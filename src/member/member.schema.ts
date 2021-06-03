@@ -1,19 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsMongoId, IsUUID } from 'class-validator';
+import { IsMongoId } from 'class-validator';
 import { Document } from 'mongoose';
-import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
+import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Member extends OmitType(GlobalSchema, ['_id' as const]) {
   @Prop()
-  @ApiProperty({ format: 'objectid', example: '507f191e810c19729de860ea' })
+  @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   gameId: string;
 
   @Prop()
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID()
+  @ApiProperty(MONGO_ID_FORMAT)
+  @IsMongoId()
   userId: string;
 }
 
