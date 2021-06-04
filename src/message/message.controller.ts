@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  Request,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
@@ -22,8 +21,9 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
+import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { MemberResolverService } from '../member-resolver/member-resolver.service';
+import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
@@ -42,12 +42,12 @@ export class MessageController {
   ) {
   }
 
-  private async checkParentAndGetMembers(namespace: string, parent: string, request): Promise<string[]> {
+  private async checkParentAndGetMembers(namespace: string, parent: string, user: User): Promise<string[]> {
     const users = await this.memberResolver.resolve(namespace, parent);
     if (!users || users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
     }
-    if (!users.includes(request.user.id)) {
+    if (!users.includes(user._id)) {
       throw new UnauthorizedException('Cannot access messages within inaccessible parent.');
     }
     return users;
@@ -70,7 +70,7 @@ export class MessageController {
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to read messages in an inaccessible parent.` })
   async getAll(
-    @Request() request,
+    @AuthUser() user: User,
     @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Query('createdBefore') createdBefore?: Date,
@@ -83,7 +83,7 @@ export class MessageController {
     if (limit > 100) {
       limit = 100;
     }
-    await this.checkParentAndGetMembers(namespace, parent, request);
+    await this.checkParentAndGetMembers(namespace, parent, user);
     return this.messageService.findBy(namespace, parent, createdBefore, limit);
   }
 
@@ -92,12 +92,12 @@ export class MessageController {
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to read messages in an inaccessible parent.` })
   @NotFound()
   async get(
-    @Request() request,
+    @AuthUser() user: User,
     @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Param('id') id: string,
   ): Promise<Message> {
-    await this.checkParentAndGetMembers(namespace, parent, request);
+    await this.checkParentAndGetMembers(namespace, parent, user);
     return await this.messageService.find(namespace, parent, id);
   }
 
@@ -106,13 +106,13 @@ export class MessageController {
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to create messages in an inaccessible parent.` })
   async create(
-    @Request() request,
+    @AuthUser() user: User,
     @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
-    const users = await this.checkParentAndGetMembers(namespace, parent, request);
-    return this.messageService.create(namespace, parent, request.user.id, message, users);
+    const users = await this.checkParentAndGetMembers(namespace, parent, user);
+    return this.messageService.create(namespace, parent, user._id, message, users);
   }
 
   @Put(':id')
@@ -120,18 +120,18 @@ export class MessageController {
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to change messages in an inaccessible parent, or attempting to change someone else's message.` })
   @NotFound()
   async update(
-    @Request() request,
+    @AuthUser() user: User,
     @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Param('id') id: string,
     @Body() dto: UpdateMessageDto,
   ): Promise<Message> {
-    const users = await this.checkParentAndGetMembers(namespace, parent, request);
+    const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
       return undefined;
     }
-    if (existing.sender !== request.user.id) {
+    if (existing.sender !== user._id) {
       throw new UnauthorizedException('Only the sender can change the message.');
     }
     return this.messageService.update(namespace, parent, id, dto, users);
@@ -142,17 +142,17 @@ export class MessageController {
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to delete messages in an inaccessible parent, or attempting to delete someone else's message.` })
   @NotFound()
   async delete(
-    @Request() request,
+    @AuthUser() user: User,
     @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Param('id') id: string,
   ): Promise<Message> {
-    const users = await this.checkParentAndGetMembers(namespace, parent, request);
+    const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
       return undefined;
     }
-    if (existing.sender !== request.user.id) {
+    if (existing.sender !== user._id) {
       throw new UnauthorizedException('Only the sender can delete the message.');
     }
     return this.messageService.delete(namespace, parent, id, users);

@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Query,
-  Request,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
@@ -18,7 +17,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+import { Auth, AuthUser } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateUserDto, LoginDto, LoginResult, RefreshDto } from './user.dto';
@@ -98,7 +97,7 @@ export class UserController {
   @Auth()
   @ApiOperation({ description: 'Sets the current user offline.' })
   @ApiOkResponse()
-  async logout(@Request() { user }: { user: User }): Promise<void> {
+  async logout(@AuthUser() user: User): Promise<void> {
     return this.userService.logout(user);
   }
 }

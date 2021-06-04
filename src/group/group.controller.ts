@@ -7,13 +7,13 @@ import {
   Post,
   Put,
   Query,
-  Request,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+import { Auth, AuthUser } from '../auth/auth.decorator';
+import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateGroupDto, UpdateGroupDto } from './group.dto';
@@ -41,30 +41,30 @@ export class GroupController {
   })
   @ApiOkResponse({ type: [Group] })
   @ApiUnauthorizedResponse({ description: 'Attempting to get groups in which the current user is not a member.' })
-  async findAll(@Request() request, @Query('members') members?: string): Promise<Group[]> {
+  async findAll(@AuthUser() user: User, @Query('members') members?: string): Promise<Group[]> {
     if (members) {
       const memberList = members.split(',');
-      this.checkMembership(memberList, request);
+      this.checkMembership(memberList, user);
       return this.groupService.findByMembers(memberList);
     }
-    return this.groupService.findByMember(request.user.id);
+    return this.groupService.findByMember(user._id);
   }
 
   @Get(':id')
   @ApiOkResponse({ type: Group })
   @ApiUnauthorizedResponse({ description: 'Attempting to get a group in which the current user is not a member.' })
   @NotFound()
-  async findOne(@Request() request, @Param('id') id: string): Promise<Group | undefined> {
+  async findOne(@AuthUser() user: User, @Param('id') id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
-    this.checkMembership(group.members, request);
+    this.checkMembership(group.members, user);
     return group;
   }
 
   @Post()
   @ApiCreatedResponse({ type: Group })
   @ApiUnauthorizedResponse({ description: 'Attempting to create a group in which the current user is not a member.' })
-  async create(@Request() request, @Body() dto: CreateGroupDto): Promise<Group> {
-    this.checkMembership(dto.members, request);
+  async create(@AuthUser() user: User, @Body() dto: CreateGroupDto): Promise<Group> {
+    this.checkMembership(dto.members, user);
     return this.groupService.create(dto);
   }
 
@@ -72,13 +72,13 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiUnauthorizedResponse({ description: 'Attempting to change a group in which the current user is not or will not be a member.' })
   @NotFound()
-  async update(@Request() request, @Param('id') id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
-    this.checkMembership(dto.members, request);
+  async update(@AuthUser() user: User, @Param('id') id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
+    this.checkMembership(dto.members, user);
     const existing = await this.groupService.find(id);
     if (!existing) {
       return undefined;
     }
-    this.checkMembership(existing.members, request);
+    this.checkMembership(existing.members, user);
     return this.groupService.update(id, dto);
   }
 
@@ -86,17 +86,17 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiUnauthorizedResponse({ description: 'Attempting to delete a group in which the current user is not a member.' })
   @NotFound()
-  async delete(@Request() request, @Param('id') id: string): Promise<Group | undefined> {
+  async delete(@AuthUser() user: User, @Param('id') id: string): Promise<Group | undefined> {
     const existing = await this.groupService.find(id);
     if (!existing) {
       return undefined;
     }
-    this.checkMembership(existing.members, request);
+    this.checkMembership(existing.members, user);
     return this.groupService.delete(id);
   }
 
-  private checkMembership(members: string[], request) {
-    if (!members.includes(request.user.id)) {
+  private checkMembership(members: string[], user: User) {
+    if (!members.includes(user._id)) {
       throw new UnauthorizedException('You are not a member of this group.');
     }
   }

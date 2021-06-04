@@ -8,7 +8,6 @@ import {
   Param,
   Post,
   Put,
-  Request,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
@@ -23,7 +22,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
+import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
+import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
@@ -59,7 +59,11 @@ export class MemberController {
   @ApiCreatedResponse({ type: Member })
   @ApiNotFoundResponse({ description: 'Game not found.' })
   @ApiBadRequestResponse({ description: 'Incorrect password.' })
-  async create(@Param('gameId') gameId: string, @Request() request, @Body() member: CreateMemberDto): Promise<Member> {
+  async create(
+    @AuthUser() user: User,
+    @Param('gameId') gameId: string,
+    @Body() member: CreateMemberDto,
+  ): Promise<Member> {
     const passwordMatch = await this.memberService.checkPassword(gameId, member);
     if (passwordMatch === undefined) {
       throw new NotFoundException(gameId);
@@ -67,7 +71,7 @@ export class MemberController {
       throw new BadRequestException('Incorrect password.');
     }
 
-    return this.memberService.create(gameId, request.user.id, member);
+    return this.memberService.create(gameId, user._id, member);
   }
 
   @Put(':userId')
@@ -75,8 +79,13 @@ export class MemberController {
   @ApiOkResponse({ type: Member })
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to change membership of someone else.` })
   @NotFound('Game or membership not found.')
-  async update(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request, @Body() updateMemberDto: UpdateMemberDto): Promise<Member | undefined> {
-    const access = await this.memberService.checkUserModification(gameId, request.user, userId);
+  async update(
+    @AuthUser() user: User,
+    @Param('gameId') gameId: string,
+    @Param('userId') userId: string,
+    @Body() updateMemberDto: UpdateMemberDto,
+  ): Promise<Member | undefined> {
+    const access = await this.memberService.checkUserModification(gameId, user, userId);
     switch (access) {
       case 'notfound':
         throw new NotFoundException(gameId);
@@ -92,8 +101,12 @@ export class MemberController {
   @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to kick someone else.` })
   @ApiConflictResponse({ description: 'Owner attempted to leave the game.' })
   @NotFound('Game or membership not found.')
-  async delete(@Param('gameId') gameId: string, @Param('userId') userId: string, @Request() request): Promise<Member | undefined> {
-    const access = await this.memberService.checkUserModification(gameId, request.user, userId);
+  async delete(
+    @AuthUser() user: User,
+    @Param('gameId') gameId: string,
+    @Param('userId') userId: string,
+  ): Promise<Member | undefined> {
+    const access = await this.memberService.checkUserModification(gameId, user, userId);
     switch (access) {
       case 'notfound':
         throw new NotFoundException(gameId);
