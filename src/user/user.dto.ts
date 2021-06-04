@@ -23,7 +23,10 @@ export class RefreshDto {
   refreshToken: string;
 }
 
-export class LoginResult extends RefreshDto {
+export class LoginResult extends User {
   @ApiProperty({ format: 'jwt' })
   accessToken: string;
+
+  @ApiProperty({ format: 'jwt' })
+  refreshToken: string;
 }

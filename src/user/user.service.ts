@@ -9,7 +9,7 @@ import { RefreshToken } from '../auth/auth.interface';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { environment } from '../environment';
 import { CreateUserDto, LoginDto, LoginResult, RefreshDto } from './user.dto';
-import { User } from './user.schema';
+import { User, UserDocument } from './user.schema';
 
 @Injectable()
 export class UserService {
@@ -85,6 +85,7 @@ export class UserService {
     const accessPayload = await this.jwtStrategy.generate(user);
     const refreshPayload: RefreshToken = { sub: user._id, refreshKey };
     return {
+      ...(user as UserDocument).toObject(),
       accessToken: this.jwtService.sign(accessPayload),
       refreshToken: this.jwtService.sign(refreshPayload, {
         expiresIn: environment.auth.refreshExpiry,
@@ -105,6 +106,7 @@ export class UserService {
 
     const payload = await this.jwtStrategy.generate(user);
     return {
+      ...(user as UserDocument).toObject(),
       accessToken: this.jwtService.sign(payload),
       refreshToken: dto.refreshToken,
     };
