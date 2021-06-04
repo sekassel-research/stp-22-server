@@ -3,9 +3,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { Model } from 'mongoose';
+import { RefreshToken } from '../auth/auth.interface';
 import { JwtStrategy } from '../auth/jwt.strategy';
-import { CreateUserDto, LoginDto } from './user.dto';
+import { environment } from '../environment';
+import { CreateUserDto, LoginDto, LoginResult, RefreshDto } from './user.dto';
 import { User } from './user.schema';
 
 @Injectable()
@@ -59,7 +62,7 @@ export class UserService {
     };
   }
 
-  async login({ name, password }: LoginDto): Promise<string | undefined> {
+  async login({ name, password }: LoginDto): Promise<LoginResult | undefined> {
     const user = await this.findByName(name);
     if (!user) {
       return undefined;
@@ -70,11 +73,41 @@ export class UserService {
       return undefined;
     }
 
+    let refreshKey = user.refreshKey;
+    if (!refreshKey) {
+      refreshKey = crypto.randomBytes(64).toString('base64');
+      await this.model.findByIdAndUpdate(user._id, { refreshKey }).exec();
+    }
+
     this.online.add(user._id);
     this.eventEmitter2.emit(`users.${user._id}.online`, user);
 
+    const accessPayload = await this.jwtStrategy.generate(user);
+    const refreshPayload: RefreshToken = { sub: user._id, refreshKey };
+    return {
+      accessToken: this.jwtService.sign(accessPayload),
+      refreshToken: this.jwtService.sign(refreshPayload, {
+        expiresIn: environment.auth.refreshExpiry,
+      }),
+    };
+  }
+
+  async refresh(dto: RefreshDto): Promise<LoginResult | undefined> {
+    const refreshToken = this.jwtService.decode(dto.refreshToken) as RefreshToken | null;
+    if (!refreshToken) {
+      return undefined;
+    }
+    const { sub: userId, refreshKey } = refreshToken;
+    const user = await this.model.findOne({ _id: userId, refreshKey }).exec();
+    if (!user) {
+      return undefined;
+    }
+
     const payload = await this.jwtStrategy.generate(user);
-    return this.jwtService.sign(payload);
+    return {
+      accessToken: this.jwtService.sign(payload),
+      refreshToken: dto.refreshToken,
+    };
   }
 
   async logout(user: User) {

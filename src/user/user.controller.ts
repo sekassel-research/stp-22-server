@@ -21,7 +21,7 @@ import {
 import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
-import { CreateUserDto, LoginDto } from './user.dto';
+import { CreateUserDto, LoginDto, LoginResult, RefreshDto } from './user.dto';
 import { User } from './user.schema';
 import { UserService } from './user.service';
 
@@ -71,13 +71,25 @@ export class UserController {
   }
 
   @Post('login')
-  @ApiOperation({ description: 'Log in with user credentials and receive a JSON Web Token.' })
-  @ApiCreatedResponse({ type: String })
+  @ApiOperation({ description: 'Log in with user credentials.' })
+  @ApiCreatedResponse({ type: LoginResult })
   @ApiUnauthorizedResponse({ description: 'Invalid username or password' })
-  async login(@Body() dto: LoginDto): Promise<string> {
+  async login(@Body() dto: LoginDto): Promise<LoginResult> {
     const token = await this.userService.login(dto);
     if (!token) {
       throw new UnauthorizedException('Invalid username or password');
+    }
+    return token;
+  }
+
+  @Post('refresh')
+  @ApiOperation({ description: 'Log in with a refresh token.' })
+  @ApiCreatedResponse({ type: LoginResult })
+  @ApiUnauthorizedResponse({ description: 'Invalid or expired refresh token' })
+  async refresh(@Body() dto: RefreshDto): Promise<LoginResult> {
+    const token = await this.userService.refresh(dto);
+    if (!token) {
+      throw new UnauthorizedException('Invalid or expired refresh token.');
     }
     return token;
   }

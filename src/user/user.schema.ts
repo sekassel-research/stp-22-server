@@ -14,6 +14,9 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
 
   @Prop({ transform: () => undefined })
   passwordHash?: string;
+
+  @Prop({ transform: () => undefined})
+  refreshKey?: string;
 }
 
 export type UserDocument = User & Document;

@@ -17,3 +17,13 @@ export class CreateUserDto extends UsernameAndPassword {
 
 export class LoginDto extends UsernameAndPassword {
 }
+
+export class RefreshDto {
+  @ApiProperty({ format: 'jwt' })
+  refreshToken: string;
+}
+
+export class LoginResult extends RefreshDto {
+  @ApiProperty({ format: 'jwt' })
+  accessToken: string;
+}
