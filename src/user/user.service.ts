@@ -17,7 +17,7 @@ export class UserService {
 
   constructor(
     @InjectModel('users') private model: Model<User>,
-    private eventEmitter2: EventEmitter2,
+    private eventEmitter: EventEmitter2,
     private jwtService: JwtService,
     private jwtStrategy: JwtStrategy,
   ) {
@@ -48,19 +48,19 @@ export class UserService {
     }
 
     const created = await this.model.create(await this.hash(dto));
-    created && this.eventEmitter2.emit(`users.${created._id}.created`, created);
+    created && this.emit('created', created);
     return created;
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto)).exec();
-    updated && this.eventEmitter2.emit(`users.${id}.updated`, updated);
+    updated && this.emit('updated', updated);
     return updated;
   }
 
   async delete(id: string): Promise<User | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
-    deleted && this.eventEmitter2.emit(`users.${id}.deleted`, deleted);
+    deleted && this.emit('deleted', deleted);
     return deleted;
   }
 
@@ -92,7 +92,7 @@ export class UserService {
     }
 
     this.online.add(user._id);
-    this.eventEmitter2.emit(`users.${user._id}.online`, user);
+    this.emit('online', user);
 
     const accessPayload = await this.jwtStrategy.generate(user);
     const refreshPayload: RefreshToken = { sub: user._id, refreshKey };
@@ -126,6 +126,10 @@ export class UserService {
 
   async logout(user: User) {
     this.online.delete(user._id);
-    this.eventEmitter2.emit(`users.${user._id}.offline`, user);
+    this.emit('offline', user);
+  }
+
+  private emit(event: string, user: User) {
+    this.eventEmitter.emit(`users.${user._id}.${event}`, user);
   }
 }
