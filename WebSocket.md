@@ -1,17 +1,17 @@
-### Asynchronous WebSocket
+# Asynchronous WebSocket
 
 The asynchronous WebSocket is available under the `/ws` path.
 It accepts incoming commands and sends outgoing events.
 To receive events, you first need to subscribe to them.
 
-#### Authentication
+## Authentication
 
 To connect to the WebSocket, you need to authenticate yourself using a JWT.
 You can pass the token either via `Authorization: Bearer <Token>` header,
 or using the query parameter `authHeader` in the endpoint URL.
 Failing to provide a (valid) token will cause the WebSocket to disconnect automatically.
 
-#### Commands
+## Commands
 
 The WebSocket supports the following commands:
 
@@ -26,7 +26,7 @@ Commands are sent as JSON, for example:
 {"event":"subscribe","data":"game.*"}
 ```
 
-#### Events
+## Events
 
 Events are subscribed to and unsubscribed from using the commands described above.
 Each event has a qualified name consisting of one or segments separated by periods (`.`).
