@@ -26,13 +26,14 @@ import { MemberResolverService } from '../member-resolver/member-resolver.servic
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
+import { Validated } from '../util/validated.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
 @Controller(':namespace/:parent/messages')
 @ApiTags('Messages')
-@UsePipes(ValidationPipe)
+@Validated()
 @Auth()
 @Throttled()
 export class MessageController {

@@ -26,13 +26,14 @@ import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
+import { Validated } from '../util/validated.decorator';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
 import { Member } from './member.schema';
 import { MemberService } from './member.service';
 
 @Controller('games/:gameId/members')
 @ApiTags('Game Members')
-@UsePipes(ValidationPipe)
+@Validated()
 @Auth()
 @Throttled()
 export class MemberController {

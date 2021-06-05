@@ -8,21 +8,20 @@ import {
   Post,
   Put,
   UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
+import { Validated } from '../util/validated.decorator';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
 import { Game } from './game.schema';
 import { GameService } from './game.service';
 
 @Controller('games')
 @ApiTags('Games')
-@UsePipes(ValidationPipe)
+@Validated()
 @Auth()
 @Throttled()
 export class GameController {

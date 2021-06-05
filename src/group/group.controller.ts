@@ -16,13 +16,14 @@ import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
+import { Validated } from '../util/validated.decorator';
 import { CreateGroupDto, UpdateGroupDto } from './group.dto';
 import { Group } from './group.schema';
 import { GroupService } from './group.service';
 
 @Controller('groups')
 @ApiTags('Groups')
-@UsePipes(ValidationPipe)
+@Validated()
 @Auth()
 @Throttled()
 export class GroupController {
