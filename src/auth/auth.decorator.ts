@@ -2,7 +2,6 @@ import { applyDecorators, createParamDecorator, ExecutionContext, UseGuards } fr
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { User } from '../user/user.schema';
-import { AuthErrorDto } from './auth.dto';
 
 export const DEFAULT_DESCRIPTION = 'Missing or invalid Bearer token.';
 
@@ -12,7 +11,6 @@ export function Auth() {
     ApiBearerAuth(),
     ApiUnauthorizedResponse({
       description: DEFAULT_DESCRIPTION,
-      type: AuthErrorDto,
     }),
   );
 }
