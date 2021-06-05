@@ -1,27 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
-import { Auth, AuthUser } from '../auth/auth.decorator';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Auth } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
-import { CreateUserDto, LoginDto, LoginResult, RefreshDto } from './user.dto';
+import { CreateUserDto } from './user.dto';
 import { User } from './user.schema';
 import { UserService } from './user.service';
 
@@ -68,37 +51,5 @@ export class UserController {
   @ApiCreatedResponse({ type: User })
   async create(@Body() dto: CreateUserDto): Promise<User> {
     return this.userService.create(dto);
-  }
-
-  @Post('login')
-  @ApiOperation({ description: 'Log in with user credentials.' })
-  @ApiCreatedResponse({ type: LoginResult })
-  @ApiUnauthorizedResponse({ description: 'Invalid username or password' })
-  async login(@Body() dto: LoginDto): Promise<LoginResult> {
-    const token = await this.userService.login(dto);
-    if (!token) {
-      throw new UnauthorizedException('Invalid username or password');
-    }
-    return token;
-  }
-
-  @Post('refresh')
-  @ApiOperation({ description: 'Log in with a refresh token.' })
-  @ApiCreatedResponse({ type: LoginResult })
-  @ApiUnauthorizedResponse({ description: 'Invalid or expired refresh token' })
-  async refresh(@Body() dto: RefreshDto): Promise<LoginResult> {
-    const token = await this.userService.refresh(dto);
-    if (!token) {
-      throw new UnauthorizedException('Invalid or expired refresh token.');
-    }
-    return token;
-  }
-
-  @Post('logout')
-  @Auth()
-  @ApiOperation({ description: 'Sets the current user offline.' })
-  @ApiOkResponse()
-  async logout(@AuthUser() user: User): Promise<void> {
-    return this.userService.logout(user);
   }
 }
