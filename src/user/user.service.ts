@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { RefreshToken } from '../auth/auth.interface';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { environment } from '../environment';
-import { CreateUserDto, LoginDto, LoginResult, RefreshDto } from './user.dto';
+import { CreateUserDto, LoginDto, LoginResult, RefreshDto, UpdateUserDto } from './user.dto';
 import { User, UserDocument } from './user.schema';
 
 @Injectable()
@@ -50,6 +50,18 @@ export class UserService {
     const created = await this.model.create(await this.hash(dto));
     created && this.eventEmitter2.emit(`users.${created._id}.created`, created);
     return created;
+  }
+
+  async update(id: string, dto: UpdateUserDto): Promise<User | undefined> {
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto)).exec();
+    updated && this.eventEmitter2.emit(`users.${id}.updated`, updated);
+    return updated;
+  }
+
+  async delete(id: string): Promise<User | undefined> {
+    const deleted = await this.model.findByIdAndDelete(id).exec();
+    deleted && this.eventEmitter2.emit(`users.${id}.deleted`, deleted);
+    return deleted;
   }
 
   private async hash(dto: CreateUserDto) {

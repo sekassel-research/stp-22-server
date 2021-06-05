@@ -1,10 +1,17 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Auth } from '../auth/auth.decorator';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Auth, AuthUser } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
-import { CreateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.schema';
 import { UserService } from './user.service';
 
@@ -51,5 +58,36 @@ export class UserController {
   @ApiCreatedResponse({ type: User })
   async create(@Body() dto: CreateUserDto): Promise<User> {
     return this.userService.create(dto);
+  }
+
+  @Put(':id')
+  @Auth()
+  @NotFound()
+  @ApiOkResponse({ type: User })
+  @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s user.' })
+  async update(
+    @AuthUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+  ): Promise<User | undefined> {
+    if (id !== user._id) {
+      throw new ForbiddenException('Cannot change someone else\'s user.');
+    }
+    return this.userService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @Auth()
+  @NotFound()
+  @ApiOkResponse({ type: User })
+  @ApiForbiddenResponse({ description: 'Attempt to delete someone else\'s user.' })
+  async delete(
+    @AuthUser() user: User,
+    @Param('id') id: string,
+  ): Promise<User | undefined> {
+    if (id !== user._id) {
+      throw new ForbiddenException('Cannot delete someone else\'s user.');
+    }
+    return this.userService.delete(id);
   }
 }

@@ -15,6 +15,9 @@ class UsernameAndPassword extends PickType(User, [
 export class CreateUserDto extends UsernameAndPassword {
 }
 
+export class UpdateUserDto extends UsernameAndPassword {
+}
+
 export class LoginDto extends UsernameAndPassword {
 }
 
