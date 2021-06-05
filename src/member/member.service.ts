@@ -45,7 +45,7 @@ export class MemberService {
     const created = await this.model.create({ ...member, password: undefined, userId, gameId });
     if (created) {
       await this.gameService.changeMembers(gameId, +1);
-      this.eventEmitter.emit(`games.${gameId}.members.${userId}.created`, created);
+      this.emit('created', created);
     }
     return created;
   }
@@ -60,14 +60,14 @@ export class MemberService {
 
   async update(gameId: string, userId: string, member: UpdateMemberDto): Promise<Member | undefined> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, member).exec();
-    updated && this.eventEmitter.emit(`games.${gameId}.members.${userId}.updated`, updated);
+    updated && this.emit('updated', updated);
     return updated;
   }
 
   async deleteGame(gameId: string): Promise<Member[]> {
     const members = await this.findAll(gameId);
     for (const member of members) {
-      this.eventEmitter.emit(`games.${gameId}.members.${member.userId}.deleted`, member);
+      this.emit('deleted', member);
     }
     await this.model.deleteMany({ gameId }).exec();
     return members;
@@ -76,7 +76,7 @@ export class MemberService {
   async deleteUser(userId: string): Promise<Member[]> {
     const members = await this.model.find({ userId }).exec();
     for (const member of members) {
-      this.eventEmitter.emit(`games.${member.gameId}.members.${userId}.deleted`, member);
+      this.emit('deleted', member);
     }
     await this.model.deleteMany({ userId }).exec();
     return members;
@@ -86,8 +86,12 @@ export class MemberService {
     const deleted = await this.model.findOneAndDelete({ gameId, userId }).exec();
     if (deleted) {
       await this.gameService.changeMembers(gameId, -1);
-      this.eventEmitter.emit(`games.${gameId}.members.${userId}.deleted`, deleted);
+      this.emit('deleted', deleted);
     }
     return deleted;
+  }
+
+  private emit(event: string, member: Member): void {
+    this.eventEmitter.emit(`games.${member.gameId}.members.${member.userId}.${event}`, member);
   }
 }
