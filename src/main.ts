@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import { AppModule } from './app.module';
 import { environment } from './environment';
+import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 
 // language=markdown
 const description = `
@@ -23,6 +24,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useWebSocketAdapter(new WsAdapter(app));
+  app.useGlobalFilters(new ThrottlerExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('STP Server')
