@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Delete,
+  Delete, ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -9,7 +9,14 @@ import {
   Put,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
@@ -54,14 +61,14 @@ export class GameController {
   @NotFound()
   @ApiOperation({ description: 'Change a game as owner.' })
   @ApiOkResponse({ type: Game })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to change a game that the current user does not own.` })
+  @ApiForbiddenResponse({ description: 'Attempt to change a game that the current user does not own.'})
   async update(@AuthUser() user: User, @Param('id') id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {
       throw new NotFoundException(id);
     }
     if (existing.owner !== user._id) {
-      throw new UnauthorizedException('Only the owner can change the game.');
+      throw new ForbiddenException('Only the owner can change the game.');
     }
     // FIXME this allows changing the owner to someone who is not a member!
     return this.gameService.update(id, updateGameDto);
@@ -71,14 +78,14 @@ export class GameController {
   @NotFound()
   @ApiOperation({ description: 'Delete a game as owner. All members will be automatically kicked.' })
   @ApiOkResponse({ type: Game })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to delete a game that the current user does not own.` })
+  @ApiForbiddenResponse({ description: 'Attempt to delete a game that the current user does not own.' })
   async delete(@AuthUser() user: User, @Param('id') id: string): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {
       throw new NotFoundException(id);
     }
     if (existing.owner !== user._id) {
-      throw new UnauthorizedException('Only the owner can delete the game.');
+      throw new ForbiddenException('Only the owner can delete the game.');
     }
     return this.gameService.delete(id);
   }

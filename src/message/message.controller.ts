@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Delete,
+  Delete, ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import {
-  ApiCreatedResponse,
+  ApiCreatedResponse, ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -49,7 +49,7 @@ export class MessageController {
       throw new NotFoundException(`${namespace}/${parent}`);
     }
     if (!users.includes(user._id)) {
-      throw new UnauthorizedException('Cannot access messages within inaccessible parent.');
+      throw new ForbiddenException('Cannot access messages within inaccessible parent.');
     }
     return users;
   }
@@ -69,7 +69,7 @@ export class MessageController {
   })
   @ApiOkResponse({ type: [Message] })
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to read messages in an inaccessible parent.` })
+  @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   async getAll(
     @AuthUser() user: User,
     @Param('namespace') namespace: string,
@@ -90,7 +90,7 @@ export class MessageController {
 
   @Get(':id')
   @ApiOkResponse({ type: Message })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to read messages in an inaccessible parent.` })
+  @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   @NotFound()
   async get(
     @AuthUser() user: User,
@@ -105,7 +105,7 @@ export class MessageController {
   @Post()
   @ApiCreatedResponse({ type: Message })
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to create messages in an inaccessible parent.` })
+  @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
   async create(
     @AuthUser() user: User,
     @Param('namespace') namespace: string,
@@ -118,7 +118,7 @@ export class MessageController {
 
   @Put(':id')
   @ApiOkResponse({ type: Message })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to change messages in an inaccessible parent, or attempting to change someone else's message.` })
+  @ApiForbiddenResponse({ description: 'Attempt to change messages in an inaccessible parent, or to change someone else\'s message.' })
   @NotFound()
   async update(
     @AuthUser() user: User,
@@ -133,14 +133,14 @@ export class MessageController {
       return undefined;
     }
     if (existing.sender !== user._id) {
-      throw new UnauthorizedException('Only the sender can change the message.');
+      throw new ForbiddenException('Only the sender can change the message.');
     }
     return this.messageService.update(namespace, parent, id, dto, users);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: Message })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or attempting to delete messages in an inaccessible parent, or attempting to delete someone else's message.` })
+  @ApiForbiddenResponse({ description: 'Attempt to delete messages in an inaccessible parent, or to delete someone else\'s message.' })
   @NotFound()
   async delete(
     @AuthUser() user: User,
@@ -154,7 +154,7 @@ export class MessageController {
       return undefined;
     }
     if (existing.sender !== user._id) {
-      throw new UnauthorizedException('Only the sender can delete the message.');
+      throw new ForbiddenException('Only the sender can delete the message.');
     }
     return this.messageService.delete(namespace, parent, id, users);
   }

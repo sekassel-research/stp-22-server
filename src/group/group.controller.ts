@@ -1,17 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
@@ -41,7 +29,7 @@ export class GroupController {
       'Otherwise, returns all groups in which the current user is a member.',
   })
   @ApiOkResponse({ type: [Group] })
-  @ApiUnauthorizedResponse({ description: 'Attempting to get groups in which the current user is not a member.' })
+  @ApiForbiddenResponse({ description: 'Attempt to get groups in which the current user is not a member.' })
   async findAll(@AuthUser() user: User, @Query('members') members?: string): Promise<Group[]> {
     if (members) {
       const memberList = members.split(',');
@@ -53,7 +41,7 @@ export class GroupController {
 
   @Get(':id')
   @ApiOkResponse({ type: Group })
-  @ApiUnauthorizedResponse({ description: 'Attempting to get a group in which the current user is not a member.' })
+  @ApiForbiddenResponse({ description: 'Attempt to get a group in which the current user is not a member.' })
   @NotFound()
   async findOne(@AuthUser() user: User, @Param('id') id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
@@ -63,7 +51,7 @@ export class GroupController {
 
   @Post()
   @ApiCreatedResponse({ type: Group })
-  @ApiUnauthorizedResponse({ description: 'Attempting to create a group in which the current user is not a member.' })
+  @ApiForbiddenResponse({ description: 'Attempt to create a group in which the current user is not a member.' })
   async create(@AuthUser() user: User, @Body() dto: CreateGroupDto): Promise<Group> {
     this.checkMembership(dto.members, user);
     return this.groupService.create(dto);
@@ -71,7 +59,7 @@ export class GroupController {
 
   @Put(':id')
   @ApiOkResponse({ type: Group })
-  @ApiUnauthorizedResponse({ description: 'Attempting to change a group in which the current user is not or will not be a member.' })
+  @ApiForbiddenResponse({ description: 'Attempt to change a group in which the current user is not or will not be a member.' })
   @NotFound()
   async update(@AuthUser() user: User, @Param('id') id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
     this.checkMembership(dto.members, user);
@@ -85,7 +73,7 @@ export class GroupController {
 
   @Delete(':id')
   @ApiOkResponse({ type: Group })
-  @ApiUnauthorizedResponse({ description: 'Attempting to delete a group in which the current user is not a member.' })
+  @ApiForbiddenResponse({ description: 'Attempt to delete a group in which the current user is not a member.' })
   @NotFound()
   async delete(@AuthUser() user: User, @Param('id') id: string): Promise<Group | undefined> {
     const existing = await this.groupService.find(id);
@@ -98,7 +86,7 @@ export class GroupController {
 
   private checkMembership(members: string[], user: User) {
     if (!members.includes(user._id)) {
-      throw new UnauthorizedException('You are not a member of this group.');
+      throw new ForbiddenException('You are not a member of this group.');
     }
   }
 }

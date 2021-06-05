@@ -1,8 +1,8 @@
 import {
   BadRequestException,
-  Body,
+  Body, ConflictException,
   Controller,
-  Delete,
+  Delete, ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -15,7 +15,7 @@ import {
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
-  ApiCreatedResponse,
+  ApiCreatedResponse, ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -78,7 +78,7 @@ export class MemberController {
   @Put(':userId')
   @ApiOperation({ description: 'Change game membership for the current user.' })
   @ApiOkResponse({ type: Member })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to change membership of someone else.` })
+  @ApiForbiddenResponse({ description: 'Attempt to change membership of someone else without being owner.' })
   @NotFound('Game or membership not found.')
   async update(
     @AuthUser() user: User,
@@ -91,7 +91,7 @@ export class MemberController {
       case 'notfound':
         throw new NotFoundException(gameId);
       case 'unauthorized':
-        throw new UnauthorizedException('Cannot change membership of another user.');
+        throw new ForbiddenException('Cannot change membership of another user.');
     }
     return this.memberService.update(gameId, userId, updateMemberDto);
   }
@@ -99,7 +99,7 @@ export class MemberController {
   @Delete(':userId')
   @ApiOperation({ description: 'Leave a game with the current user.' })
   @ApiOkResponse({ type: Member })
-  @ApiUnauthorizedResponse({ description: `${DEFAULT_DESCRIPTION}, or when a non-owner attempts to kick someone else.` })
+  @ApiForbiddenResponse({ description: 'Attempt to kick someone else without being owner.' })
   @ApiConflictResponse({ description: 'Owner attempted to leave the game.' })
   @NotFound('Game or membership not found.')
   async delete(
@@ -112,9 +112,9 @@ export class MemberController {
       case 'notfound':
         throw new NotFoundException(gameId);
       case 'unauthorized':
-        throw new UnauthorizedException('Cannot kick another user.');
+        throw new ForbiddenException('Cannot kick another user.');
       case 'owner':
-        throw new BadRequestException('Cannot leave game as owner.');
+        throw new ConflictException('Cannot leave game as owner.');
     }
     return this.memberService.delete(gameId, userId);
   }
