@@ -64,12 +64,21 @@ export class MemberService {
     return updated;
   }
 
-  async deleteAll(gameId: string): Promise<Member[]> {
+  async deleteGame(gameId: string): Promise<Member[]> {
     const members = await this.findAll(gameId);
     for (const member of members) {
       this.eventEmitter.emit(`games.${gameId}.members.${member.userId}.deleted`, member);
     }
     await this.model.deleteMany({ gameId }).exec();
+    return members;
+  }
+
+  async deleteUser(userId: string): Promise<Member[]> {
+    const members = await this.model.find({ userId }).exec();
+    for (const member of members) {
+      this.eventEmitter.emit(`games.${member.gameId}.members.${userId}.deleted`, member);
+    }
+    await this.model.deleteMany({ userId }).exec();
     return members;
   }
 

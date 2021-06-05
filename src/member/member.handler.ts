@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Game } from '../game/game.schema';
+import { User } from '../user/user.schema';
 import { MemberService } from './member.service';
 
 @Injectable()
@@ -17,6 +18,11 @@ export class MemberHandler {
 
   @OnEvent('games.*.deleted')
   async onGameDeleted(game: Game): Promise<void> {
-    await this.memberService.deleteAll(game._id);
+    await this.memberService.deleteGame(game._id);
+  }
+
+  @OnEvent('users.*.deleted')
+  async onUserDelete(user: User): Promise<void> {
+    await this.memberService.deleteUser(user._id);
   }
 }
