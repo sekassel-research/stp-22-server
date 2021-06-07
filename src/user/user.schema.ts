@@ -4,6 +4,8 @@ import { IsByteLength, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-val
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
+const MAX_AVATAR_LENGTH = 16 * 1024;
+
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, timestamps: false })
 export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
   @Prop({ index: { type: 1, unique: true } })
@@ -15,8 +17,8 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
   @Prop()
   @IsOptional()
   @IsUrl()
-  @IsByteLength(undefined, 4096)
-  @ApiProperty({ format: 'url', required: false, maxLength: 4096 })
+  @IsByteLength(0, MAX_AVATAR_LENGTH)
+  @ApiProperty({ format: 'url', required: false, maxLength: MAX_AVATAR_LENGTH })
   avatar?: string;
 
   @Prop({ transform: () => undefined })
