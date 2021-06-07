@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsByteLength, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
@@ -11,6 +11,13 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
   @IsNotEmpty()
   @ApiProperty()
   name: string;
+
+  @Prop()
+  @IsOptional()
+  @IsUrl()
+  @IsByteLength(undefined, 4096)
+  @ApiProperty({ format: 'url', required: false, maxLength: 4096 })
+  avatar?: string;
 
   @Prop({ transform: () => undefined })
   passwordHash?: string;
