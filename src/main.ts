@@ -7,7 +7,7 @@ import { environment } from './environment';
 import { ErrorResponse, ValidationErrorResponse } from './util/error-response';
 import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 
-const generalInfo = fs.readFileSync(`${__dirname}/../GeneralInfo.md`).toString()
+const generalInfo = fs.readFileSync(`${__dirname}/../REST.md`).toString()
   .replace(/\$\{environment\.(\w+)\.(\w+)}/g, (fullMatch, category, key) => environment[category][key]);
 const webSocket = fs.readFileSync(`${__dirname}/../WebSocket.md`).toString();
 const description = generalInfo + webSocket;
