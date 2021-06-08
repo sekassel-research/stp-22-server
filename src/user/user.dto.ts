@@ -1,4 +1,4 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsByteLength, IsNotEmpty, IsString } from 'class-validator';
 import { User } from './user.schema';
 
@@ -16,7 +16,7 @@ class UserAndPassword extends PickType(User, [
 export class CreateUserDto extends UserAndPassword {
 }
 
-export class UpdateUserDto extends UserAndPassword {
+export class UpdateUserDto extends PartialType(UserAndPassword) {
 }
 
 export class LoginDto extends PickType(UserAndPassword, ['name', 'password']) {

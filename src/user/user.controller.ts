@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -60,7 +60,7 @@ export class UserController {
     return this.userService.create(dto);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @Auth()
   @NotFound()
   @ApiOkResponse({ type: User })

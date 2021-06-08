@@ -64,14 +64,14 @@ export class UserService {
     return deleted;
   }
 
-  private async hash(dto: CreateUserDto) {
-    const passwordSalt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(dto.password, passwordSalt);
-    return {
-      ...dto,
-      password: undefined,
-      passwordHash,
-    };
+  private async hash(dto: UpdateUserDto): Promise<Partial<User>> {
+    const { password, ...rest } = dto;
+    const result: Partial<User> = rest;
+    if (password !== undefined) {
+      const passwordSalt = await bcrypt.genSalt();
+      result.passwordHash = await bcrypt.hash(dto.password, passwordSalt);
+    }
+    return result;
   }
 
   async login({ name, password }: LoginDto): Promise<LoginResult | undefined> {
