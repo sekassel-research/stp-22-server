@@ -27,16 +27,19 @@ export class MemberService {
     return bcrypt.compare(member.password, game.passwordHash);
   }
 
-  async checkUserModification(gameId: string, actingUser: User, targetUser: string): Promise<'notfound' | 'owner' | 'target' | 'unauthorized'> {
+  async checkUserModification(gameId: string, actingUser: User, targetUser: string): Promise<'notfound' | 'owner' | 'owner-target' | 'target' | 'unauthorized'> {
     const game = await this.gameService.findOne(gameId);
     if (!game) {
       return 'notfound';
     }
+    if (actingUser._id === targetUser) {
+      if (actingUser._id === game.owner) {
+        return 'owner-target';
+      }
+      return 'target';
+    }
     if (actingUser._id === game.owner) {
       return 'owner';
-    }
-    if (actingUser._id === targetUser) {
-      return 'target';
     }
     return 'unauthorized';
   }

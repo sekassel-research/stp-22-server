@@ -112,7 +112,7 @@ export class MemberController {
         throw new NotFoundException(gameId);
       case 'unauthorized':
         throw new ForbiddenException('Cannot kick another user.');
-      case 'owner':
+      case 'owner-target':
         throw new ConflictException('Cannot leave game as owner.');
     }
     return this.memberService.delete(gameId, userId);
