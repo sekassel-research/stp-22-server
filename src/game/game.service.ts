@@ -15,12 +15,9 @@ export class GameService {
   ) {
   }
 
-  private async hash(owner: string, dto: CreateGameDto | UpdateGameDto): Promise<Partial<Game>> {
+  private async hash(dto: UpdateGameDto): Promise<Partial<Game>> {
     const { password, ...rest } = dto;
-    const result: Partial<Game> = {
-      owner,
-      ...rest,
-    };
+    const result: Partial<Game> = rest;
     if (password !== undefined) {
       const passwordSalt = await bcrypt.genSalt();
       result.passwordHash = await bcrypt.hash(password, passwordSalt);
@@ -29,7 +26,7 @@ export class GameService {
   }
 
   async create(owner: User, game: CreateGameDto): Promise<Game> {
-    const created = await this.model.create(await this.hash(owner._id, game));
+    const created = await this.model.create(await this.hash({ ...game, owner: owner._id }));
     created && this.emit('created', created);
     return created;
   }
@@ -43,7 +40,7 @@ export class GameService {
   }
 
   async update(id: string, dto: UpdateGameDto): Promise<Game | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto.owner, dto)).exec();
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto)).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
