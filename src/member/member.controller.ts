@@ -1,28 +1,27 @@
 import {
   BadRequestException,
-  Body, ConflictException,
+  Body,
+  ConflictException,
   Controller,
-  Delete, ForbiddenException,
+  Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
-  Put,
-  UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
-  ApiCreatedResponse, ApiForbiddenResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
+import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -75,7 +74,7 @@ export class MemberController {
     return this.memberService.create(gameId, user._id, member);
   }
 
-  @Put(':userId')
+  @Patch(':userId')
   @ApiOperation({ description: 'Change game membership for the current user.' })
   @ApiOkResponse({ type: Member })
   @ApiForbiddenResponse({ description: 'Attempt to change membership of someone else without being owner.' })
@@ -84,7 +83,7 @@ export class MemberController {
     @AuthUser() user: User,
     @Param('gameId') gameId: string,
     @Param('userId') userId: string,
-    @Body() updateMemberDto: UpdateMemberDto,
+    @Body() dto: UpdateMemberDto,
   ): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, user, userId);
     switch (access) {
@@ -93,7 +92,7 @@ export class MemberController {
       case 'unauthorized':
         throw new ForbiddenException('Cannot change membership of another user.');
     }
-    return this.memberService.update(gameId, userId, updateMemberDto);
+    return this.memberService.update(gameId, userId, dto);
   }
 
   @Delete(':userId')
