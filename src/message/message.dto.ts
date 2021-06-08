@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
 import { Message } from './message.schema';
 
 export class CreateMessageDto extends PickType(Message, [
@@ -6,7 +6,7 @@ export class CreateMessageDto extends PickType(Message, [
 ] as const) {
 }
 
-export class UpdateMessageDto extends PickType(Message, [
+export class UpdateMessageDto extends PartialType(PickType(Message, [
   'body',
-] as const) {
+] as const)) {
 }

@@ -1,27 +1,25 @@
 import {
   Body,
   Controller,
-  Delete, ForbiddenException,
+  Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
-  UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
-  ApiCreatedResponse, ApiForbiddenResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
+import { Auth, AuthUser } from '../auth/auth.decorator';
 import { MemberResolverService } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
@@ -116,7 +114,7 @@ export class MessageController {
     return this.messageService.create(namespace, parent, user._id, message, users);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to change messages in an inaccessible parent, or to change someone else\'s message.' })
   @NotFound()
