@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
@@ -57,7 +57,7 @@ export class GroupController {
     return this.groupService.create(dto);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to change a group in which the current user is not or will not be a member.' })
   @NotFound()
