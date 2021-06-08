@@ -1,23 +1,16 @@
 import {
   Body,
   Controller,
-  Delete, ForbiddenException,
+  Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
-  Put,
-  UnauthorizedException,
 } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
-import { Auth, AuthUser, DEFAULT_DESCRIPTION } from '../auth/auth.decorator';
+import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
@@ -57,12 +50,12 @@ export class GameController {
     return this.gameService.create(user, createGameDto);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @NotFound()
   @ApiOperation({ description: 'Change a game as owner.' })
   @ApiOkResponse({ type: Game })
-  @ApiForbiddenResponse({ description: 'Attempt to change a game that the current user does not own.'})
-  async update(@AuthUser() user: User, @Param('id') id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game | undefined> {
+  @ApiForbiddenResponse({ description: 'Attempt to change a game that the current user does not own.' })
+  async update(@AuthUser() user: User, @Param('id') id: string, @Body() dto: UpdateGameDto): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {
       throw new NotFoundException(id);
@@ -71,7 +64,7 @@ export class GameController {
       throw new ForbiddenException('Only the owner can change the game.');
     }
     // FIXME this allows changing the owner to someone who is not a member!
-    return this.gameService.update(id, updateGameDto);
+    return this.gameService.update(id, dto);
   }
 
   @Delete(':id')

@@ -1,4 +1,4 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Game } from './game.schema';
 
@@ -15,9 +15,9 @@ export class CreateGameDto extends PickType(GameWithPassword, [
 ] as const) {
 }
 
-export class UpdateGameDto extends PickType(GameWithPassword, [
+export class UpdateGameDto extends PartialType(PickType(GameWithPassword, [
   'name',
   'owner',
   'password',
-] as const) {
+] as const)) {
 }
