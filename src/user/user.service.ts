@@ -53,7 +53,7 @@ export class UserService {
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto)).exec();
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
@@ -88,7 +88,7 @@ export class UserService {
     let refreshKey = user.refreshKey;
     if (!refreshKey) {
       refreshKey = crypto.randomBytes(64).toString('base64');
-      await this.model.findByIdAndUpdate(user._id, { refreshKey }).exec();
+      await this.model.findByIdAndUpdate(user._id, { refreshKey }, { new: true }).exec();
     }
 
     this.online.add(user._id);

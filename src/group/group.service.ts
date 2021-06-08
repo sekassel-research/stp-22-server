@@ -37,7 +37,7 @@ export class GroupService {
     if (dto.members) {
       dto.members = this.normalizeMembers(dto.members);
     }
-    const updated = await this.model.findByIdAndUpdate(id, dto).exec();
+    const updated = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec();
     // FIXME when someone is removed from the group, he does not receive the event
     updated && this.emit('updated', updated);
     return updated;

@@ -44,7 +44,7 @@ export class MessageService {
   }
 
   async update(namespace: string, parent: string, _id: string, dto: UpdateMessageDto, users: string[]): Promise<MessageDocument | undefined> {
-    const updated = await this.model.findOneAndUpdate({ namespace, parent, _id }, dto).exec();
+    const updated = await this.model.findOneAndUpdate({ namespace, parent, _id }, dto, { new: true }).exec();
     updated && this.sendEvent('updated', updated, users);
     return updated;
   }

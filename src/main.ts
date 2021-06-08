@@ -9,8 +9,6 @@ import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 
 // FIXME Most PATCH endpoints allow putting null as a property value,
 //       which kind of corrupts the data.
-// FIXME Most PATCH endpoints return the old document,
-//       due to missing { new: true } in findByIdAndUpdate options.
 
 const generalInfo = fs.readFileSync(`${__dirname}/../REST.md`).toString()
   .replace(/\$\{environment\.(\w+)\.(\w+)}/g, (fullMatch, category, key) => environment[category][key]);

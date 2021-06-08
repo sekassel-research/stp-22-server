@@ -40,13 +40,13 @@ export class GameService {
   }
 
   async update(id: string, dto: UpdateGameDto): Promise<Game | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto)).exec();
+    const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
   async changeMembers(id: string, delta: number): Promise<Game | undefined> {
-    const updated = await this.model.findByIdAndUpdate(id, { $inc: { members: delta } });
+    const updated = await this.model.findByIdAndUpdate(id, { $inc: { members: delta } }, { new: true });
     updated && this.emit('updated', updated);
     return updated;
   }

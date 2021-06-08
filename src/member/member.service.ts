@@ -62,7 +62,7 @@ export class MemberService {
   }
 
   async update(gameId: string, userId: string, dto: UpdateMemberDto): Promise<Member | undefined> {
-    const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto).exec();
+    const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
