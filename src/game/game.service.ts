@@ -18,7 +18,7 @@ export class GameService {
   private async hash(dto: UpdateGameDto): Promise<Partial<Game>> {
     const { password, ...rest } = dto;
     const result: Partial<Game> = rest;
-    if (password !== undefined) {
+    if (password) {
       const passwordSalt = await bcrypt.genSalt();
       result.passwordHash = await bcrypt.hash(password, passwordSalt);
     }

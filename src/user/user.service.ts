@@ -67,9 +67,9 @@ export class UserService {
   private async hash(dto: UpdateUserDto): Promise<Partial<User>> {
     const { password, ...rest } = dto;
     const result: Partial<User> = rest;
-    if (password !== undefined) {
+    if (password) {
       const passwordSalt = await bcrypt.genSalt();
-      result.passwordHash = await bcrypt.hash(dto.password, passwordSalt);
+      result.passwordHash = await bcrypt.hash(password, passwordSalt);
     }
     return result;
   }
