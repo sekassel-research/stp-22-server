@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsMongoId } from 'class-validator';
+import { IsBoolean, IsMongoId } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
@@ -15,6 +15,11 @@ export class Member extends OmitType(GlobalSchema, ['_id' as const]) {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   userId: string;
+
+  @Prop()
+  @ApiProperty()
+  @IsBoolean()
+  ready: boolean;
 }
 
 export type MemberDocument = Member & Document;
