@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
 import { GameModule } from './game/game.module';
 import { AppGateway } from './app.gateway';
 import { GroupModule } from './group/group.module';
+import { SettlersModule } from './settlers/settlers.module';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
 
@@ -33,6 +34,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
     MessageModule,
     GameModule,
     MemberModule,
+    SettlersModule,
   ],
   controllers: [AppController],
   providers: [
