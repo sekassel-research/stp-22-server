@@ -1,5 +1,6 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   ForbiddenException,
@@ -9,7 +10,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
@@ -54,6 +62,7 @@ export class GameController {
   @NotFound()
   @ApiOperation({ description: 'Change a game as owner.' })
   @ApiOkResponse({ type: Game })
+  @ApiConflictResponse({ description: 'Game is already running.' })
   @ApiForbiddenResponse({ description: 'Attempt to change a game that the current user does not own.' })
   async update(@AuthUser() user: User, @Param('id') id: string, @Body() dto: UpdateGameDto): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
@@ -63,6 +72,9 @@ export class GameController {
     if (existing.owner !== user._id) {
       throw new ForbiddenException('Only the owner can change the game.');
     }
+    if (existing.started) {
+      throw new ConflictException('Cannot change a running game.');
+    }
     // FIXME this allows changing the owner to someone who is not a member!
     return this.gameService.update(id, dto);
   }
@@ -71,6 +83,7 @@ export class GameController {
   @NotFound()
   @ApiOperation({ description: 'Delete a game as owner. All members will be automatically kicked.' })
   @ApiOkResponse({ type: Game })
+  @ApiConflictResponse({ description: 'Game is already running.' })
   @ApiForbiddenResponse({ description: 'Attempt to delete a game that the current user does not own.' })
   async delete(@AuthUser() user: User, @Param('id') id: string): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
@@ -79,6 +92,9 @@ export class GameController {
     }
     if (existing.owner !== user._id) {
       throw new ForbiddenException('Only the owner can delete the game.');
+    }
+    if (existing.started) {
+      throw new ConflictException('Cannot delete a running game.');
     }
     return this.gameService.delete(id);
   }

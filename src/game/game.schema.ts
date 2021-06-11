@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsMongoId, IsNotEmpty, IsNumber } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
@@ -20,6 +20,11 @@ export class Game extends GlobalSchema {
   @ApiProperty()
   @IsNumber()
   members: number;
+
+  @Prop()
+  @ApiProperty()
+  @IsBoolean()
+  started: boolean;
 
   @Prop({
     transform: () => undefined,

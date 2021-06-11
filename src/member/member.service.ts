@@ -18,19 +18,25 @@ export class MemberService {
   ) {
   }
 
-  async checkPassword(gameId: string, member: CreateMemberDto): Promise<boolean | undefined> {
-    const game = await this.gameService.findOne(gameId);
-    if (!game) {
-      return undefined;
-    }
-
-    return bcrypt.compare(member.password, game.passwordHash);
-  }
-
-  async checkUserModification(gameId: string, actingUser: User, targetUser: string): Promise<'notfound' | 'owner' | 'owner-target' | 'target' | 'unauthorized'> {
+  async checkPassword(gameId: string, member: CreateMemberDto): Promise<'ok' | 'incorrect' | 'notfound' | 'started'> {
     const game = await this.gameService.findOne(gameId);
     if (!game) {
       return 'notfound';
+    }
+    if (game.started) {
+      return 'started';
+    }
+
+    return bcrypt.compare(member.password, game.passwordHash) ? 'ok' : 'incorrect';
+  }
+
+  async checkUserModification(gameId: string, actingUser: User, targetUser: string): Promise<'notfound' | 'started' | 'owner' | 'owner-target' | 'target' | 'unauthorized'> {
+    const game = await this.gameService.findOne(gameId);
+    if (!game) {
+      return 'notfound';
+    }
+    if (game.started) {
+      return 'started';
     }
     if (actingUser._id === targetUser) {
       if (actingUser._id === game.owner) {

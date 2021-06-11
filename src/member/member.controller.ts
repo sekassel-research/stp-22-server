@@ -58,6 +58,7 @@ export class MemberController {
   @ApiOperation({ description: 'Join a game with the current user.' })
   @ApiCreatedResponse({ type: Member })
   @ApiNotFoundResponse({ description: 'Game not found.' })
+  @ApiConflictResponse({ description: 'Game is already running.' })
   @ApiBadRequestResponse({ description: 'Incorrect password.' })
   async create(
     @AuthUser() user: User,
@@ -65,18 +66,22 @@ export class MemberController {
     @Body() member: CreateMemberDto,
   ): Promise<Member> {
     const passwordMatch = await this.memberService.checkPassword(gameId, member);
-    if (passwordMatch === undefined) {
-      throw new NotFoundException(gameId);
-    } else if (!passwordMatch) {
-      throw new BadRequestException('Incorrect password.');
+    switch (passwordMatch) {
+      case 'notfound':
+        throw new NotFoundException(gameId);
+      case 'started':
+        throw new ConflictException('Cannot join a running game.');
+      case 'incorrect':
+        throw new BadRequestException('Incorrect password.');
+      case 'ok':
+        return this.memberService.create(gameId, user._id, member);
     }
-
-    return this.memberService.create(gameId, user._id, member);
   }
 
   @Patch(':userId')
   @ApiOperation({ description: 'Change game membership for the current user.' })
   @ApiOkResponse({ type: Member })
+  @ApiConflictResponse({ description: 'Game is already running.' })
   @ApiForbiddenResponse({ description: 'Attempt to change membership of someone else without being owner.' })
   @NotFound('Game or membership not found.')
   async update(
@@ -89,6 +94,8 @@ export class MemberController {
     switch (access) {
       case 'notfound':
         throw new NotFoundException(gameId);
+      case 'started':
+        throw new ConflictException('Cannot change membership in running game.');
       case 'unauthorized':
         throw new ForbiddenException('Cannot change membership of another user.');
     }
@@ -99,7 +106,7 @@ export class MemberController {
   @ApiOperation({ description: 'Leave a game with the current user.' })
   @ApiOkResponse({ type: Member })
   @ApiForbiddenResponse({ description: 'Attempt to kick someone else without being owner.' })
-  @ApiConflictResponse({ description: 'Owner attempted to leave the game.' })
+  @ApiConflictResponse({ description: 'Game is already running or owner attempted to leave the game.' })
   @NotFound('Game or membership not found.')
   async delete(
     @AuthUser() user: User,
@@ -110,6 +117,8 @@ export class MemberController {
     switch (access) {
       case 'notfound':
         throw new NotFoundException(gameId);
+      case 'started':
+        throw new ConflictException('Cannot leave running game.');
       case 'unauthorized':
         throw new ForbiddenException('Cannot kick another user.');
       case 'owner-target':
