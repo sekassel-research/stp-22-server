@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SettlersController } from './settlers.controller';
+import { SettlersHandler } from './settlers.handler';
 import { MapSchema } from './settlers.schema';
 import { SettlersService } from './settlers.service';
 
@@ -14,7 +15,7 @@ import { SettlersService } from './settlers.service';
     ]),
   ],
   controllers: [SettlersController],
-  providers: [SettlersService],
+  providers: [SettlersService, SettlersHandler],
 })
 export class SettlersModule {
 }

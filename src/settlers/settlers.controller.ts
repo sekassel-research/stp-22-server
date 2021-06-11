@@ -25,6 +25,6 @@ export class SettlersController {
     @AuthUser() user: User,
     @Param('gameId') gameId: string,
   ): Promise<Map | undefined> {
-    return this.settlersService.find(gameId);
+    return this.settlersService.findGameMap(gameId);
   }
 }
