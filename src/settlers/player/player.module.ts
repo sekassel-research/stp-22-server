@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MemberModule } from '../../member/member.module';
 import { PlayerController } from './player.controller';
+import { PlayerHandler } from './player.handler';
 import { PlayerSchema } from './player.schema';
 import { PlayerService } from './player.service';
 
@@ -16,7 +17,7 @@ import { PlayerService } from './player.service';
     MemberModule,
   ],
   controllers: [PlayerController],
-  providers: [PlayerService],
+  providers: [PlayerService, PlayerHandler],
   exports: [PlayerService],
 })
 export class PlayerModule {
