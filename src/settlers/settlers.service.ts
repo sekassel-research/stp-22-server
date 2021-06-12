@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from '../game/game.schema';
+import { cubeCircle } from './hexagon';
 import { RESOURCE_TILE_TYPES, TileType, WEIGHTED_NUMBER_TOKENS } from './settlers.constants';
 import { Map, Tile } from './settlers.schema';
 
@@ -43,8 +44,6 @@ export class SettlersService {
     const totalTiles = 1 + 3 * radius * (radius + 1);
     const desertTiles = Math.floor(totalTiles / WEIGHTED_NUMBER_TOKENS.length);
 
-    const tiles: Tile[] = [];
-
     const tileTypes: TileType[] = [];
     while (tileTypes.length + desertTiles < totalTiles) {
       tileTypes.push(...RESOURCE_TILE_TYPES);
@@ -63,26 +62,11 @@ export class SettlersService {
       numberTokens.splice(desertIndex, 0, 7);
     }
 
-    let tileIndex = 0;
-
-    for (let x = -radius; x <= radius; x++) {
-      for (let y = -radius; y <= radius; y++) {
-        for (let z = -radius; z <= radius; z++) {
-          if (x + y + z != 0) {
-            continue;
-          }
-
-          tiles.push({
-            x, y, z,
-            type: tileTypes[tileIndex],
-            numberToken: numberTokens[tileIndex],
-          });
-
-          tileIndex++;
-        }
-      }
-    }
-    return tiles;
+    return cubeCircle(radius).map(({ x, y, z }, tileIndex) => ({
+      x, y, z,
+      type: tileTypes[tileIndex],
+      numberToken: numberTokens[tileIndex],
+    }));
   }
 
   async deleteGameMap(gameId: string): Promise<Map | undefined> {
