@@ -34,4 +34,6 @@ export class Map extends GlobalSchemaWithoutID {
   tiles: Tile[];
 }
 
-export const MapSchema = SchemaFactory.createForClass(Map);
+export const MapSchema = SchemaFactory.createForClass(Map)
+  .index({ gameId: 1 }, { unique: true })
+;
