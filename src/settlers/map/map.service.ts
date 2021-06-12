@@ -31,13 +31,10 @@ export class MapService {
 
   async createForGame(game: Game): Promise<Map> {
     const radius = 2;
-    const tiles = this.generateTiles(radius);
-
-    const map: Map = {
+    return this.model.create({
       gameId: game._id,
-      tiles,
-    };
-    return this.model.create(map);
+      tiles: this.generateTiles(radius),
+    });
   }
 
   private generateTiles(radius: number): Tile[] {
