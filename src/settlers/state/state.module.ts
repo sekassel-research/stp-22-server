@@ -18,6 +18,7 @@ import { StateService } from './state.service';
   ],
   providers: [StateService, StateHandler],
   controllers: [StateController],
+  exports: [StateService],
 })
 export class StateModule {
 }
