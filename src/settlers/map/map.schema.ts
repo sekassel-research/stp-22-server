@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsMongoId, Max, Min, ValidateNested } from 'class-validator';
-import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
+import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../../util/schema';
 import { TILE_TYPES, TileType } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
@@ -20,11 +20,8 @@ export class Tile extends Point3D {
   numberToken: number;
 }
 
-@Schema({
-  ...GLOBAL_SCHEMA_OPTIONS,
-  id: false,
-})
-export class Map {
+@Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
+export class Map extends GlobalSchemaWithoutID {
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
@@ -37,11 +34,4 @@ export class Map {
   tiles: Tile[];
 }
 
-export const MapSchema = SchemaFactory.createForClass(Map)
-  .set('toJSON', {
-    virtuals: true,
-    transform: (doc, converted) => {
-      delete converted._id;
-      delete converted.id;
-    },
-  });
+export const MapSchema = SchemaFactory.createForClass(Map);

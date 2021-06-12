@@ -1,8 +1,20 @@
+import { SchemaOptions } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
 
-export const GLOBAL_SCHEMA_OPTIONS = {
+export const GLOBAL_SCHEMA_OPTIONS: SchemaOptions = {
   timestamps: true,
   versionKey: false,
+};
+
+export const GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS: SchemaOptions = {
+  id: false,
+  toJSON: {
+    virtuals: true,
+    transform: (doc, converted) => {
+      delete converted._id;
+      delete converted.id;
+    },
+  },
 };
 
 export const MONGO_ID_FORMAT: ApiPropertyOptions = {
@@ -10,13 +22,15 @@ export const MONGO_ID_FORMAT: ApiPropertyOptions = {
   example: '507f191e810c19729de860ea',
 };
 
-export class GlobalSchema {
-  @ApiProperty(MONGO_ID_FORMAT)
-  _id!: string;
-
+export class GlobalSchemaWithoutID {
   @ApiProperty()
   createdAt!: Date;
 
   @ApiProperty()
   updatedAt!: Date;
+}
+
+export class GlobalSchema extends GlobalSchemaWithoutID {
+  @ApiProperty(MONGO_ID_FORMAT)
+  _id!: string;
 }
