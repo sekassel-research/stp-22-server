@@ -17,4 +17,9 @@ export class MapHandler {
       await this.settlersService.deleteByGame(game._id);
     }
   }
+
+  @OnEvent('games.*.deleted')
+  async onGameDeleted(game: Game): Promise<void> {
+    await this.settlersService.deleteByGame(game._id);
+  }
 }
