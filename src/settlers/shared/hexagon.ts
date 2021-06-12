@@ -1,4 +1,4 @@
-import { Point3D } from './settlers.schema';
+import { Point3D } from './schema';
 
 export function Cube(x: number, y: number, z: number): Point3D {
   return { x, y, z };

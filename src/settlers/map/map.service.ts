@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Game } from '../game/game.schema';
-import { cubeCircle } from './hexagon';
-import { RESOURCE_TILE_TYPES, TileType, WEIGHTED_NUMBER_TOKENS } from './settlers.constants';
-import { Map, Tile } from './settlers.schema';
+import { Game } from '../../game/game.schema';
+import { RESOURCE_TILE_TYPES, TileType, WEIGHTED_NUMBER_TOKENS } from '../shared/constants';
+import { cubeCircle } from '../shared/hexagon';
+import { Map, Tile } from './map.schema';
 
 function randInt(maxExclusive: number): number {
   return Math.floor(Math.random() * maxExclusive);
@@ -19,17 +19,17 @@ function shuffle(a) { // fisher-yates shuffle
 }
 
 @Injectable()
-export class SettlersService {
+export class MapService {
   constructor(
     @InjectModel('maps') private model: Model<Map>,
   ) {
   }
 
-  async findGameMap(gameId: string): Promise<Map | undefined> {
+  async findByGame(gameId: string): Promise<Map | undefined> {
     return this.model.findOne({ gameId }).exec();
   }
 
-  async createGameMap(game: Game): Promise<Map> {
+  async createForGame(game: Game): Promise<Map> {
     const radius = 2;
     const tiles = this.generateTiles(radius);
 
@@ -69,7 +69,7 @@ export class SettlersService {
     }));
   }
 
-  async deleteGameMap(gameId: string): Promise<Map | undefined> {
+  async deleteByGame(gameId: string): Promise<Map | undefined> {
     return this.model.findOneAndDelete({ gameId }).exec();
   }
 }

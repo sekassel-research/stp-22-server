@@ -1,21 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { SettlersController } from './settlers.controller';
-import { SettlersHandler } from './settlers.handler';
-import { MapSchema } from './settlers.schema';
-import { SettlersService } from './settlers.service';
+import { MapModule } from './map/map.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      {
-        name: 'maps',
-        schema: MapSchema,
-      },
-    ]),
+    MapModule,
+    SharedModule,
   ],
-  controllers: [SettlersController],
-  providers: [SettlersService, SettlersHandler],
 })
 export class SettlersModule {
 }

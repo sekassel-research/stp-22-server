@@ -1,27 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsMongoId, Max, Min, ValidateNested } from 'class-validator';
-import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../util/schema';
-import { TILE_TYPES, TileType } from './settlers.constants';
-
-@Schema()
-export class Point3D {
-  @Prop()
-  @ApiProperty()
-  @IsInt()
-  x: number;
-
-  @Prop()
-  @ApiProperty()
-  @IsInt()
-  y: number;
-
-  @Prop()
-  @ApiProperty()
-  @IsInt()
-  z: number;
-}
+import { IsIn, IsMongoId, Max, Min, ValidateNested } from 'class-validator';
+import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
+import { TILE_TYPES, TileType } from '../shared/constants';
+import { Point3D } from '../shared/schema';
 
 @Schema()
 export class Tile extends Point3D {
