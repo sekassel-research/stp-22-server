@@ -19,4 +19,10 @@ export class Move {
   @ApiProperty({ enum: TASKS })
   @IsIn(TASKS)
   action: Task;
+
+  @ApiProperty({ type: 'integer', minimum: 1, maximum: 12 })
+  @IsOptional()
+  @Min(1)
+  @Max(12)
+  roll?: number;
 }

@@ -24,6 +24,10 @@ export class MoveService {
     };
 
     switch (dto.action) {
+      case 'founding-roll':
+        const roll = randInt(6) + 1;
+        result.roll = roll;
+        break;
     }
 
     this.eventEmitter.emit(`games.${state.gameId}.moves.${_id}.created`, result); // TODO visibility
