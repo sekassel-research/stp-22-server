@@ -51,6 +51,11 @@ export class PlayerService {
       userId: m.userId,
       color: COLOR_PALETTE[index % COLOR_PALETTE.length],
       resources: {},
+      remainingBuildings: {
+        city: 4,
+        settlement: 5,
+        road: 15,
+      },
     }));
     return this.model.insertMany(players);
   }

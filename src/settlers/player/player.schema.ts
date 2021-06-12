@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsHexColor, IsMongoId } from 'class-validator';
+import { IsHexColor, IsMongoId, IsObject } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
-import { RESOURCE_TYPES, ResourceType } from '../shared/constants';
+import { BUILDING_TYPES, BuildingType, RESOURCE_TYPES, ResourceType } from '../shared/constants';
 
 export type ResourceCount = Partial<Record<'unknown' | ResourceType, number>>;
+export type BuildingCount = Partial<Record<BuildingType, number>>;
 
 @Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false })
 export class Player {
@@ -28,7 +29,16 @@ export class Player {
     type: 'object',
     properties: Object.assign({ unknown: { type: 'integer', required: false } }, ...RESOURCE_TYPES.map(rt => ({ [rt]: { type: 'integer', required: false } }))),
   })
+  @IsObject()
   resources: ResourceCount;
+
+  @Prop({ type: Object })
+  @ApiProperty({
+    type: 'object',
+    properties: Object.assign({}, ...BUILDING_TYPES.map(bt => ({ [bt]: { type: 'integer', required: false } }))),
+  })
+  @IsObject()
+  remainingBuildings: BuildingCount;
 }
 
 export const PlayerSchema = SchemaFactory.createForClass(Player)
