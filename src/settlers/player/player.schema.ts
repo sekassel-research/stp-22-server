@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsHexColor, IsMongoId, IsObject } from 'class-validator';
+import { IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType, RESOURCE_TYPES, ResourceType } from '../shared/constants';
 
@@ -23,6 +23,14 @@ export class Player {
   @ApiProperty({ format: 'hex-color', example: '#0075ff' })
   @IsHexColor()
   color: string;
+
+  @Prop()
+  @ApiProperty({ type: 'integer', required: false, minimum: 1, maximum: 6 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  foundingRoll?: number;
 
   @Prop({ type: Object })
   @ApiProperty({
