@@ -41,23 +41,27 @@ export class SettlersService {
 
   private generateTiles(radius: number): Tile[] {
     const totalTiles = 1 + 3 * radius * (radius + 1);
+    const desertTiles = Math.floor(totalTiles / WEIGHTED_NUMBER_TOKENS.length);
 
     const tiles: Tile[] = [];
 
-    const desertIndex = randInt(totalTiles);
     const tileTypes: TileType[] = [];
-    while (tileTypes.length < totalTiles) {
+    while (tileTypes.length + desertTiles < totalTiles) {
       tileTypes.push(...RESOURCE_TILE_TYPES);
     }
     shuffle(tileTypes);
-    tileTypes.splice(desertIndex, 0, 'desert');
 
     const numberTokens: number[] = [];
-    while (numberTokens.length < totalTiles) {
+    while (numberTokens.length + desertTiles < totalTiles) {
       numberTokens.push(...WEIGHTED_NUMBER_TOKENS);
     }
     shuffle(numberTokens);
-    numberTokens.splice(desertIndex, 0, 7);
+
+    for (let i = 0; i < desertTiles; i++) {
+      const desertIndex = randInt(totalTiles);
+      tileTypes.splice(desertIndex, 0, 'desert');
+      numberTokens.splice(desertIndex, 0, 7);
+    }
 
     let tileIndex = 0;
 
