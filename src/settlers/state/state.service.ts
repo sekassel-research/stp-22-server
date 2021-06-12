@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from '../../game/game.schema';
+import { MemberService } from '../../member/member.service';
 import { State } from './state.schema';
 
 @Injectable()
 export class StateService {
   constructor(
     @InjectModel('states') private model: Model<State>,
+    private memberService: MemberService,
   ) {
   }
 
@@ -16,8 +18,12 @@ export class StateService {
   }
 
   async createForGame(game: Game): Promise<State> {
+    const members = await this.memberService.findAll(game._id);
     return this.model.create({
       gameId: game._id,
+      activePlayer: members[0].userId,
+      activeTask: 'founding-roll',
+      round: 0,
     });
   }
 

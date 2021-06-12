@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId } from 'class-validator';
+import { IsIn, IsInt, IsMongoId } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
+import { Task, TASKS } from '../shared/constants';
 
 @Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false })
 export class State {
@@ -9,6 +10,21 @@ export class State {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   gameId: string;
+
+  @Prop()
+  @ApiProperty({ type: 'integer' })
+  @IsInt()
+  round: number;
+
+  @Prop()
+  @ApiProperty(MONGO_ID_FORMAT)
+  @IsMongoId()
+  activePlayer: string;
+
+  @Prop()
+  @ApiProperty({ enum: TASKS })
+  @IsIn(TASKS)
+  activeTask: Task;
 }
 
 export const StateSchema = SchemaFactory.createForClass(State)
