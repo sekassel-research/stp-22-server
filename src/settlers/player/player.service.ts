@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MemberService } from '../../member/member.service';
@@ -22,6 +23,7 @@ export class PlayerService {
   constructor(
     @InjectModel('players') private model: Model<Player>,
     private memberService: MemberService,
+    private eventEmitter: EventEmitter2,
   ) {
   }
 
@@ -60,7 +62,17 @@ export class PlayerService {
     return this.model.insertMany(players);
   }
 
+  async update(gameId: string, userId: string, dto: Partial<Player>): Promise<Player | undefined> {
+    const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
+    updated && this.emit('updated', updated);
+    return updated;
+  }
+
   async deleteByGame(gameId: string): Promise<void> {
     await this.model.deleteMany({ gameId }).exec();
+  }
+
+  private emit(event: string, updated: Player) {
+    this.eventEmitter.emit(`games.${updated.gameId}.players.${updated.userId}.${event}`, updated); // TODO visibility
   }
 }
