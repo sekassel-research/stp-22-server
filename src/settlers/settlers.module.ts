@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { GameLogicModule } from './game-logic/game-logic.module';
 import { MapModule } from './map/map.module';
-import { SharedModule } from './shared/shared.module';
-import { PlayerModule } from './player/player.module';
-import { StateModule } from './state/state.module';
 import { MoveModule } from './move/move.module';
+import { PlayerModule } from './player/player.module';
+import { SharedModule } from './shared/shared.module';
+import { StateModule } from './state/state.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { MoveModule } from './move/move.module';
     PlayerModule,
     StateModule,
     MoveModule,
+    GameLogicModule,
   ],
 })
 export class SettlersModule {
