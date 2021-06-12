@@ -31,8 +31,8 @@ export class Tile extends Point3D {
   type: TileType;
 
   @Prop()
-  @ApiProperty({ type: 'integer', minimum: 0, maximum: 12 })
-  @Min(0)
+  @ApiProperty({ type: 'integer', minimum: 2, maximum: 12 })
+  @Min(2)
   @Max(12)
   numberToken: number;
 }
