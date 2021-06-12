@@ -19,9 +19,11 @@ export class StateService {
 
   async createForGame(game: Game): Promise<State> {
     const members = await this.memberService.findAll(game._id);
+    const [first, ...rest] = members;
     return this.model.create({
       gameId: game._id,
-      activePlayer: members[0].userId,
+      activePlayer: first.userId,
+      nextPlayers: rest.map(m => m.userId),
       activeTask: 'founding-roll',
       round: 0,
     });

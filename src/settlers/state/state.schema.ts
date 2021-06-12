@@ -22,6 +22,11 @@ export class State {
   activePlayer: string;
 
   @Prop()
+  @ApiProperty({ ...MONGO_ID_FORMAT, type: [String] })
+  @IsMongoId({ each: true })
+  nextPlayers: string[];
+
+  @Prop()
   @ApiProperty({ enum: TASKS })
   @IsIn(TASKS)
   activeTask: Task;
