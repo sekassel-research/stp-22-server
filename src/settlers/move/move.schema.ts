@@ -20,7 +20,7 @@ export class Move {
   @IsIn(TASKS)
   action: Task;
 
-  @ApiProperty({ type: 'integer', minimum: 1, maximum: 12 })
+  @ApiProperty({ type: 'integer', minimum: 1, maximum: 12, required: false })
   @IsOptional()
   @Min(1)
   @Max(12)
