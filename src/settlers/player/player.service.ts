@@ -17,4 +17,14 @@ export class PlayerService {
   async findOne(gameId: string, userId: string): Promise<Player | undefined> {
     return this.model.findOne({ gameId, userId }).exec();
   }
+
+  maskResources(player: Player): Player {
+    const total = Object.values(player.resources).reduce((a, c) => a + c, 0);
+    return {
+      ...player,
+      resources: {
+        unknown: total,
+      },
+    };
+  }
 }
