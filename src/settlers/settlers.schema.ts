@@ -6,7 +6,7 @@ import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../util/schema';
 import { TILE_TYPES, TileType } from './settlers.constants';
 
 @Schema()
-export class Tile {
+export class Point3D {
   @Prop()
   @ApiProperty()
   @IsInt()
@@ -21,7 +21,10 @@ export class Tile {
   @ApiProperty()
   @IsInt()
   z: number;
+}
 
+@Schema()
+export class Tile extends Point3D {
   @Prop()
   @ApiProperty({ enum: TILE_TYPES })
   @IsIn(TILE_TYPES)
