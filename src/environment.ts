@@ -15,6 +15,6 @@ export const environment = {
     limit: 10,
   },
   nats: {
-    url: 'nats://localhost:4222',
+    url: process.env.NATS_URL || 'nats://localhost:4222',
   },
 };
