@@ -11,9 +11,9 @@ import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 // FIXME Most PATCH endpoints allow putting null as a property value,
 //       which kind of corrupts the data.
 
-const generalInfo = fs.readFileSync(`${__dirname}/../REST.md`).toString()
+const generalInfo = fs.readFileSync(`${__dirname}/../docs/REST.md`).toString()
   .replace(/\$\{environment\.(\w+)\.(\w+)}/g, (fullMatch, category, key) => environment[category][key]);
-const webSocket = fs.readFileSync(`${__dirname}/../WebSocket.md`).toString()
+const webSocket = fs.readFileSync(`${__dirname}/../docs/WebSocket.md`).toString()
   .replace(/\$\{environment\.(\w+)}/g, (fullMatch, key) => environment[key]);
 const description = generalInfo + webSocket;
 
