@@ -12,6 +12,6 @@ export class EventService {
 
   emit<T>(event: string, data: T, users?: string[]) {
     this.eventEmitter2.emit(event, data, users);
-    this.client.emit(event, { event, data, users }).subscribe();
+    this.client.emit(event, { data, users }).subscribe();
   }
 }

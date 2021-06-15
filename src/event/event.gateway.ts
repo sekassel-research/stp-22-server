@@ -39,7 +39,8 @@ export class EventGateway implements OnGatewayConnection {
     return new Observable<WsResponse<T>>(observer => {
       const nats = ((this.client as any).natsClient) as Client;
       const sid = nats.subscribe(event, message => {
-        const { event, data, users } = message.data;
+        const event = message.pattern;
+        const { data, users } = message.data;
         if (users && !users.includes(client.user._id)) {
           return;
         }
