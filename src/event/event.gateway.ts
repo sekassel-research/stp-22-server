@@ -7,8 +7,9 @@ import { Client } from 'nats';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../environment';
 
-@WebSocketGateway({ path: '/ws/events' })
+@WebSocketGateway({ path: `/ws/${environment.version}/events` })
 export class EventGateway implements OnGatewayConnection {
   constructor(
     @Inject('EVENT_SERVICE') private client: ClientNats,

@@ -13,12 +13,15 @@ import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 
 const generalInfo = fs.readFileSync(`${__dirname}/../REST.md`).toString()
   .replace(/\$\{environment\.(\w+)\.(\w+)}/g, (fullMatch, category, key) => environment[category][key]);
-const webSocket = fs.readFileSync(`${__dirname}/../WebSocket.md`).toString();
+const webSocket = fs.readFileSync(`${__dirname}/../WebSocket.md`).toString()
+  .replace(/\$\{environment\.(\w+)}/g, (fullMatch, key) => environment[key]);
 const description = generalInfo + webSocket;
+
+const globalPrefix = `api/${environment.version}`;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(globalPrefix);
   app.enableCors();
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useGlobalFilters(new ThrottlerExceptionFilter());
@@ -31,13 +34,13 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('STP Server')
     .setDescription(description)
-    .setVersion('1.0.0')
+    .setVersion(environment.version)
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config, {
     extraModels: [ErrorResponse, ValidationErrorResponse],
   });
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup(globalPrefix, app, document);
 
   await app.startAllMicroservicesAsync();
   await app.listen(3000);

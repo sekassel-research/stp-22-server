@@ -1,4 +1,5 @@
 export const environment = {
+  version: 'v1',
   auth: {
     secret: process.env.AUTH_SECRET,
     algorithms: (process.env.AUTH_ALGORITHMS || 'RS256').split(','),

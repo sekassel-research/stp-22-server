@@ -1,6 +1,6 @@
 # Asynchronous WebSocket
 
-The asynchronous WebSocket is available under the `/ws` path.
+The asynchronous WebSocket is available under the `/ws/${environment.version}/events` path.
 It accepts incoming commands and sends outgoing events.
 To receive events, you first need to subscribe to them.
 
