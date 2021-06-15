@@ -10,7 +10,7 @@ RUN npm install -g pnpm
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/dist ./dist
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
 EXPOSE 3000
 CMD pnpm run start:prod
