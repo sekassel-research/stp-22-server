@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
-import { AppGateway } from './app.gateway';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { environment } from './environment';
@@ -37,10 +36,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
     MemberModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    AppGateway,
-  ],
+  providers: [AppService],
 })
 export class AppModule {
 }

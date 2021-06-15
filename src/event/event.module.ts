@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AuthModule } from '../auth/auth.module';
 import { environment } from '../environment';
+import { EventGateway } from './event.gateway';
 import { EventService } from './event.service';
 import { EventController } from './event.controller';
 
@@ -13,8 +15,9 @@ import { EventController } from './event.controller';
         options: environment.nats,
       },
     ]),
+    AuthModule,
   ],
-  providers: [EventService],
+  providers: [EventService, EventGateway],
   exports: [EventService],
   controllers: [EventController],
 })

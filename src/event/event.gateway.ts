@@ -3,10 +3,10 @@ import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WsResponse } f
 import { IncomingMessage } from 'http';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 
-@WebSocketGateway({ path: '/ws' })
-export class AppGateway implements OnGatewayConnection {
+@WebSocketGateway({ path: '/ws/events' })
+export class EventGateway implements OnGatewayConnection {
   constructor(
     private eventEmitter: EventEmitter2,
     private authService: AuthService,
