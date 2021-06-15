@@ -14,4 +14,8 @@ export class EventService {
     this.eventEmitter2.emit(event, data, users);
     this.client.emit(event, { event, data, users }).subscribe();
   }
+
+  handle<T>(event: string, data: T, users?: string[]) {
+    this.eventEmitter2.emit('$.' + event, data, users);
+  }
 }

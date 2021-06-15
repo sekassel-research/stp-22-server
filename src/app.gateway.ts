@@ -32,18 +32,19 @@ export class AppGateway implements OnGatewayConnection {
   }
 
   private observe<T>(client: any, event: string): Observable<WsResponse<T>> {
+    const prefixedEvent = '$.' + event;
     return new Observable<WsResponse<T>>(observer => {
       const handler = function(data: T, users?: string[]) {
         if (users && !users.includes(client.user._id)) {
           return;
         }
         observer.next({
-          event: this.event,
+          event: this.event.substring('$.'.length),
           data,
         });
       };
-      this.eventEmitter.on(event, handler);
-      return () => this.eventEmitter.off(event, handler);
+      this.eventEmitter.on(prefixedEvent, handler);
+      return () => this.eventEmitter.off(prefixedEvent, handler);
     });
   }
 
