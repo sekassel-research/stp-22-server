@@ -14,11 +14,9 @@ import { MemberModule } from './member/member.module';
 import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
 
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21';
-
 @Module({
   imports: [
-    MongooseModule.forRoot(mongoUri, {
+    MongooseModule.forRoot(environment.mongo.uri, {
       useFindAndModify: true,
       useCreateIndex: true,
     }),
