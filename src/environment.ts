@@ -10,4 +10,7 @@ export const environment = {
     ttl: 60,
     limit: 10,
   },
+  redis: {
+    url: 'redis://localhost:6379',
+  },
 };

@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { Transport } from '@nestjs/microservices';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
@@ -22,6 +23,11 @@ async function bootstrap() {
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useGlobalFilters(new ThrottlerExceptionFilter());
 
+  app.connectMicroservice({
+    transport: Transport.REDIS,
+    options: environment.redis,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('STP Server')
     .setDescription(description)
@@ -33,6 +39,7 @@ async function bootstrap() {
   });
   SwaggerModule.setup('api', app, document);
 
+  await app.startAllMicroservicesAsync();
   await app.listen(3000);
 }
 
