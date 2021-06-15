@@ -1,0 +1,31 @@
+name: CI/CD
+
+on:
+  - push
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build the Docker Image
+        if: github.ref == 'refs/heads/master'
+        uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          image_name: stp/settlers
+      - name: Rancher Deploy
+        if: github.ref == 'refs/heads/master'
+        uses: sekassel-research/actions-rancher-update@2.0.2
+        with:
+          rancher_url: ${{ secrets.RANCHER_URL }}
+          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+          cluster_id: ${{ secrets.CLUSTER_ID }}
+          project_id: ${{ secrets.PROJECT_ID }}
+          namespace: ${{ secrets.NAMESPACE }}
+          deployment: ${{ secrets.DEPLOYMENT }}
+          docker_image: ${{ secrets.DOCKER_REGISTRY }}/stp/settlers:latest
