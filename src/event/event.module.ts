@@ -8,8 +8,8 @@ import { EventService } from './event.service';
     ClientsModule.register([
       {
         name: 'EVENT_SERVICE',
-        transport: Transport.REDIS,
-        options: environment.redis,
+        transport: Transport.NATS,
+        options: environment.nats,
       },
     ]),
   ],

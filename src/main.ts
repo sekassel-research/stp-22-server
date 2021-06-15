@@ -24,8 +24,8 @@ async function bootstrap() {
   app.useGlobalFilters(new ThrottlerExceptionFilter());
 
   app.connectMicroservice({
-    transport: Transport.REDIS,
-    options: environment.redis,
+    transport: Transport.NATS,
+    options: environment.nats,
   });
 
   const config = new DocumentBuilder()
