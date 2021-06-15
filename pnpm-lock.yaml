@@ -6,6 +6,7 @@ specifiers:
   '@nestjs/core': ^7.6.15
   '@nestjs/event-emitter': ^0.0.3
   '@nestjs/jwt': ^7.2.0
+  '@nestjs/microservices': ^7.6.17
   '@nestjs/mongoose': ^7.2.4
   '@nestjs/passport': ^7.1.5
   '@nestjs/platform-express': ^7.6.15
@@ -33,6 +34,7 @@ specifiers:
   mongoose: ^5.12.11
   passport: ^0.4.1
   passport-jwt: ^4.0.0
+  redis: ^3.1.2
   reflect-metadata: ^0.1.13
   rimraf: ^3.0.2
   rxjs: ^6.6.6
@@ -46,9 +48,10 @@ specifiers:
 
 dependencies:
   '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-  '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+  '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
   '@nestjs/event-emitter': 0.0.3_0ff807c7e0c0946ae4ae01be7385e726
   '@nestjs/jwt': 7.2.0_@nestjs+common@7.6.17
+  '@nestjs/microservices': 7.6.17_49fea4154f13e0c41e2a463c0ec234f0
   '@nestjs/mongoose': 7.2.4_042b89ce266c47707eda0e732ebc5e69
   '@nestjs/passport': 7.1.5_6b9aabeef2ebcf8aef3549ea590af16a
   '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
@@ -63,6 +66,7 @@ dependencies:
   mongoose: 5.12.11
   passport: 0.4.1
   passport-jwt: 4.0.0
+  redis: 3.1.2
   reflect-metadata: 0.1.13
   rimraf: 3.0.2
   rxjs: 6.6.7
@@ -71,7 +75,7 @@ dependencies:
 devDependencies:
   '@nestjs/cli': 7.6.0
   '@nestjs/schematics': 7.3.1_typescript@4.3.2
-  '@nestjs/testing': 7.6.17_e6e96ca856e7f50a9c42371caf77b7ae
+  '@nestjs/testing': 7.6.17_f675a3058091fced03d40b2e27c4ccdc
   '@types/bcrypt': 5.0.0
   '@types/cron': 1.7.2
   '@types/express': 4.17.12
@@ -757,7 +761,7 @@ packages:
       - debug
     dev: false
 
-  /@nestjs/core/7.6.17_b0e7058758c7e52365b3d9f6b40e865c:
+  /@nestjs/core/7.6.17_235badaafb76743b2e681d82db2e0940:
     resolution: {integrity: sha512-dH7PGDj1dvBfOYgxJlxh54vdnFFSLst7+Spg3E7Jpo+n11Ht5Ee5mTjSzXieRVfFba/sI3NIHF/N1stn36bU9w==}
     requiresBuild: true
     peerDependencies:
@@ -776,6 +780,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
+      '@nestjs/microservices': 7.6.17_49fea4154f13e0c41e2a463c0ec234f0
       '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
       '@nestjs/websockets': 7.6.17_943bdd73944e8bb4246675cf9b18cb0a
       '@nuxtjs/opencollective': 0.3.2
@@ -826,6 +831,53 @@ packages:
       reflect-metadata: 0.1.13
     dev: false
 
+  /@nestjs/microservices/7.6.17_49fea4154f13e0c41e2a463c0ec234f0:
+    resolution: {integrity: sha512-jyIC0TSgKv8eTg7ZGif3oENnx+TPQCurEiiQRCcFcT+EOBMJ+L7Xb8fjXTJM+Ul8jUucYyQpDeMQTJI+bmDGoA==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0
+      '@nestjs/core': ^7.0.0
+      '@nestjs/websockets': ^7.0.0
+      amqp-connection-manager: '*'
+      amqplib: '*'
+      cache-manager: '*'
+      grpc: '*'
+      kafkajs: '*'
+      mqtt: '*'
+      nats: '*'
+      redis: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0
+    peerDependenciesMeta:
+      '@nestjs/websockets':
+        optional: true
+      amqp-connection-manager:
+        optional: true
+      amqplib:
+        optional: true
+      cache-manager:
+        optional: true
+      grpc:
+        optional: true
+      kafkajs:
+        optional: true
+      mqtt:
+        optional: true
+      nats:
+        optional: true
+      redis:
+        optional: true
+    dependencies:
+      '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
+      '@nestjs/websockets': 7.6.17_943bdd73944e8bb4246675cf9b18cb0a
+      iterare: 1.2.1
+      json-socket: 0.3.0
+      redis: 3.1.2
+      reflect-metadata: 0.1.13
+      rxjs: 6.6.7
+      tslib: 2.2.0
+    dev: false
+
   /@nestjs/mongoose/7.2.4_042b89ce266c47707eda0e732ebc5e69:
     resolution: {integrity: sha512-NTE/IwijFUEJytPHLoHRYe0X5p16W1Awf8tm6I3mWsIUuBnSDfMyN0fy30uVaM/exYvCkMwEsAVpeSeKVPMHxg==}
     peerDependencies:
@@ -836,7 +888,7 @@ packages:
       rxjs: ^6.0.0
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
       mongoose: 5.12.11
       reflect-metadata: 0.1.13
       rxjs: 6.6.7
@@ -859,7 +911,7 @@ packages:
       '@nestjs/core': ^7.0.0
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
       body-parser: 1.19.0
       cors: 2.8.5
       express: 4.17.1
@@ -937,7 +989,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
       '@nestjs/mapped-types': 0.4.0_0a4121060bb731013768768133418da8
       lodash: 4.17.21
       path-to-regexp: 3.2.0
@@ -948,7 +1000,7 @@ packages:
       - class-validator
     dev: false
 
-  /@nestjs/testing/7.6.17_e6e96ca856e7f50a9c42371caf77b7ae:
+  /@nestjs/testing/7.6.17_f675a3058091fced03d40b2e27c4ccdc:
     resolution: {integrity: sha512-wWImNvfRapCCtLXMsxCs1Ax2Uj/qSytCnolSEXL7LnH80exwHRmBeLtTfGxArsv9Y1NHr24NarfN6H0QxysZ3g==}
     peerDependencies:
       '@nestjs/common': ^7.0.0
@@ -963,7 +1015,8 @@ packages:
     dependencies:
       optional: 0.1.4
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
+      '@nestjs/microservices': 7.6.17_49fea4154f13e0c41e2a463c0ec234f0
       '@nestjs/platform-express': 7.6.17_6b1007062d3a29d00cb5e4fdd9b5f494
       tslib: 2.2.0
     dev: true
@@ -976,7 +1029,7 @@ packages:
       reflect-metadata: ^0.1.13
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
       md5: 2.3.0
       reflect-metadata: 0.1.13
     dev: false
@@ -990,7 +1043,7 @@ packages:
       rxjs: ^6.0.0
     dependencies:
       '@nestjs/common': 7.6.17_70b9cb8466d4e99d08d6dbcbe914d3b7
-      '@nestjs/core': 7.6.17_b0e7058758c7e52365b3d9f6b40e865c
+      '@nestjs/core': 7.6.17_235badaafb76743b2e681d82db2e0940
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 6.6.7
@@ -4182,6 +4235,10 @@ packages:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
     dev: true
 
+  /json-socket/0.3.0:
+    resolution: {integrity: sha512-jc8ZbUnYIWdxERFWQKVgwSLkGSe+kyzvmYxwNaRgx/c8NNyuHes4UHnPM3LUrAFXUx1BhNJ94n1h/KCRlbvV0g==}
+    dev: false
+
   /json-stable-stringify-without-jsonify/1.0.1:
     resolution: {integrity: sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=}
     dev: true
@@ -5284,6 +5341,32 @@ packages:
     dependencies:
       resolve: 1.20.0
     dev: true
+
+  /redis-commands/1.7.0:
+    resolution: {integrity: sha512-nJWqw3bTFy21hX/CPKHth6sfhZbdiHP6bTawSgQBlKOVRG7EZkfHbbHwQJnrE4vsQf0CMNE+3gJ4Fmm16vdVlQ==}
+    dev: false
+
+  /redis-errors/1.2.0:
+    resolution: {integrity: sha1-62LSrbFeTq9GEMBK/hUpOEJQq60=}
+    engines: {node: '>=4'}
+    dev: false
+
+  /redis-parser/3.0.0:
+    resolution: {integrity: sha1-tm2CjNyv5rS4pCin3vTGvKwxyLQ=}
+    engines: {node: '>=4'}
+    dependencies:
+      redis-errors: 1.2.0
+    dev: false
+
+  /redis/3.1.2:
+    resolution: {integrity: sha512-grn5KoZLr/qrRQVwoSkmzdbw6pwF+/rwODtrOr6vuBRiR/f3rjSTGupbF90Zpqm2oenix8Do6RV7pYEkGwlKkw==}
+    engines: {node: '>=10'}
+    dependencies:
+      denque: 1.5.0
+      redis-commands: 1.7.0
+      redis-errors: 1.2.0
+      redis-parser: 3.0.0
+    dev: false
 
   /reflect-metadata/0.1.13:
     resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
