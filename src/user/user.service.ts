@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { Model } from 'mongoose';
+
 import { RefreshToken } from '../auth/auth.interface';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { environment } from '../environment';
+import { EventService } from '../event/event.service';
 import { CreateUserDto, LoginDto, LoginResult, RefreshDto, UpdateUserDto } from './user.dto';
 import { User, UserDocument } from './user.schema';
 
@@ -17,7 +18,7 @@ export class UserService {
 
   constructor(
     @InjectModel('users') private model: Model<User>,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventService,
     private jwtService: JwtService,
     private jwtStrategy: JwtStrategy,
   ) {

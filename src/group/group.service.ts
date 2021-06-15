@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
+import { EventService } from '../event/event.service';
 import { CreateGroupDto, UpdateGroupDto } from './group.dto';
 import { Group } from './group.schema';
 
@@ -9,7 +10,7 @@ import { Group } from './group.schema';
 export class GroupService {
   constructor(
     @InjectModel('groups') private model: Model<Group>,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventService,
   ) {
   }
 
