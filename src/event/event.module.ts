@@ -4,7 +4,6 @@ import { AuthModule } from '../auth/auth.module';
 import { environment } from '../environment';
 import { EventGateway } from './event.gateway';
 import { EventService } from './event.service';
-import { EventController } from './event.controller';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { EventController } from './event.controller';
   ],
   providers: [EventService, EventGateway],
   exports: [EventService],
-  controllers: [EventController],
 })
 export class EventModule {
 }
