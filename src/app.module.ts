@@ -3,7 +3,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app.controller';
+
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { environment } from './environment';
@@ -33,7 +33,6 @@ import { UserModule } from './user/user.module';
     GameModule,
     MemberModule,
   ],
-  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
