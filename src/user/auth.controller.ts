@@ -43,9 +43,9 @@ export class AuthController {
 
   @Post('logout')
   @Auth()
-  @ApiOperation({ description: 'Logs out the current user and sets them offline.' })
+  @ApiOperation({ description: 'Logs out the current user by invalidating the refresh token.' })
   @ApiOkResponse()
   async logout(@AuthUser() user: User): Promise<void> {
-    return this.userService.logout(user);
+    await this.userService.logout(user);
   }
 }

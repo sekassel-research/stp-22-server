@@ -12,7 +12,7 @@ import { NotFound } from '../util/not-found.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
-import { User } from './user.schema';
+import { Status, STATUS, User } from './user.schema';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -35,13 +35,16 @@ export class UserController {
     description: 'A comma-separated list of IDs that should be included in the response.',
   })
   @ApiQuery({
-    name: 'online',
+    name: 'status',
     required: false,
-    type: Boolean,
-    description: 'When set, finds only online users and ignores the `ids` query parameter.',
+    enum: STATUS,
+    description: 'When set, returns only users with this status',
   })
-  async getUsers(@Query('ids') ids?: string, @Query('online') online?: boolean): Promise<User[]> {
-    return online ? this.userService.findOnline() : this.userService.findAll(ids?.split(','));
+  async getUsers(
+    @Query('status') status?: Status,
+    @Query('ids') ids?: string,
+  ): Promise<User[]> {
+    return this.userService.findAll(status, ids?.split(','));
   }
 
   @Get(':id')
