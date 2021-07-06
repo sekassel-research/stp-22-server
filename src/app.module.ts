@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -20,7 +19,6 @@ import { UserModule } from './user/user.module';
       useFindAndModify: true,
       useCreateIndex: true,
     }),
-    ThrottlerModule.forRoot(environment.rateLimit),
     EventEmitterModule.forRoot({
       wildcard: true,
     }),

@@ -28,7 +28,3 @@
 + Added Authentication.
 + Added Games.
 + Added Game Members.
-
-### Technical
-
-+ Added rate limit.

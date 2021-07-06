@@ -9,7 +9,6 @@ import {
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
-import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { Status, STATUS, User } from './user.schema';
@@ -18,7 +17,6 @@ import { UserService } from './user.service';
 @Controller('users')
 @ApiTags('Users')
 @Validated()
-@Throttled()
 export class UserController {
   constructor(
     private userService: UserService,

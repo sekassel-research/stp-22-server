@@ -10,10 +10,6 @@ export const environment = {
     expiry: '1h',
     refreshExpiry: '28 days',
   },
-  rateLimit: {
-    ttl: 60,
-    limit: 10,
-  },
   nats: {
     url: process.env.NATS_URL || 'nats://localhost:4222',
   },

@@ -1,12 +1,5 @@
 # REST API
 
-## Rate Limit
-
-All API operations are rate limited.
-You cannot send more than **${environment.rateLimit.limit}** HTTP requests
-from the same IP address within **${environment.rateLimit.ttl}** seconds.
-WebSockets are exempt from this.
-
 ## Error Handling
 
 Many operations may produce some kind of error.

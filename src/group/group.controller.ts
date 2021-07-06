@@ -3,7 +3,6 @@ import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiQuery, ApiT
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
-import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateGroupDto, UpdateGroupDto } from './group.dto';
 import { Group } from './group.schema';
@@ -13,7 +12,6 @@ import { GroupService } from './group.service';
 @ApiTags('Groups')
 @Validated()
 @Auth()
-@Throttled()
 export class GroupController {
   constructor(
     private groupService: GroupService,

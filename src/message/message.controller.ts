@@ -23,7 +23,6 @@ import { Auth, AuthUser } from '../auth/auth.decorator';
 import { MemberResolverService } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
-import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
@@ -33,7 +32,6 @@ import { MessageService } from './message.service';
 @ApiTags('Messages')
 @Validated()
 @Auth()
-@Throttled()
 export class MessageController {
   constructor(
     private messageService: MessageService,

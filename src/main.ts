@@ -6,7 +6,6 @@ import { readFile } from 'fs/promises';
 import { AppModule } from './app.module';
 import { environment } from './environment';
 import { ErrorResponse, ValidationErrorResponse } from './util/error-response';
-import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 
 // FIXME Most PATCH endpoints allow putting null as a property value,
 //       which kind of corrupts the data.
@@ -40,7 +39,6 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
   app.enableCors();
   app.useWebSocketAdapter(new WsAdapter(app));
-  app.useGlobalFilters(new ThrottlerExceptionFilter());
 
   app.connectMicroservice({
     transport: Transport.NATS,

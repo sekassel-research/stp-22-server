@@ -24,7 +24,6 @@ import {
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
-import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
 import { Member } from './member.schema';
@@ -34,7 +33,6 @@ import { MemberService } from './member.service';
 @ApiTags('Game Members')
 @Validated()
 @Auth()
-@Throttled()
 export class MemberController {
   constructor(
     private readonly memberService: MemberService,

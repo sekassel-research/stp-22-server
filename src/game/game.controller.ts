@@ -13,7 +13,6 @@ import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, 
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
-import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
 import { Game } from './game.schema';
@@ -23,7 +22,6 @@ import { GameService } from './game.service';
 @ApiTags('Games')
 @Validated()
 @Auth()
-@Throttled()
 export class GameController {
   constructor(
     private readonly gameService: GameService,
