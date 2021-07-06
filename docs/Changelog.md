@@ -32,3 +32,21 @@
 ### Technical
 
 + Added rate limit.
+
+# v2.0.0 - Base Settlers Game
+
+## New Features
+
+### Resources
+
++ Added Game `started` flag.
++ Added Game Map.
++ Added Game Players.
++ Added Game State.
++ Added Game Moves.
+
+### Game Rules
+
++ Added map features: resource tiles, number tokens
++ Added founding phase.
++ Added main game loop: dice roll, resource retrieval, buying and placing settlements, cities and roads.
