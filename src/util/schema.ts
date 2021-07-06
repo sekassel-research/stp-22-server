@@ -22,6 +22,12 @@ export const MONGO_ID_FORMAT: ApiPropertyOptions = {
   example: '507f191e810c19729de860ea',
 };
 
+export const MONGO_ID_ARRAY_FORMAT: ApiPropertyOptions = {
+  format: MONGO_ID_FORMAT.format,
+  example: [MONGO_ID_FORMAT.example],
+  type: [String],
+};
+
 export class GlobalSchemaWithoutID {
   @ApiProperty()
   createdAt!: Date;

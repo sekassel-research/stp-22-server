@@ -1,0 +1,6 @@
+version: v3
+services:
+  nats:
+    image: nats:1.4.1
+    ports:
+    - "4222:4222"

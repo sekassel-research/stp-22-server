@@ -1,13 +1,18 @@
+import { Inject } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ClientNats, ClientProxy } from '@nestjs/microservices';
 import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
 import { IncomingMessage } from 'http';
+import { Client } from 'nats';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from '../auth/auth.service';
+import { environment } from '../environment';
 
-@WebSocketGateway({ path: '/ws' })
-export class AppGateway implements OnGatewayConnection {
+@WebSocketGateway({ path: `/ws/${environment.version}/events` })
+export class EventGateway implements OnGatewayConnection {
   constructor(
+    @Inject('EVENT_SERVICE') private client: ClientNats,
     private eventEmitter: EventEmitter2,
     private authService: AuthService,
   ) {
@@ -33,17 +38,19 @@ export class AppGateway implements OnGatewayConnection {
 
   private observe<T>(client: any, event: string): Observable<WsResponse<T>> {
     return new Observable<WsResponse<T>>(observer => {
-      const handler = function(data: T, users?: string[]) {
+      const nats = ((this.client as any).natsClient) as Client;
+      const sid = nats.subscribe(event, message => {
+        const event = message.pattern;
+        const { data, users } = message.data;
         if (users && !users.includes(client.user._id)) {
           return;
         }
         observer.next({
-          event: this.event,
+          event,
           data,
         });
-      };
-      this.eventEmitter.on(event, handler);
-      return () => this.eventEmitter.off(event, handler);
+      });
+      return () => nats.unsubscribe(sid);
     });
   }
 

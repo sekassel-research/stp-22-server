@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { MemberResolverService } from '../member-resolver/member-resolver.service';
 
+import { EventService } from '../event/event.service';
+import { MemberResolverService } from '../member-resolver/member-resolver.service';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message, MessageDocument } from './message.schema';
 
@@ -12,7 +12,7 @@ export class MessageService {
   constructor(
     @InjectModel('messages') private model: Model<Message>,
     private resolver: MemberResolverService,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventService,
   ) {
   }
 

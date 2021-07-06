@@ -1,36 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
+
 import { RefreshToken } from '../auth/auth.interface';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { environment } from '../environment';
+import { EventService } from '../event/event.service';
 import { CreateUserDto, LoginDto, LoginResult, RefreshDto, UpdateUserDto } from './user.dto';
-import { User, UserDocument } from './user.schema';
+import { Status, User, UserDocument } from './user.schema';
 
 @Injectable()
 export class UserService {
-  private online = new Set<string>();
-
   constructor(
     @InjectModel('users') private model: Model<User>,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventService,
     private jwtService: JwtService,
     private jwtStrategy: JwtStrategy,
   ) {
   }
 
-  async findAll(ids?: string[]): Promise<User[]> {
-    return (ids ? this.model.find({ _id: { $in: ids } }) : this.model.find())
+  async findAll(status?: Status, ids?: string[]): Promise<User[]> {
+    const filter: FilterQuery<User> = {};
+    if (status) {
+      filter.status = status;
+    }
+    if (ids) {
+      filter._id = { $in: ids };
+    }
+    return this.model.find(filter)
       .sort({ name: 1 })
       .exec();
-  }
-
-  async findOnline(): Promise<User[]> {
-    return this.findAll([...this.online]);
   }
 
   async find(id: string): Promise<User | undefined> {
@@ -71,6 +73,7 @@ export class UserService {
       const passwordSalt = await bcrypt.genSalt();
       result.passwordHash = await bcrypt.hash(password, passwordSalt);
     }
+    result.status ||= 'offline';
     return result;
   }
 
@@ -90,9 +93,6 @@ export class UserService {
       refreshKey = crypto.randomBytes(64).toString('base64');
       await this.model.findByIdAndUpdate(user._id, { refreshKey }, { new: true }).exec();
     }
-
-    this.online.add(user._id);
-    this.emit('online', user);
 
     const accessPayload = await this.jwtStrategy.generate(user);
     const refreshPayload: RefreshToken = { sub: user._id, refreshKey };
@@ -124,9 +124,8 @@ export class UserService {
     };
   }
 
-  async logout(user: User) {
-    this.online.delete(user._id);
-    this.emit('offline', user);
+  async logout(user: User): Promise<User> {
+    return this.model.findByIdAndUpdate(user._id, { refreshKey: undefined }).exec();
   }
 
   private emit(event: string, user: User) {

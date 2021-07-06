@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { EventModule } from '../event/event.module';
 import { GameController } from './game.controller';
 import { GameHandler } from './game.handler';
 import { GameScheduler } from './game.scheduler';
@@ -12,6 +13,7 @@ import { GameService } from './game.service';
       name: 'games',
       schema: GameSchema,
     }]),
+    EventModule,
   ],
   controllers: [GameController],
   providers: [GameService, GameHandler, GameScheduler],

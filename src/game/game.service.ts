@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
+import { EventService } from '../event/event.service';
 import { User } from '../user/user.schema';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
 import { Game } from './game.schema';
@@ -11,7 +11,7 @@ import { Game } from './game.schema';
 export class GameService {
   constructor(
     @InjectModel('games') private model: Model<Game>,
-    private eventEmitter: EventEmitter2,
+    private eventService: EventService,
   ) {
   }
 
@@ -80,6 +80,6 @@ export class GameService {
   }
 
   private emit(event: string, game: Game): void {
-    this.eventEmitter.emit(`games.${game._id}.${event}`, game);
+    this.eventService.emit(`games.${game._id}.${event}`, game);
   }
 }

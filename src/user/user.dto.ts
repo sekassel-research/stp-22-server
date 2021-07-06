@@ -1,10 +1,11 @@
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import { IsByteLength, IsNotEmpty, IsString } from 'class-validator';
 import { User } from './user.schema';
 
 class UserAndPassword extends PickType(User, [
   'name',
   'avatar',
+  'status',
 ]) {
   @IsString()
   @IsNotEmpty()
@@ -13,7 +14,7 @@ class UserAndPassword extends PickType(User, [
   password: string;
 }
 
-export class CreateUserDto extends UserAndPassword {
+export class CreateUserDto extends OmitType(UserAndPassword, ['status'] as const) {
 }
 
 export class UpdateUserDto extends PartialType(UserAndPassword) {

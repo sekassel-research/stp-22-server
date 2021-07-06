@@ -1,4 +1,8 @@
 export const environment = {
+  version: 'v1',
+  mongo: {
+    uri: process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21',
+  },
   auth: {
     secret: process.env.AUTH_SECRET,
     algorithms: (process.env.AUTH_ALGORITHMS || 'RS256').split(','),
@@ -9,5 +13,8 @@ export const environment = {
   rateLimit: {
     ttl: 60,
     limit: 10,
+  },
+  nats: {
+    url: process.env.NATS_URL || 'nats://localhost:4222',
   },
 };

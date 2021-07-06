@@ -1,10 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsByteLength, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
+import { IsByteLength, IsIn, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
 
 const MAX_AVATAR_LENGTH = 16 * 1024;
+export const STATUS = ['online', 'offline'] as const;
+export type Status = typeof STATUS[number];
 
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, timestamps: false })
 export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
@@ -13,6 +15,11 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
   @IsNotEmpty()
   @ApiProperty()
   name: string;
+
+  @Prop({ type: String })
+  @IsIn(STATUS)
+  @ApiProperty({ enum: STATUS })
+  status: Status;
 
   @Prop()
   @IsOptional()
