@@ -110,45 +110,4 @@ export class MessageController {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
     return this.messageService.create(namespace, parent, user._id, message, users);
   }
-
-  @Patch(':id')
-  @ApiOkResponse({ type: Message })
-  @ApiForbiddenResponse({ description: 'Attempt to change messages in an inaccessible parent, or to change someone else\'s message.' })
-  @NotFound()
-  async update(
-    @AuthUser() user: User,
-    @Param('parent') parent: string,
-    @Param('id') id: string,
-    @Body() dto: UpdateMessageDto,
-  ): Promise<Message> {
-    const users = await this.checkParentAndGetMembers(namespace, parent, user);
-    const existing = await this.messageService.find(namespace, parent, id);
-    if (!existing) {
-      return undefined;
-    }
-    if (existing.sender !== user._id) {
-      throw new ForbiddenException('Only the sender can change the message.');
-    }
-    return this.messageService.update(namespace, parent, id, dto, users);
-  }
-
-  @Delete(':id')
-  @ApiOkResponse({ type: Message })
-  @ApiForbiddenResponse({ description: 'Attempt to delete messages in an inaccessible parent, or to delete someone else\'s message.' })
-  @NotFound()
-  async delete(
-    @AuthUser() user: User,
-    @Param('parent') parent: string,
-    @Param('id') id: string,
-  ): Promise<Message> {
-    const users = await this.checkParentAndGetMembers(namespace, parent, user);
-    const existing = await this.messageService.find(namespace, parent, id);
-    if (!existing) {
-      return undefined;
-    }
-    if (existing.sender !== user._id) {
-      throw new ForbiddenException('Only the sender can delete the message.');
-    }
-    return this.messageService.delete(namespace, parent, id, users);
-  }
 }

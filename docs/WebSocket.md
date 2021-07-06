@@ -60,12 +60,12 @@ Some events are only visible to certain users for privacy reasons.
 
 | Event Name | Payload | Visible to |
 | --- | --- | --- |
-| `users.<userId>.{created,updated,deleted}`<sup>1, 2</sup> | [`User`](#model-User) | Everyone |
-| `groups.<groupId>.{created,updated,deleted}` | [`Group`](#model-Group) | Anyone in the `members` array |
-| `groups.<groupId>.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message) | Anyone in the group's `members` array |
+| `users.<userId>.created`<sup>1, 2</sup> | [`User`](#model-User) | Everyone |
+| `groups.<groupId>.created` | [`Group`](#model-Group) | Anyone in the `members` array |
+| `groups.<groupId>.messages.<messageId>.created` | [`Message`](#model-Message) | Anyone in the group's `members` array |
 
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
 
 <sup>2</sup>:
-The placeholder `<userId>` stands for "some fixed User ID". For example, a possible event could be `users.507f191e810c19729de860ea.updated`.
+The placeholder `<userId>` stands for "some fixed User ID". For example, a possible event could be `users.507f191e810c19729de860ea.created`.
 You can use this to subscribe to events that concern a single resource. If you do want to subscribe to all user events, use the pattern `users.*.*`.

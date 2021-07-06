@@ -60,35 +60,4 @@ export class UserController {
   async create(@Body() dto: CreateUserDto): Promise<User> {
     return this.userService.create(dto);
   }
-
-  @Patch(':id')
-  @Auth()
-  @NotFound()
-  @ApiOkResponse({ type: User })
-  @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s user.' })
-  async update(
-    @AuthUser() user: User,
-    @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
-  ): Promise<User | undefined> {
-    if (id !== user._id) {
-      throw new ForbiddenException('Cannot change someone else\'s user.');
-    }
-    return this.userService.update(id, dto);
-  }
-
-  @Delete(':id')
-  @Auth()
-  @NotFound()
-  @ApiOkResponse({ type: User })
-  @ApiForbiddenResponse({ description: 'Attempt to delete someone else\'s user.' })
-  async delete(
-    @AuthUser() user: User,
-    @Param('id') id: string,
-  ): Promise<User | undefined> {
-    if (id !== user._id) {
-      throw new ForbiddenException('Cannot delete someone else\'s user.');
-    }
-    return this.userService.delete(id);
-  }
 }
