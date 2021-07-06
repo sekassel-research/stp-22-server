@@ -28,7 +28,9 @@ import { CreateMessageDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
-@Controller(':namespace/:parent/messages')
+const namespace = 'groups';
+
+@Controller('groups/:parent/messages')
 @ApiTags('Messages')
 @Validated()
 @Auth()
@@ -68,7 +70,6 @@ export class MessageController {
   @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   async getAll(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Query('createdBefore') createdBefore?: Date,
     @Query('limit') limit = 100,
@@ -90,7 +91,6 @@ export class MessageController {
   @NotFound()
   async get(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Param('id') id: string,
   ): Promise<Message> {
@@ -104,7 +104,6 @@ export class MessageController {
   @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
   async create(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
@@ -118,7 +117,6 @@ export class MessageController {
   @NotFound()
   async update(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Param('id') id: string,
     @Body() dto: UpdateMessageDto,
@@ -140,7 +138,6 @@ export class MessageController {
   @NotFound()
   async delete(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
     @Param('parent') parent: string,
     @Param('id') id: string,
   ): Promise<Message> {
