@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as fs from 'fs';
+import { readFile } from 'fs/promises';
 import { AppModule } from './app.module';
 import { environment } from './environment';
 import { ErrorResponse, ValidationErrorResponse } from './util/error-response';
@@ -11,13 +11,28 @@ import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 // FIXME Most PATCH endpoints allow putting null as a property value,
 //       which kind of corrupts the data.
 
-const generalInfo = fs.readFileSync(`${__dirname}/../docs/REST.md`).toString()
-  .replace(/\$\{environment\.(\w+)\.(\w+)}/g, (fullMatch, category, key) => environment[category][key]);
-const webSocket = fs.readFileSync(`${__dirname}/../docs/WebSocket.md`).toString()
-  .replace(/\$\{environment\.(\w+)}/g, (fullMatch, key) => environment[key]);
-const description = generalInfo + webSocket;
-
 const globalPrefix = `api/${environment.version}`;
+
+async function loadDescription(): Promise<string> {
+  const contents$ = [
+    'REST',
+    'WebSocket',
+  ].map(fileName => readFile(`${__dirname}/../docs/${fileName}.md`).then(content => {
+    const replacedContent = content.toString()
+      .replace(/\$\{environment\.(\w+)}/g, (fullMatch, key) => environment[key])
+      .replace(/\$\{environment\.(\w+)\.(\w+)}/g, (fullMatch, category, key) => environment[category][key]);
+    return `
+<details><summary>${fileName}</summary>
+
+${replacedContent}
+
+</details>
+`;
+  }));
+
+  const descriptions = await Promise.all(contents$);
+  return descriptions.join('\n');
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,7 +48,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('STP Server')
-    .setDescription(description)
+    .setDescription(await loadDescription())
     .setVersion(environment.version)
     .addBearerAuth()
     .build();
