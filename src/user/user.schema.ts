@@ -16,7 +16,7 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
   @ApiProperty()
   name: string;
 
-  @Prop()
+  @Prop({ type: String })
   @IsIn(STATUS)
   @ApiProperty({ enum: STATUS })
   status: Status;
