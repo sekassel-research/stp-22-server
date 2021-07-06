@@ -26,5 +26,3 @@
 ### Resources
 
 + Added Authentication.
-+ Added Games.
-+ Added Game Members.

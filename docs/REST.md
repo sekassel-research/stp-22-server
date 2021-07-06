@@ -25,8 +25,6 @@ All delete operations, whether explicit or cascading, trigger the same events.
 | User | Games they are the owner of |
 | User | Memberships in games they joined |
 | Group | All Messages sent within the group |
-| Game | All Memberships of the game |
-| Game | All Messages sent within the game |
 
 Cascading deletes do not apply to some resources:
 
