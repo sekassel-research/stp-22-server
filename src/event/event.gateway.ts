@@ -1,16 +1,16 @@
 import { Inject } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ClientNats, ClientProxy } from '@nestjs/microservices';
-import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import { ClientNats } from '@nestjs/microservices';
+import { Client } from '@nestjs/microservices/external/nats-client.interface';
+import { OnGatewayConnection, OnGatewayInit, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
 import { IncomingMessage } from 'http';
-import { Client } from 'nats';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../environment';
 
 @WebSocketGateway({ path: `/ws/${environment.version}/events` })
-export class EventGateway implements OnGatewayConnection {
+export class EventGateway implements OnGatewayInit, OnGatewayConnection {
   constructor(
     @Inject('EVENT_SERVICE') private client: ClientNats,
     private eventEmitter: EventEmitter2,
@@ -19,6 +19,10 @@ export class EventGateway implements OnGatewayConnection {
   }
 
   private unsubscribeRequests = new Subject<{ client: any, event: string }>();
+
+  async afterInit(): Promise<void> {
+    await this.client.connect();
+  }
 
   async handleConnection(client: any, message: IncomingMessage): Promise<void> {
     try {
@@ -39,18 +43,20 @@ export class EventGateway implements OnGatewayConnection {
   private observe<T>(client: any, event: string): Observable<WsResponse<T>> {
     return new Observable<WsResponse<T>>(observer => {
       const nats = ((this.client as any).natsClient) as Client;
-      const sid = nats.subscribe(event, message => {
-        const event = message.pattern;
-        const { data, users } = message.data;
-        if (users && !users.includes(client.user._id)) {
-          return;
-        }
-        observer.next({
-          event,
-          data,
-        });
+      const subscription = nats.subscribe(event, {
+        callback: (err, msg) => {
+          const event = msg.subject;
+          const { data: { data }, users } = JSON.parse(msg.data.toString());
+          if (users && (!client.user || !users.includes(client.user._id))) {
+            return;
+          }
+          observer.next({
+            event,
+            data,
+          });
+        },
       });
-      return () => nats.unsubscribe(sid);
+      return () => subscription.unsubscribe();
     });
   }
 
