@@ -66,6 +66,10 @@ Some events are only visible to certain users for privacy reasons.
 | `games.<gameId>.{created,updated,deleted}` | [`Game`](#model-Game) | Everyone |
 | `games.<gameId>.members.<userId>.{created,updated,deleted}` | [`Member`](#model-Member) | Everyone |
 | `games.<gameId>.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message) | Anyone who is a member of the game |
+| `games.<gameId>.state.updated` | [`State`](#model-State) | TODO |
+| `games.<gameId>.players.<userId>.updated` | [`Player`](#model-Player) | TODO |
+| `games.<gameId>.moves.<moveId>.created` | [`Move`](#model-Move) | TODO |
+| `games.<gameId>.buildings.<buildingId>.created` | [`Building`](#model-Building) | TODO |
 
 <sup>1</sup>: The shorthand notation `foo.{bar,baz}` means "either `foo.bar` or `foo.baz`" **in this table**. You **cannot** use this notation to subscribe to or unsubscribe from events!
 
