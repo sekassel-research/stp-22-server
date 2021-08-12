@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { CreateBuildingDto } from '../building/building.dto';
 import { Building } from '../building/building.schema';
 import { BuildingService } from '../building/building.service';
-import { Tile } from '../map/map.schema';
+import { Map as GameMap, Tile } from '../map/map.schema';
 import { MapService } from '../map/map.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
@@ -50,10 +51,10 @@ export class GameLogicService {
     };
 
     if (move.action === 'build') {
-      const costs = BUILDING_COSTS[move.building.type];
-      for (const resource of Object.keys(costs)) {
-        $inc[`resources.${resource}`] = -costs[resource];
-      }
+      this.deductCosts(move, $inc);
+    } else if (move.action === 'founding-house-1') {
+      const map = await this.mapService.findByGame(gameId);
+      this.giveAdjacentResources(map, move.building, $inc);
     }
 
     await this.playerService.update(gameId, userId, { $inc });
@@ -71,6 +72,30 @@ export class GameLogicService {
       'founding-streets': 'roll',
       'build': 'roll',
     }[move.action]);
+  }
+
+  private deductCosts(move: Move, $inc: { [p: string]: number }) {
+    const costs = BUILDING_COSTS[move.building.type];
+    for (const resource of Object.keys(costs)) {
+      $inc[`resources.${resource}`] = -costs[resource];
+    }
+  }
+
+  private giveAdjacentResources(map: GameMap, building: CreateBuildingDto, $inc: { [p: string]: number }) {
+    const adjacentTilePositions = this.adjacentTileFilter(building);
+    for (const tile of map.tiles) {
+      if (!adjacentTilePositions.find(({ x, y, z }) => tile.x === x && tile.y === y && tile.z === z)) {
+        continue;
+      }
+
+      if (tile.type === 'desert') {
+        continue;
+      }
+
+      const key = `resources.${tile.type}`;
+      const current = $inc[key] || 0;
+      $inc[key] = current + 1;
+    }
   }
 
   private async roll(move: Move): Promise<void> {
@@ -121,6 +146,43 @@ export class GameLogicService {
       { x: x - 1, y, z: z + 1, side: 0 }, // bottom left
       { x, y: y + 1, z: z - 1, side: 1 }, // top left
     ];
+  }
+
+  private adjacentTileFilter({ x, y, z, side, type }: Pick<Building, keyof Point3D | 'side' | 'type'>): Point3D[] {
+    if (type === 'road') {
+      switch (side) {
+        case 0:
+          return [
+            { x, y, z },
+            { x, y: y + 1, z: z - 1 },
+          ];
+        case 1:
+          return [
+            { x, y, z },
+            { x: x - 1, y, z: z + 1 },
+          ];
+        case 2:
+          return [
+            { x, y, z },
+            { x: x + 1, y: y - 1, z },
+          ];
+      }
+    } else {
+      switch (side) {
+        case 0:
+          return [
+            { x, y, z },
+            { x, y: y + 1, z: z - 1 },
+            { x: x + 1, y, z: z - 1 },
+          ];
+        case 1:
+          return [
+            { x, y, z },
+            { x: x - 1, y, z: z + 1 },
+            { x, y: y - 1, z: z + 1 },
+          ];
+      }
+    }
   }
 
   private async advanceState(gameId: string, next: Task): Promise<void> {
