@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { BuildingModule } from './building/building.module';
 import { GameLogicModule } from './game-logic/game-logic.module';
 import { MapModule } from './map/map.module';
 import { MoveModule } from './move/move.module';
@@ -12,6 +13,7 @@ import { StateModule } from './state/state.module';
     SharedModule,
     PlayerModule,
     StateModule,
+    BuildingModule,
     MoveModule,
     GameLogicModule,
   ],
