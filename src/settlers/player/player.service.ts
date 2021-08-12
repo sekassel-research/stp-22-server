@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { MemberService } from '../../member/member.service';
 import { Player } from './player.schema';
 
@@ -28,7 +28,7 @@ export class PlayerService {
   }
 
   async findAll(gameId: string): Promise<Player[]> {
-    return this.model.find({ gameId }).exec();
+    return this.model.find({ gameId }).sort({foundingRoll: -1}).exec();
   }
 
   async findOne(gameId: string, userId: string): Promise<Player | undefined> {
@@ -62,7 +62,7 @@ export class PlayerService {
     return this.model.insertMany(players);
   }
 
-  async update(gameId: string, userId: string, dto: Partial<Player>): Promise<Player | undefined> {
+  async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<Player | undefined> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;

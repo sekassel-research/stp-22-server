@@ -16,6 +16,9 @@ import { BuildingService } from './building.service';
   ],
   providers: [BuildingService, BuildingHandler],
   controllers: [BuildingController],
+  exports: [
+    BuildingService,
+  ],
 })
 export class BuildingModule {
 }

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { BuildingService } from '../building/building.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
+import { Task } from '../shared/constants';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
 
@@ -9,6 +11,7 @@ export class GameLogicService {
   constructor(
     private stateService: StateService,
     private playerService: PlayerService,
+    private buildingService: BuildingService,
   ) {
   }
 
@@ -16,6 +19,9 @@ export class GameLogicService {
     switch (move.action) {
       case 'founding-roll':
         return this.foundingRoll(move);
+      case 'founding-house-1':
+      case 'founding-house-2':
+        return this.foundingHouse(move);
     }
   }
 
@@ -25,13 +31,37 @@ export class GameLogicService {
       foundingRoll: move.roll,
     });
 
+    return this.advanceState(gameId, 'founding-house-1');
+  }
+
+  private async foundingHouse(move: Move): Promise<void> {
+    const { gameId, userId } = move;
+    await this.playerService.update(gameId, userId, {
+      $inc: {
+        'remainingBuildings.settlements': -1,
+      },
+    });
+
+    // TODO check validity of building
+    await this.buildingService.create({
+      ...move.building,
+      gameId,
+      owner: userId,
+    });
+
+    return this.advanceState(gameId, {
+      'founding-house-1': 'founding-house-2',
+      'founding-house-2': 'founding-streets',
+    }[move.action]);
+  }
+
+  private async advanceState(gameId: string, next: Task): Promise<void> {
     const state = await this.stateService.findByGame(gameId);
     const stateUpdate: Partial<State> = {};
     if (state.nextPlayers.length === 0) {
       const players = await this.playerService.findAll(gameId);
-      players.sort((a, b) => a.foundingRoll - b.foundingRoll);
       const [first, ...rest] = players;
-      stateUpdate.activeTask = 'founding-house-1';
+      stateUpdate.activeTask = next;
       stateUpdate.activePlayer = first.userId;
       stateUpdate.nextPlayers = rest.map(p => p.userId);
     } else {

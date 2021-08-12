@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsMongoId, IsOptional, Max, Min } from 'class-validator';
 import { MONGO_ID_FORMAT } from '../../util/schema';
+import { CreateBuildingDto } from '../building/building.dto';
+import { Building } from '../building/building.schema';
 import { Task, TASKS } from '../shared/constants';
 
 export class Move {
@@ -25,4 +27,8 @@ export class Move {
   @Min(1)
   @Max(12)
   roll?: number;
+
+  @ApiProperty({ type: CreateBuildingDto, required: false })
+  @IsOptional()
+  building?: CreateBuildingDto;
 }
