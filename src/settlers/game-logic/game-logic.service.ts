@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { Building } from '../building/building.schema';
 import { BuildingService } from '../building/building.service';
+import { Tile } from '../map/map.schema';
+import { MapService } from '../map/map.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
-import { BUILDING_COSTS, Task } from '../shared/constants';
+import { BUILDING_COSTS, ResourceType, Task } from '../shared/constants';
+import { Point3D } from '../shared/schema';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
 
 @Injectable()
 export class GameLogicService {
   constructor(
+    private mapService: MapService,
     private stateService: StateService,
     private playerService: PlayerService,
     private buildingService: BuildingService,
@@ -24,6 +29,8 @@ export class GameLogicService {
       case 'founding-streets':
       case 'build':
         return this.build(move);
+      case 'roll':
+        return this.roll(move);
     }
   }
 
@@ -64,6 +71,56 @@ export class GameLogicService {
       'founding-streets': 'roll',
       'build': 'roll',
     }[move.action]);
+  }
+
+  private async roll(move: Move): Promise<void> {
+    const { gameId, roll } = move;
+    const map = await this.mapService.findByGame(gameId);
+    const tiles = map.tiles.filter(tile => tile.numberToken === roll);
+    const players: Record<string, Partial<Record<ResourceType, number>>> = {};
+
+    await Promise.all(tiles.map(tile => this.giveResources(players, tile)));
+    await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
+
+    return this.advanceState(gameId, 'build');
+  }
+
+  private async giveResources(players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
+    const adjacentBuildings = await this.buildingService.findAll({
+      $or: this.adjacentBuildingFilter(tile),
+    });
+    for (const building of adjacentBuildings) {
+      const resources = players[building.owner] ??= {};
+      const resourceCount = resources[tile.type] || 0;
+      switch (building.type) {
+        case 'settlement':
+          resources[tile.type] = resourceCount + 1;
+          break;
+        case 'city':
+          resources[tile.type] = resourceCount + 2;
+          break;
+      }
+    }
+  }
+
+  private async updateResources(gameId: string, userId: string, resources: Partial<Record<string, number>>): Promise<void> {
+    const $inc = {};
+    for (const key of Object.keys(resources)) {
+      $inc[`resources.${key}`] = resources[key];
+    }
+    await this.playerService.update(gameId, userId, { $inc });
+  }
+
+  private adjacentBuildingFilter(tile: Point3D): Pick<Building, keyof Point3D | 'side'>[] {
+    const { x, y, z } = tile;
+    return [
+      { x, y, z, side: 0 }, // top
+      { x: x + 1, y, z: z - 1, side: 1 }, // top right
+      { x, y: y - 1, z: z + 1, side: 0 }, // bottom right
+      { x, y, z, side: 1 }, // bottom
+      { x: x - 1, y, z: z + 1, side: 0 }, // bottom left
+      { x, y: y + 1, z: z - 1, side: 1 }, // top left
+    ];
   }
 
   private async advanceState(gameId: string, next: Task): Promise<void> {
