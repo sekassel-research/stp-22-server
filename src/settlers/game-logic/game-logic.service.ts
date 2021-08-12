@@ -21,7 +21,9 @@ export class GameLogicService {
         return this.foundingRoll(move);
       case 'founding-house-1':
       case 'founding-house-2':
-        return this.foundingHouse(move);
+      case 'founding-streets':
+      case 'build':
+        return this.build(move);
     }
   }
 
@@ -34,11 +36,11 @@ export class GameLogicService {
     return this.advanceState(gameId, 'founding-house-1');
   }
 
-  private async foundingHouse(move: Move): Promise<void> {
+  private async build(move: Move): Promise<void> {
     const { gameId, userId } = move;
     await this.playerService.update(gameId, userId, {
       $inc: {
-        'remainingBuildings.settlements': -1,
+        [`remainingBuildings.${move.building.type}s`]: -1,
       },
     });
 
@@ -49,9 +51,13 @@ export class GameLogicService {
       owner: userId,
     });
 
+    // TODO deduct costs in 'building' phase
+
     return this.advanceState(gameId, {
       'founding-house-1': 'founding-house-2',
       'founding-house-2': 'founding-streets',
+      'founding-streets': 'roll',
+      'build': 'roll',
     }[move.action]);
   }
 
