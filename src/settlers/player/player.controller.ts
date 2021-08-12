@@ -5,7 +5,7 @@ import { User } from '../../user/user.schema';
 import { NotFound } from '../../util/not-found.decorator';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
-import { Player } from './player.schema';
+import { Player, PlayerDocument } from './player.schema';
 import { PlayerService } from './player.service';
 
 @Controller('games/:gameId/players')
@@ -45,7 +45,7 @@ export class PlayerController {
     return this.maskResourcesIfOpponent(user, player);
   }
 
-  private maskResourcesIfOpponent(user: User, player: Player): Player {
+  private maskResourcesIfOpponent(user: User, player: PlayerDocument): Player {
     if (player.userId === user._id) {
       return player;
     }

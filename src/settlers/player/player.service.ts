@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, UpdateQuery } from 'mongoose';
+import { Document, Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { MemberService } from '../../member/member.service';
 import { INITIAL_BUILDINGS } from '../shared/constants';
-import { Player } from './player.schema';
+import { Player, PlayerDocument } from './player.schema';
 
 const COLOR_PALETTE = [
   '#ff0000',
@@ -28,28 +28,28 @@ export class PlayerService {
   ) {
   }
 
-  async findAll(gameId: string): Promise<Player[]> {
+  async findAll(gameId: string): Promise<PlayerDocument[]> {
     return this.model.find({ gameId }).sort({foundingRoll: -1}).exec();
   }
 
-  async findOne(gameId: string, userId: string): Promise<Player | undefined> {
+  async findOne(gameId: string, userId: string): Promise<PlayerDocument | undefined> {
     return this.model.findOne({ gameId, userId }).exec();
   }
 
-  maskResources(player: Player): Player {
+  maskResources(player: PlayerDocument): Player {
     const total = Object.values(player.resources).reduce((a, c) => a + c, 0);
     return {
-      ...player,
+      ...player.toObject(),
       resources: {
         unknown: total,
       },
     };
   }
 
-  async createForGame(gameId: string): Promise<Player[]> {
+  async createForGame(gameId: string): Promise<PlayerDocument[]> {
     const members = await this.memberService.findAll(gameId);
 
-    const players: Partial<Player>[] = members.map((m, index) => ({
+    const players = members.map((m, index) => ({
       gameId,
       userId: m.userId,
       color: COLOR_PALETTE[index % COLOR_PALETTE.length],
@@ -59,7 +59,7 @@ export class PlayerService {
     return this.model.insertMany(players);
   }
 
-  async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<Player | undefined> {
+  async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<PlayerDocument | undefined> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated, await this.findAll(gameId));
     return updated;
@@ -69,7 +69,7 @@ export class PlayerService {
     await this.model.deleteMany({ gameId }).exec();
   }
 
-  private emit(action: string, player: Player, allPlayers: Player[]) {
+  private emit(action: string, player: PlayerDocument, allPlayers: Player[]) {
     const event = `games.${player.gameId}.players.${player.userId}.${action}`;
     this.eventEmitter.emit(event, player, [player.userId]);
 
