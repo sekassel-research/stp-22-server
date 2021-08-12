@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsInt, IsMongoId } from 'class-validator';
-import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
+import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_ARRAY_FORMAT, MONGO_ID_FORMAT } from '../../util/schema';
 import { Task, TASKS } from '../shared/constants';
 
 @Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false })
@@ -22,7 +22,7 @@ export class State {
   activePlayer: string;
 
   @Prop()
-  @ApiProperty({ ...MONGO_ID_FORMAT, type: [String] })
+  @ApiProperty(MONGO_ID_ARRAY_FORMAT)
   @IsMongoId({ each: true })
   nextPlayers: string[];
 
