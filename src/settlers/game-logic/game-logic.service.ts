@@ -48,7 +48,7 @@ export class GameLogicService {
   private async build(move: Move): Promise<void> {
     const { gameId, userId } = move;
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
-      [`remainingBuildings.${move.building.type}s`]: -1,
+      [`remainingBuildings.${move.building.type}`]: -1,
     };
 
     if (move.action === 'build') {
