@@ -67,7 +67,7 @@ Some events are only visible to certain users for privacy reasons.
 | `games.<gameId>.members.<userId>.{created,updated,deleted}` | [`Member`](#model-Member) | Everyone |
 | `games.<gameId>.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message) | Anyone who is a member of the game |
 | `games.<gameId>.state.updated` | [`State`](#model-State) | TODO |
-| `games.<gameId>.players.<userId>.updated` | [`Player`](#model-Player) | TODO |
+| `games.<gameId>.players.<userId>.updated` | [`Player`](#model-Player) | Anyone who is a member of the game<sup>3</sup> |
 | `games.<gameId>.moves.<moveId>.created` | [`Move`](#model-Move) | TODO |
 | `games.<gameId>.buildings.<buildingId>.created` | [`Building`](#model-Building) | TODO |
 
@@ -77,3 +77,7 @@ Some events are only visible to certain users for privacy reasons.
 The placeholder `<userId>` stands for "some fixed User ID". For example, a possible event could be `users.507f191e810c19729de860ea.updated`.
 You can use this to subscribe to events that concern a single resource. If you do want to subscribe to all user events, use the pattern `users.*.*`.
 Similarly, to receive all events regarding the member list of a game, you could use the pattern `games.507f191e810c19729de860ea.members.*.*`.
+
+<sup>3</sup>:
+The Player who is being updated receives different data from other players.
+In particular, they can see their own resources instead of `unknown`.

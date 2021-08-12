@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
+import { EventService } from '../../event/event.service';
+import { Member } from '../../member/member.schema';
 import { MemberService } from '../../member/member.service';
 import { INITIAL_BUILDINGS } from '../shared/constants';
 import { Player } from './player.schema';
@@ -24,7 +25,7 @@ export class PlayerService {
   constructor(
     @InjectModel('players') private model: Model<Player>,
     private memberService: MemberService,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventService,
   ) {
   }
 
@@ -61,7 +62,7 @@ export class PlayerService {
 
   async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<Player | undefined> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
-    updated && this.emit('updated', updated);
+    updated && this.emit('updated', updated, await this.memberService.findAll(gameId));
     return updated;
   }
 
@@ -69,7 +70,12 @@ export class PlayerService {
     await this.model.deleteMany({ gameId }).exec();
   }
 
-  private emit(event: string, updated: Player) {
-    this.eventEmitter.emit(`games.${updated.gameId}.players.${updated.userId}.${event}`, updated); // TODO visibility
+  private emit(action: string, player: Player, members: Member[]) {
+    const event = `games.${player.gameId}.players.${player.userId}.${action}`;
+    this.eventEmitter.emit(event, player, [player.userId]);
+
+    const maskedPlayer = this.maskResources(player);
+    const otherMemberIds = members.map(m => m.userId).filter(u => u !== player.userId);
+    this.eventEmitter.emit(event, maskedPlayer, otherMemberIds);
   }
 }
