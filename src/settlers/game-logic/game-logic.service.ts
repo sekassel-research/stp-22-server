@@ -107,7 +107,9 @@ export class GameLogicService {
     await Promise.all(tiles.map(tile => this.giveResources(players, tile)));
     await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
 
-    return this.advanceState(gameId, 'build');
+    await this.stateService.update(gameId, {
+      activeTask: 'build',
+    });
   }
 
   private async giveResources(players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
