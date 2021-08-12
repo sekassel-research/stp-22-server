@@ -7,6 +7,7 @@ import { MapService } from '../map/map.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../shared/constants';
+import { cubeCorners } from '../shared/hexagon';
 import { Point3D } from '../shared/schema';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
@@ -140,15 +141,7 @@ export class GameLogicService {
   }
 
   private adjacentBuildingFilter(tile: Point3D): Pick<Building, keyof Point3D | 'side'>[] {
-    const { x, y, z } = tile;
-    return [
-      { x, y, z, side: 0 }, // top
-      { x: x + 1, y, z: z - 1, side: 1 }, // top right
-      { x, y: y - 1, z: z + 1, side: 0 }, // bottom right
-      { x, y, z, side: 1 }, // bottom
-      { x: x - 1, y, z: z + 1, side: 0 }, // bottom left
-      { x, y: y + 1, z: z - 1, side: 1 }, // top left
-    ];
+    return cubeCorners(tile);
   }
 
   private adjacentTileFilter({ x, y, z, side, type }: Pick<Building, keyof Point3D | 'side' | 'type'>): Point3D[] {

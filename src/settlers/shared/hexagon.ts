@@ -49,3 +49,21 @@ export function cubeCircle(radius: number): Point3D[] {
   }
   return results;
 }
+
+export const CUBE_CORNERS = [
+  [+0, +0, +0, 0], // top
+  [+1, +0, -1, 1], // top right
+  [+1, -1, +1, 0], // bottom right
+  [+0, +0, +0, 1], // bottom
+  [-1, +0, +1, 0], // bottom left
+  [+0, +1, -1, 1], // top left
+] as const;
+
+export function cubeCorners({ x, y, z }: Point3D): (Point3D & { side: 0 | 1 })[] {
+  return CUBE_CORNERS.map(([dx, dy, dz, side]) => ({
+    x: x + dx,
+    y: y + dy,
+    z: z + dz,
+    side,
+  }));
+}
