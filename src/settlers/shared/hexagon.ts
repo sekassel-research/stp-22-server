@@ -67,3 +67,47 @@ export function cubeCorners({ x, y, z }: Point3D): (Point3D & { side: 0 | 1 })[]
     side,
   }));
 }
+
+export const CORNER_ADJACENT_CUBES = [
+  [
+    [+0, +0, +0],
+    [+0, +1, -1],
+    [+1, +0, -1],
+  ],
+  [
+    [+0, +0, +0],
+    [-1, +0, +1],
+    [+0, -1, +1],
+  ],
+] as const;
+
+export function cornerAdjacentCubes({ x, y, z, side }: Point3D & { side: number }): Point3D[] {
+  return CORNER_ADJACENT_CUBES[side].map(([dx, dy, dz]) => ({
+    x: x + dx,
+    y: y + dy,
+    z: z + dz,
+  }));
+}
+
+export const EDGE_ADJACENT_CUBES = [
+  [
+    [+0, +0, +0],
+    [+0, +1, -1],
+  ],
+  [
+    [+0, +0, +0],
+    [-1, +0, +1],
+  ],
+  [
+    [+0, +0, +0],
+    [+1, -1, +0],
+  ],
+];
+
+export function edgeAdjacentCubes({ x, y, z, side }: Point3D & { side: number }): Point3D[] {
+  return EDGE_ADJACENT_CUBES[side].map(([dx, dy, dz]) => ({
+    x: x + dx,
+    y: y + dy,
+    z: z + dz,
+  }));
+}

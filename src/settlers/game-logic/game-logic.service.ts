@@ -7,7 +7,7 @@ import { MapService } from '../map/map.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../shared/constants';
-import { cubeCorners } from '../shared/hexagon';
+import { cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../shared/hexagon';
 import { Point3D } from '../shared/schema';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
@@ -144,40 +144,11 @@ export class GameLogicService {
     return cubeCorners(tile);
   }
 
-  private adjacentTileFilter({ x, y, z, side, type }: Pick<Building, keyof Point3D | 'side' | 'type'>): Point3D[] {
-    if (type === 'road') {
-      switch (side) {
-        case 0:
-          return [
-            { x, y, z },
-            { x, y: y + 1, z: z - 1 },
-          ];
-        case 1:
-          return [
-            { x, y, z },
-            { x: x - 1, y, z: z + 1 },
-          ];
-        case 2:
-          return [
-            { x, y, z },
-            { x: x + 1, y: y - 1, z },
-          ];
-      }
+  private adjacentTileFilter(building: Pick<Building, keyof Point3D | 'side' | 'type'>): Point3D[] {
+    if (building.type === 'road') {
+      return edgeAdjacentCubes(building);
     } else {
-      switch (side) {
-        case 0:
-          return [
-            { x, y, z },
-            { x, y: y + 1, z: z - 1 },
-            { x: x + 1, y, z: z - 1 },
-          ];
-        case 1:
-          return [
-            { x, y, z },
-            { x: x - 1, y, z: z + 1 },
-            { x, y: y - 1, z: z + 1 },
-          ];
-      }
+      return cornerAdjacentCubes(building)
     }
   }
 
