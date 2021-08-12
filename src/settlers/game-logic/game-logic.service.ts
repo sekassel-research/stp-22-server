@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BuildingService } from '../building/building.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
-import { Task } from '../shared/constants';
+import { BUILDING_COSTS, Task } from '../shared/constants';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
 
@@ -38,11 +38,18 @@ export class GameLogicService {
 
   private async build(move: Move): Promise<void> {
     const { gameId, userId } = move;
-    await this.playerService.update(gameId, userId, {
-      $inc: {
-        [`remainingBuildings.${move.building.type}s`]: -1,
-      },
-    });
+    const $inc = {
+      [`remainingBuildings.${move.building.type}s`]: -1,
+    };
+
+    if (move.action === 'build') {
+      const costs = BUILDING_COSTS[move.building.type];
+      for (const resource of Object.keys(costs)) {
+        $inc[`resources.${resource}`] = -costs[resource];
+      }
+    }
+
+    await this.playerService.update(gameId, userId, { $inc });
 
     // TODO check validity of building
     await this.buildingService.create({
@@ -50,8 +57,6 @@ export class GameLogicService {
       gameId,
       owner: userId,
     });
-
-    // TODO deduct costs in 'building' phase
 
     return this.advanceState(gameId, {
       'founding-house-1': 'founding-house-2',
