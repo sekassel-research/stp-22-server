@@ -16,6 +16,9 @@ import { MapSchema } from './map.schema';
   ],
   providers: [MapService, MapHandler],
   controllers: [MapController],
+  exports: [
+    MapService,
+  ],
 })
 export class MapModule {
 }
