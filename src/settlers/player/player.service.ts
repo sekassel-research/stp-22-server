@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
 import { MemberService } from '../../member/member.service';
+import { INITIAL_BUILDINGS } from '../shared/constants';
 import { Player } from './player.schema';
 
 const COLOR_PALETTE = [
@@ -53,11 +54,7 @@ export class PlayerService {
       userId: m.userId,
       color: COLOR_PALETTE[index % COLOR_PALETTE.length],
       resources: {},
-      remainingBuildings: {
-        city: 4,
-        settlement: 5,
-        road: 15,
-      },
+      remainingBuildings: INITIAL_BUILDINGS,
     }));
     return this.model.insertMany(players);
   }

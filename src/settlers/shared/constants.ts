@@ -34,6 +34,12 @@ export const BUILDING_TYPES = [
 ] as const;
 export type BuildingType = (typeof BUILDING_TYPES)[number];
 
+export const INITIAL_BUILDINGS: Record<BuildingType, number> = {
+  city: 4,
+  settlement: 5,
+  road: 15,
+};
+
 export const BUILDING_COSTS: Record<BuildingType, Partial<Record<ResourceType, number>>> = {
   road: {
     lumber: 1,
