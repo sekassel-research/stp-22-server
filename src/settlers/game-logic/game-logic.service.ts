@@ -6,7 +6,7 @@ import { Map as GameMap, Tile } from '../map/map.schema';
 import { MapService } from '../map/map.service';
 import { Move } from '../move/move.schema';
 import { PlayerService } from '../player/player.service';
-import { BUILDING_COSTS, ResourceType, Task } from '../shared/constants';
+import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
@@ -46,7 +46,7 @@ export class GameLogicService {
 
   private async build(move: Move): Promise<void> {
     const { gameId, userId } = move;
-    const $inc = {
+    const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}s`]: -1,
     };
 
@@ -74,14 +74,14 @@ export class GameLogicService {
     }[move.action]);
   }
 
-  private deductCosts(move: Move, $inc: { [p: string]: number }) {
+  private deductCosts(move: Move, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
     const costs = BUILDING_COSTS[move.building.type];
     for (const resource of Object.keys(costs)) {
       $inc[`resources.${resource}`] = -costs[resource];
     }
   }
 
-  private giveAdjacentResources(map: GameMap, building: CreateBuildingDto, $inc: { [p: string]: number }) {
+  private giveAdjacentResources(map: GameMap, building: CreateBuildingDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
     const adjacentTilePositions = this.adjacentTileFilter(building);
     for (const tile of map.tiles) {
       if (!adjacentTilePositions.find(({ x, y, z }) => tile.x === x && tile.y === y && tile.z === z)) {
@@ -92,7 +92,7 @@ export class GameLogicService {
         continue;
       }
 
-      const key = `resources.${tile.type}`;
+      const key = `resources.${TILE_RESOURCES[tile.type]}` as const;
       const current = $inc[key] || 0;
       $inc[key] = current + 1;
     }
@@ -118,13 +118,14 @@ export class GameLogicService {
     });
     for (const building of adjacentBuildings) {
       const resources = players[building.owner] ??= {};
-      const resourceCount = resources[tile.type] || 0;
+      const resourceType = TILE_RESOURCES[tile.type];
+      const resourceCount = resources[resourceType] || 0;
       switch (building.type) {
         case 'settlement':
-          resources[tile.type] = resourceCount + 1;
+          resources[resourceType] = resourceCount + 1;
           break;
         case 'city':
-          resources[tile.type] = resourceCount + 2;
+          resources[resourceType] = resourceCount + 2;
           break;
       }
     }
