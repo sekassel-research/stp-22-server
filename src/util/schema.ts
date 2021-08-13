@@ -7,6 +7,7 @@ export const GLOBAL_SCHEMA_OPTIONS: SchemaOptions = {
 };
 
 export const GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS: SchemaOptions = {
+  ...GLOBAL_SCHEMA_OPTIONS,
   id: false,
   toJSON: {
     virtuals: true,

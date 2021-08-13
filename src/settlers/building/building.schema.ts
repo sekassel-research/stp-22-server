@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn } from 'class-validator';
-import { MONGO_ID_FORMAT } from '../../util/schema';
+import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
-@Schema()
+@Schema({ ...GLOBAL_SCHEMA_OPTIONS, versionKey: false, timestamps: false })
 export class Building extends Point3D {
   @Prop()
   @ApiProperty({
