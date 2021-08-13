@@ -9,7 +9,7 @@ import { Move } from '../move/move.schema';
 import { MoveService } from '../move/move.service';
 import { PlayerService } from '../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../shared/constants';
-import { cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../shared/hexagon';
+import { cornerAdjacentCorners, cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../shared/hexagon';
 import { randInt } from '../shared/random';
 import { Point3D } from '../shared/schema';
 import { State } from '../state/state.schema';
@@ -72,6 +72,8 @@ export class GameLogicService {
   }
 
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    await this.checkAdjacentBuildings(gameId, move.building);
+
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
     };
@@ -109,6 +111,16 @@ export class GameLogicService {
       userId,
       building: building._id,
     });
+  }
+
+  private async checkAdjacentBuildings(gameId: string, building: CreateBuildingDto) {
+    const adjacent = await this.buildingService.findAll({
+      gameId,
+      $or: cornerAdjacentCorners(building),
+    });
+    if (adjacent.length !== 0) {
+      throw new ForbiddenException('Too close to another settlement or city');
+    }
   }
 
   private async checkCosts(gameId: string, userId: string, building: CreateBuildingDto) {

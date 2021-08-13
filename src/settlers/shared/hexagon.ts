@@ -111,3 +111,23 @@ export function edgeAdjacentCubes({ x, y, z, side }: Point3D & { side: number })
     z: z + dz,
   }));
 }
+
+export const CORNER_ADJACENT_CORNERS = [
+  [
+    [+0, +1, -1, 1],
+    [+1, +0, -1, 1],
+  ],
+  [
+    [-1, +0, +1, 0],
+    [+0, -1, +1, 0],
+  ],
+];
+
+export function cornerAdjacentCorners({ x, y, z, side }: Point3D & { side: number }): (Point3D & { side: number })[] {
+  return CORNER_ADJACENT_CORNERS[side].map(([dx, dy, dz, side]) => ({
+    x: x + dx,
+    y: y + dy,
+    z: z + dz,
+    side,
+  }));
+}
