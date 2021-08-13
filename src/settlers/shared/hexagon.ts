@@ -114,12 +114,14 @@ export function edgeAdjacentCubes({ x, y, z, side }: Point3D & { side: number })
 
 export const CORNER_ADJACENT_CORNERS = [
   [
-    [+0, +1, -1, 1],
-    [+1, +0, -1, 1],
+    [+0, +1, -1, 1], // left
+    [+1, +0, -1, 1], // right
+    [+1, +1, -2, 1], // top
   ],
   [
-    [-1, +0, +1, 0],
-    [+0, -1, +1, 0],
+    [-1, +0, +1, 0], // left
+    [+0, -1, +1, 0], // right
+    [-1, -1, +2, 0], // bottom
   ],
 ];
 
