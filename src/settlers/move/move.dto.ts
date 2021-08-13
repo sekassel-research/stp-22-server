@@ -7,7 +7,7 @@ export class CreateMoveDto extends PickType(Move, [
   'action',
 ] as const) {
   @Prop()
-  @ApiProperty({ type: [CreateBuildingDto], required: false })
+  @ApiProperty({ type: CreateBuildingDto, required: false })
   building?: CreateBuildingDto;
 }
 
