@@ -125,6 +125,10 @@ export class GameLogicService {
 
   private async checkCosts(gameId: string, userId: string, building: CreateBuildingDto) {
     const player = await this.playerService.findOne(gameId, userId);
+    if (player.remainingBuildings[building.type] <= 0) {
+      throw new ForbiddenException(`You can't build any more ${building.type}!`);
+    }
+
     const costs = BUILDING_COSTS[building.type];
 
     for (const key of Object.keys(costs)) {
