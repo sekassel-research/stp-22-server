@@ -116,9 +116,10 @@ export class GameLogicService {
   }
 
   private async checkAdjacentBuildings(gameId: string, building: CreateBuildingDto) {
+    const { x, y, z, side } = building;
     const adjacent = await this.buildingService.findAll({
       gameId,
-      $or: cornerAdjacentCorners(building),
+      $or: [...cornerAdjacentCorners(building), { x, y, z, side }],
     });
     if (adjacent.length !== 0) {
       throw new ForbiddenException('Too close to another settlement or city');
