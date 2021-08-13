@@ -1,11 +1,23 @@
 import { Module } from '@nestjs/common';
+import { EventModule } from '../../event/event.module';
+import { BuildingModule } from '../building/building.module';
+import { MapModule } from '../map/map.module';
+import { PlayerModule } from '../player/player.module';
 import { StateModule } from '../state/state.module';
+import { GameLogicService } from './game-logic/game-logic.service';
 import { MoveController } from './move.controller';
 import { MoveService } from './move.service';
 
 @Module({
-  imports: [StateModule],
+  imports: [
+    PlayerModule,
+    StateModule,
+    BuildingModule,
+    MapModule,
+    EventModule,
+  ],
   controllers: [MoveController],
-  providers: [MoveService]
+  providers: [MoveService, GameLogicService],
 })
-export class MoveModule {}
+export class MoveModule {
+}

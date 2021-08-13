@@ -5,7 +5,7 @@ import { User } from '../../user/user.schema';
 import { NotFound } from '../../util/not-found.decorator';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
-import { GameLogicService } from '../game-logic/game-logic.service';
+import { GameLogicService } from './game-logic/game-logic.service';
 import { CreateMoveDto } from './move.dto';
 import { Move } from './move.schema';
 

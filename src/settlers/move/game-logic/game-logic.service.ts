@@ -1,19 +1,19 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreateBuildingDto } from '../building/building.dto';
-import { Building } from '../building/building.schema';
-import { BuildingService } from '../building/building.service';
-import { Map as GameMap, Tile } from '../map/map.schema';
-import { MapService } from '../map/map.service';
-import { CreateMoveDto } from '../move/move.dto';
-import { Move } from '../move/move.schema';
-import { MoveService } from '../move/move.service';
-import { PlayerService } from '../player/player.service';
-import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../shared/constants';
-import { cornerAdjacentCorners, cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../shared/hexagon';
-import { randInt } from '../shared/random';
-import { Point3D } from '../shared/schema';
-import { State } from '../state/state.schema';
-import { StateService } from '../state/state.service';
+import { CreateBuildingDto } from '../../building/building.dto';
+import { Building } from '../../building/building.schema';
+import { BuildingService } from '../../building/building.service';
+import { Map as GameMap, Tile } from '../../map/map.schema';
+import { MapService } from '../../map/map.service';
+import { CreateMoveDto } from '../move.dto';
+import { Move } from '../move.schema';
+import { MoveService } from '../move.service';
+import { PlayerService } from '../../player/player.service';
+import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
+import { cornerAdjacentCorners, cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../../shared/hexagon';
+import { randInt } from '../../shared/random';
+import { Point3D } from '../../shared/schema';
+import { State } from '../../state/state.schema';
+import { StateService } from '../../state/state.service';
 
 @Injectable()
 export class GameLogicService {
