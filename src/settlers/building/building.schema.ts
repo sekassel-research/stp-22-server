@@ -39,5 +39,5 @@ For settlements and cities:
 }
 
 export const BuildingSchema = SchemaFactory.createForClass(Building)
-  .index({ gameId: 1 }, { unique: true })
+  .index({ x: 1, y: 1, z: 1, side: 1 }, { unique: true })
 ;
