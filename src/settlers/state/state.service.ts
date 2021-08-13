@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { EventService } from '../../event/event.service';
 import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
 import { State } from './state.schema';
@@ -11,7 +11,7 @@ export class StateService {
   constructor(
     @InjectModel('states') private model: Model<State>,
     private memberService: MemberService,
-    private eventEmitter: EventEmitter2,
+    private eventService: EventService,
   ) {
   }
 
@@ -42,6 +42,6 @@ export class StateService {
   }
 
   private emit(event: string, updated: State) {
-    this.eventEmitter.emit(`games.${updated.gameId}.state.${event}`, updated); // TODO visibility
+    this.eventService.emit(`games.${updated.gameId}.state.${event}`, updated); // TODO visibility
   }
 }

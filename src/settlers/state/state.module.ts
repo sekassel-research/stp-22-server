@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { EventModule } from '../../event/event.module';
 import { MemberModule } from '../../member/member.module';
 import { StateController } from './state.controller';
 import { StateHandler } from './state.handler';
@@ -15,6 +16,7 @@ import { StateService } from './state.service';
       },
     ]),
     MemberModule,
+    EventModule,
   ],
   providers: [StateService, StateHandler],
   controllers: [StateController],
