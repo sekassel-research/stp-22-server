@@ -164,7 +164,7 @@ export class GameLogicService {
     const tiles = map.tiles.filter(tile => tile.numberToken === roll);
     const players: Record<string, Partial<Record<ResourceType, number>>> = {};
 
-    await Promise.all(tiles.map(tile => this.giveResources(players, tile)));
+    await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));
     await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
 
     await this.stateService.update(gameId, {
@@ -180,8 +180,9 @@ export class GameLogicService {
     });
   }
 
-  private async giveResources(players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
+  private async giveResources(gameId: string, players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
     const adjacentBuildings = await this.buildingService.findAll({
+      gameId,
       $or: this.adjacentBuildingFilter(tile),
     });
     for (const building of adjacentBuildings) {
