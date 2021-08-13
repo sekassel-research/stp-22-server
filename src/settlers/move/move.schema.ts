@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsMongoId, IsOptional, Max, Min } from 'class-validator';
 import { MONGO_ID_FORMAT } from '../../util/schema';
-import { Building } from '../building/building.schema';
 import { Task, TASKS } from '../shared/constants';
 
 export class Move {
@@ -27,7 +26,7 @@ export class Move {
   @Max(12)
   roll?: number;
 
-  @ApiProperty(MONGO_ID_FORMAT)
+  @ApiProperty({ ...MONGO_ID_FORMAT, required: false })
   @IsOptional()
   @IsMongoId()
   building?: string;
