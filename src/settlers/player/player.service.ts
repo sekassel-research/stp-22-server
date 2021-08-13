@@ -28,8 +28,12 @@ export class PlayerService {
   ) {
   }
 
-  async findAll(gameId: string): Promise<PlayerDocument[]> {
-    return this.model.find({ gameId }).sort({foundingRoll: -1}).exec();
+  async findAll(gameId: string, sort?: any): Promise<PlayerDocument[]> {
+    let query = this.model.find({ gameId });
+    if (sort) {
+      query = query.sort(sort);
+    }
+    return query.exec();
   }
 
   async findOne(gameId: string, userId: string): Promise<PlayerDocument | undefined> {

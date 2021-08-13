@@ -72,6 +72,9 @@ export class GameLogicService {
       'founding-house-2': 'founding-streets',
       'founding-streets': 'roll',
       'build': 'roll',
+    }[move.action], {
+      'founding-house-1': {foundingRoll: -1},
+      'founding-house-2': {foundingRoll: 1},
     }[move.action]);
   }
 
@@ -152,11 +155,11 @@ export class GameLogicService {
     }
   }
 
-  private async advanceState(gameId: string, next: Task): Promise<void> {
+  private async advanceState(gameId: string, next: Task, sort?: any): Promise<void> {
     const state = await this.stateService.findByGame(gameId);
     const stateUpdate: Partial<State> = {};
     if (state.nextPlayers.length === 0) {
-      const players = await this.playerService.findAll(gameId);
+      const players = await this.playerService.findAll(gameId, sort);
       const [first, ...rest] = players;
       stateUpdate.activeTask = next;
       stateUpdate.activePlayer = first.userId;
