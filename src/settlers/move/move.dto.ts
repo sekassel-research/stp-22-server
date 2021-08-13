@@ -1,5 +1,17 @@
-import { PickType } from '@nestjs/swagger';
+import { Prop } from '@nestjs/mongoose';
+import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
+import { CreateBuildingDto } from '../building/building.dto';
 import { Move } from './move.schema';
 
-export class MoveDto extends PickType(Move, ['action'] as const) {
+export class CreateMoveDto extends PickType(Move, [
+  'action',
+] as const) {
+  @Prop()
+  @ApiProperty({ type: [CreateBuildingDto], required: false })
+  building?: CreateBuildingDto;
+}
+
+export class MoveDto extends OmitType(Move, [
+  '_id',
+] as const) {
 }

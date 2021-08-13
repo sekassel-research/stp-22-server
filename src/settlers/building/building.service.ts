@@ -16,7 +16,7 @@ export class BuildingService {
     return this.model.find(filter).exec();
   }
 
-  async create(building: Building): Promise<Building> {
+  async create(building: Building): Promise<Building & Document> {
     const created = await this.model.create(building);
     created && this.emit('created', created);
     return created;

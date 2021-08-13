@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from '../building/building.dto';
 import { Building } from '../building/building.schema';
 import { BuildingService } from '../building/building.service';
 import { Map as GameMap, Tile } from '../map/map.schema';
 import { MapService } from '../map/map.service';
+import { CreateMoveDto } from '../move/move.dto';
 import { Move } from '../move/move.schema';
+import { MoveService } from '../move/move.service';
 import { PlayerService } from '../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../shared/constants';
 import { cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../shared/hexagon';
+import { randInt } from '../shared/random';
 import { Point3D } from '../shared/schema';
 import { State } from '../state/state.schema';
 import { StateService } from '../state/state.service';
@@ -19,34 +22,56 @@ export class GameLogicService {
     private stateService: StateService,
     private playerService: PlayerService,
     private buildingService: BuildingService,
+    private moveService: MoveService,
   ) {
   }
 
-  async handle(move: Move): Promise<void> {
+  async handle(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    const state = await this.stateService.findByGame(gameId);
+    if (!state) {
+      return undefined;
+    }
+    if (state.activePlayer !== userId) {
+      throw new ForbiddenException('Not your turn!');
+    }
+    if (state.activeTask !== move.action) {
+      throw new ForbiddenException('You\'re not supposed to do that!');
+    }
+
     switch (move.action) {
       case 'founding-roll':
-        return this.foundingRoll(move);
+        return this.foundingRoll(gameId, userId, move);
       case 'founding-house-1':
       case 'founding-house-2':
       case 'founding-streets':
       case 'build':
-        return this.build(move);
+        return this.build(gameId, userId, move);
       case 'roll':
-        return this.roll(move);
+        return this.roll(gameId, userId, move);
     }
   }
 
-  private async foundingRoll(move: Move): Promise<void> {
-    const gameId = move.gameId;
-    await this.playerService.update(gameId, move.userId, {
-      foundingRoll: move.roll,
+  private async foundingRoll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    const roll = this.d6();
+    await this.playerService.update(gameId, userId, {
+      foundingRoll: roll,
     });
 
-    return this.advanceState(gameId, 'founding-house-1');
+    await this.advanceState(gameId, 'founding-house-1');
+    return this.moveService.create({
+      ...move,
+      building: undefined,
+      gameId,
+      userId,
+      roll,
+    });
   }
 
-  private async build(move: Move): Promise<void> {
-    const { gameId, userId } = move;
+  private d6(): number {
+    return randInt(6) + 1;
+  }
+
+  private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
     };
@@ -61,24 +86,31 @@ export class GameLogicService {
     await this.playerService.update(gameId, userId, { $inc });
 
     // TODO check validity of building
-    await this.buildingService.create({
+    const building = await this.buildingService.create({
       ...move.building,
       gameId,
       owner: userId,
     });
 
-    return this.advanceState(gameId, {
+    await this.advanceState(gameId, {
       'founding-house-1': 'founding-house-2',
       'founding-house-2': 'founding-streets',
       'founding-streets': 'roll',
       'build': 'roll',
     }[move.action], {
-      'founding-house-1': {foundingRoll: -1},
-      'founding-house-2': {foundingRoll: 1},
+      'founding-house-1': { foundingRoll: -1 },
+      'founding-house-2': { foundingRoll: 1 },
     }[move.action]);
+
+    return this.moveService.create({
+      ...move,
+      gameId,
+      userId,
+      building: building._id,
+    });
   }
 
-  private deductCosts(move: Move, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
+  private deductCosts(move: CreateMoveDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
     const costs = BUILDING_COSTS[move.building.type];
     for (const resource of Object.keys(costs)) {
       $inc[`resources.${resource}`] = -costs[resource];
@@ -102,8 +134,8 @@ export class GameLogicService {
     }
   }
 
-  private async roll(move: Move): Promise<void> {
-    const { gameId, roll } = move;
+  private async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    const roll = this.d6() + this.d6();
     const map = await this.mapService.findByGame(gameId);
     const tiles = map.tiles.filter(tile => tile.numberToken === roll);
     const players: Record<string, Partial<Record<ResourceType, number>>> = {};
@@ -113,6 +145,14 @@ export class GameLogicService {
 
     await this.stateService.update(gameId, {
       activeTask: 'build',
+    });
+
+    return this.moveService.create({
+      ...move,
+      building: undefined,
+      gameId,
+      userId,
+      roll,
     });
   }
 
@@ -151,7 +191,7 @@ export class GameLogicService {
     if (building.type === 'road') {
       return edgeAdjacentCubes(building);
     } else {
-      return cornerAdjacentCubes(building)
+      return cornerAdjacentCubes(building);
     }
   }
 
