@@ -72,6 +72,9 @@ export class GameLogicService {
   }
 
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    // TODO check building type in founding phases
+    // TODO street connection
+
     await this.checkAdjacentBuildings(gameId, move.building);
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
@@ -88,7 +91,6 @@ export class GameLogicService {
 
     await this.playerService.update(gameId, userId, { $inc });
 
-    // TODO check validity of building
     const building = await this.buildingService.create({
       ...move.building,
       gameId,
