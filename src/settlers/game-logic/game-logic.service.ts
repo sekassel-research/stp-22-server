@@ -77,6 +77,7 @@ export class GameLogicService {
     };
 
     if (move.action === 'build') {
+      await this.checkCosts(gameId, userId, move.building);
       this.deductCosts(move, $inc);
     } else if (move.action === 'founding-house-1') {
       const map = await this.mapService.findByGame(gameId);
@@ -108,6 +109,17 @@ export class GameLogicService {
       userId,
       building: building._id,
     });
+  }
+
+  private async checkCosts(gameId: string, userId: string, building: CreateBuildingDto) {
+    const player = await this.playerService.findOne(gameId, userId);
+    const costs = BUILDING_COSTS[building.type];
+
+    for (const key of Object.keys(costs)) {
+      if (player.resources[key] < costs[key]) {
+        throw new ForbiddenException('You can\'t afford that!');
+      }
+    }
   }
 
   private deductCosts(move: CreateMoveDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
