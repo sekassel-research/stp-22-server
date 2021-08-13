@@ -4,9 +4,6 @@ import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
 import { Map as GameMap, Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
-import { CreateMoveDto } from '../move.dto';
-import { Move } from '../move.schema';
-import { MoveService } from '../move.service';
 import { PlayerService } from '../../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
 import { cornerAdjacentCorners, cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../../shared/hexagon';
@@ -14,6 +11,9 @@ import { randInt } from '../../shared/random';
 import { Point3D } from '../../shared/schema';
 import { State } from '../../state/state.schema';
 import { StateService } from '../../state/state.service';
+import { CreateMoveDto } from '../move.dto';
+import { Move } from '../move.schema';
+import { MoveService } from '../move.service';
 
 @Injectable()
 export class GameLogicService {
@@ -72,6 +72,29 @@ export class GameLogicService {
   }
 
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    // TODO require building in founding phase
+
+    const building = move.building ? await this.doBuild(gameId, userId, move) : undefined;
+
+    await this.advanceState(gameId, {
+      'founding-house-1': 'founding-house-2',
+      'founding-house-2': 'founding-streets',
+      'founding-streets': 'roll',
+      'build': 'roll',
+    }[move.action], {
+      'founding-house-1': { foundingRoll: -1 },
+      'founding-house-2': { foundingRoll: 1 },
+    }[move.action]);
+
+    return this.moveService.create({
+      ...move,
+      gameId,
+      userId,
+      building: building?._id,
+    });
+  }
+
+  private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     // TODO check building type in founding phases
     // TODO street connection
 
@@ -91,27 +114,10 @@ export class GameLogicService {
 
     await this.playerService.update(gameId, userId, { $inc });
 
-    const building = await this.buildingService.create({
+    return this.buildingService.create({
       ...move.building,
       gameId,
       owner: userId,
-    });
-
-    await this.advanceState(gameId, {
-      'founding-house-1': 'founding-house-2',
-      'founding-house-2': 'founding-streets',
-      'founding-streets': 'roll',
-      'build': 'roll',
-    }[move.action], {
-      'founding-house-1': { foundingRoll: -1 },
-      'founding-house-2': { foundingRoll: 1 },
-    }[move.action]);
-
-    return this.moveService.create({
-      ...move,
-      gameId,
-      userId,
-      building: building._id,
     });
   }
 
