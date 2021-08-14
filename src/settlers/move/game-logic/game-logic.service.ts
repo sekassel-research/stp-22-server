@@ -241,6 +241,10 @@ export class GameLogicService {
   }
 
   private async giveResources(gameId: string, players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
+    if (tile.type === 'desert') {
+      return;
+    }
+
     const adjacentBuildings = await this.buildingService.findAll({
       gameId,
       $or: this.adjacentBuildingFilter(tile),
