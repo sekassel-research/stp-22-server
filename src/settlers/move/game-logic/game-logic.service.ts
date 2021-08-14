@@ -96,18 +96,7 @@ export class GameLogicService {
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     this.checkExpectedType(move);
-
-    switch (move.building.type) {
-      case 'road':
-        // TODO check adjacent settlement or city and no street in the same place
-        break;
-      case 'settlement':
-        await this.checkAdjacentBuildings(gameId, move.building);
-        break;
-      case 'city':
-        // TODO check for settlement in the same place
-        break;
-    }
+    await this.checkAllowedPlacement(gameId, move.building);
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
@@ -138,6 +127,20 @@ export class GameLogicService {
     }[move.action];
     if (expectedType && move.building.type !== expectedType) {
       throw new ForbiddenException('You are not allowed to build that now');
+    }
+  }
+
+  private async checkAllowedPlacement(gameId: string, building: CreateBuildingDto) {
+    switch (building.type) {
+      case 'road':
+        // TODO check adjacent settlement or city and no street in the same place
+        break;
+      case 'settlement':
+        await this.checkAdjacentBuildings(gameId, building);
+        break;
+      case 'city':
+        // TODO check for settlement in the same place
+        break;
     }
   }
 
