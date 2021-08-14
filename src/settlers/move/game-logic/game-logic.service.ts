@@ -133,15 +133,38 @@ export class GameLogicService {
   private async checkAllowedPlacement(gameId: string, building: CreateBuildingDto) {
     switch (building.type) {
       case 'road':
-        // TODO check adjacent settlement or city and no street in the same place
-        break;
+        return this.checkRoadPlacement(gameId, building);
       case 'settlement':
-        await this.checkAdjacentBuildings(gameId, building);
-        break;
+        return this.checkAdjacentBuildings(gameId, building);
       case 'city':
-        // TODO check for settlement in the same place
-        break;
+        return this.checkCityPlacement(gameId, building);
     }
+  }
+
+  private async checkRoadPlacement(gameId: string, building: CreateBuildingDto) {
+    const existing = await this.buildingAt(gameId, building, ['road']);
+    if (existing) {
+      throw new ForbiddenException('There is already a road here');
+    }
+  }
+
+  private async checkCityPlacement(gameId: string, building: CreateBuildingDto) {
+    const existing = await this.buildingAt(gameId, building, ['settlement', 'city']);
+    if (!existing) {
+      throw new ForbiddenException('There needs to be a settlement first');
+    } else if (existing.type === 'city') {
+      throw new ForbiddenException('There is already a city here');
+    }
+  }
+
+  private async buildingAt(gameId: string, building: CreateBuildingDto, types: BuildingType[]): Promise<Building | undefined> {
+    const { x, y, z, side } = building;
+    const existing = await this.buildingService.findAll({
+      gameId,
+      type: {$in: types},
+      x, y, z, side,
+    });
+    return existing[0];
   }
 
   private async checkAdjacentBuildings(gameId: string, building: CreateBuildingDto) {
