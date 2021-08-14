@@ -96,9 +96,18 @@ export class GameLogicService {
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     // TODO check building type in founding phases
-    // TODO street connection
 
-    await this.checkAdjacentBuildings(gameId, move.building);
+    switch (move.building.type) {
+      case 'road':
+        // TODO check adjacent settlement or city and no street in the same place
+        break;
+      case 'settlement':
+        await this.checkAdjacentBuildings(gameId, move.building);
+        break;
+      case 'city':
+        // TODO check for settlement in the same place
+        break;
+    }
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
