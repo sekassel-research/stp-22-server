@@ -125,6 +125,7 @@ export class GameLogicService {
     const { x, y, z, side } = building;
     const adjacent = await this.buildingService.findAll({
       gameId,
+      type: {$in: ['settlement', 'city']},
       $or: [...cornerAdjacentCorners(building), { x, y, z, side }],
     });
     if (adjacent.length !== 0) {
