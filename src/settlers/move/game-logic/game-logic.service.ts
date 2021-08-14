@@ -95,7 +95,7 @@ export class GameLogicService {
   }
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
-    // TODO check building type in founding phases
+    this.checkExpectedType(move);
 
     switch (move.building.type) {
       case 'road':
@@ -128,6 +128,17 @@ export class GameLogicService {
       gameId,
       owner: userId,
     });
+  }
+
+  private checkExpectedType(move: CreateMoveDto) {
+    const expectedType = {
+      'founding-house-1': 'settlement',
+      'founding-house-2': 'settlement',
+      'founding-streets': 'road',
+    }[move.action];
+    if (expectedType && move.building.type !== expectedType) {
+      throw new ForbiddenException('You are not allowed to build that now');
+    }
   }
 
   private async checkAdjacentBuildings(gameId: string, building: CreateBuildingDto) {
