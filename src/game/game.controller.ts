@@ -83,7 +83,6 @@ export class GameController {
   @NotFound()
   @ApiOperation({ description: 'Delete a game as owner. All members will be automatically kicked.' })
   @ApiOkResponse({ type: Game })
-  @ApiConflictResponse({ description: 'Game is already running.' })
   @ApiForbiddenResponse({ description: 'Attempt to delete a game that the current user does not own.' })
   async delete(@AuthUser() user: User, @Param('id') id: string): Promise<Game | undefined> {
     const existing = await this.gameService.findOne(id);
@@ -92,9 +91,6 @@ export class GameController {
     }
     if (existing.owner !== user._id) {
       throw new ForbiddenException('Only the owner can delete the game.');
-    }
-    if (existing.started) {
-      throw new ConflictException('Cannot delete a running game.');
     }
     return this.gameService.delete(id);
   }
