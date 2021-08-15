@@ -9,6 +9,7 @@ import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from
 import {
   cornerAdjacentCorners,
   cornerAdjacentCubes,
+  cornerAdjacentEdges,
   cubeCorners,
   edgeAdjacentCubes,
   Point3DWithCornerSide,
@@ -106,7 +107,7 @@ export class GameLogicService {
   }
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
-    const existing = await this.checkAllowedPlacement(gameId, move.building);
+    const existing = await this.checkAllowedPlacement(gameId, userId, move.building);
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
@@ -145,12 +146,12 @@ export class GameLogicService {
     }
   }
 
-  private async checkAllowedPlacement(gameId: string, building: CreateBuildingDto): Promise<Building | undefined> {
+  private async checkAllowedPlacement(gameId: string, userId: string, building: CreateBuildingDto): Promise<Building | undefined> {
     switch (building.type) {
       case 'road':
         return this.checkRoadPlacement(gameId, building);
       case 'settlement':
-        return this.checkAdjacentBuildings(gameId, building);
+        return this.checkSettlementPlacement(gameId, userId, building);
       case 'city':
         return this.checkCityPlacement(gameId, building);
     }
@@ -184,7 +185,7 @@ export class GameLogicService {
     return existing[0];
   }
 
-  private async checkAdjacentBuildings(gameId: string, building: CreateBuildingDto) {
+  private async checkSettlementPlacement(gameId: string, userId: string, building: CreateBuildingDto) {
     const { x, y, z, side } = building;
     const adjacent = await this.buildingService.findAll({
       gameId,
@@ -193,6 +194,15 @@ export class GameLogicService {
     });
     if (adjacent.length !== 0) {
       throw new ForbiddenException('Too close to another settlement or city');
+    }
+    const adjacentRoads = await this.buildingService.findAll({
+      gameId,
+      owner: userId,
+      type: 'road',
+      $or: cornerAdjacentEdges(building as Point3DWithCornerSide),
+    });
+    if (adjacentRoads.length === 0) {
+      throw new ForbiddenException('Needs to be connected to one of your roads');
     }
     return undefined;
   }

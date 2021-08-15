@@ -147,3 +147,25 @@ export function cornerAdjacentCorners({ x, y, z, side }: Point3DWithCornerSide):
     side,
   }));
 }
+
+export const CORNER_ADJACENT_EDGES = {
+  0: [
+    [+0, +1, -1, 3], // top
+    [+1, +0, -1, 7], // right
+    [+0, +0, +0, 11], // left
+  ],
+  6: [
+    [+0, -1, +1, 11], // right
+    [-1, +0, +1, 3], // bottom
+    [+0, +0, +0, 7], // left
+  ],
+} as const;
+
+export function cornerAdjacentEdges({ x, y, z, side}: Point3DWithCornerSide): Point3DWithEdgeSide[] {
+  return CORNER_ADJACENT_EDGES[side].map(([dx, dy, dz, side]) => ({
+    x: x + dx,
+    y: y + dy,
+    z: z + dz,
+    side,
+  }));
+}
