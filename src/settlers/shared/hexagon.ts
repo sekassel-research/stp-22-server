@@ -15,7 +15,7 @@ export function cubeScale(a: Point3D, b: number): Point3D {
 const CUBE_DIRECTIONS = [
   Cube(+1, -1, 0), Cube(+1, 0, -1), Cube(0, +1, -1),
   Cube(-1, +1, 0), Cube(-1, 0, +1), Cube(0, -1, +1),
-]
+];
 
 export function cubeDirection(index: number) {
   return CUBE_DIRECTIONS[index];
@@ -50,16 +50,28 @@ export function cubeCircle(radius: number): Point3D[] {
   return results;
 }
 
+export const CORNER_SIDES = [0, 6] as const;
+export type CornerSide = (typeof CORNER_SIDES)[number];
+
+export const EDGE_SIDES = [3, 7, 11] as const;
+export type EdgeSide = (typeof EDGE_SIDES)[number];
+
+export const SIDES = [...CORNER_SIDES, ...EDGE_SIDES] as const;
+export type Side = CornerSide | EdgeSide;
+
+export type Point3DWithCornerSide = Point3D & { side: CornerSide };
+export type Point3DWithEdgeSide = Point3D & { side: EdgeSide };
+
 export const CUBE_CORNERS = [
   [+0, +0, +0, 0], // top
-  [+1, +0, -1, 1], // top right
+  [+1, +0, -1, 6], // top right
   [+1, -1, +1, 0], // bottom right
-  [+0, +0, +0, 1], // bottom
+  [+0, +0, +0, 6], // bottom
   [-1, +0, +1, 0], // bottom left
-  [+0, +1, -1, 1], // top left
+  [+0, +1, -1, 6], // top left
 ] as const;
 
-export function cubeCorners({ x, y, z }: Point3D): (Point3D & { side: 0 | 1 })[] {
+export function cubeCorners({ x, y, z }: Point3D): Point3DWithCornerSide[] {
   return CUBE_CORNERS.map(([dx, dy, dz, side]) => ({
     x: x + dx,
     y: y + dy,
@@ -68,20 +80,20 @@ export function cubeCorners({ x, y, z }: Point3D): (Point3D & { side: 0 | 1 })[]
   }));
 }
 
-export const CORNER_ADJACENT_CUBES = [
-  [
+export const CORNER_ADJACENT_CUBES = {
+  0: [
     [+0, +0, +0],
     [+0, +1, -1],
     [+1, +0, -1],
   ],
-  [
+  6: [
     [+0, +0, +0],
     [-1, +0, +1],
     [+0, -1, +1],
   ],
-] as const;
+} as const;
 
-export function cornerAdjacentCubes({ x, y, z, side }: Point3D & { side: number }): Point3D[] {
+export function cornerAdjacentCubes({ x, y, z, side }: Point3DWithCornerSide): Point3D[] {
   return CORNER_ADJACENT_CUBES[side].map(([dx, dy, dz]) => ({
     x: x + dx,
     y: y + dy,
@@ -89,22 +101,22 @@ export function cornerAdjacentCubes({ x, y, z, side }: Point3D & { side: number 
   }));
 }
 
-export const EDGE_ADJACENT_CUBES = [
-  [
+export const EDGE_ADJACENT_CUBES = {
+  11: [
     [+0, +0, +0],
     [+0, +1, -1],
   ],
-  [
+  7: [
     [+0, +0, +0],
     [-1, +0, +1],
   ],
-  [
+  3: [
     [+0, +0, +0],
     [+1, -1, +0],
   ],
-];
+};
 
-export function edgeAdjacentCubes({ x, y, z, side }: Point3D & { side: number }): Point3D[] {
+export function edgeAdjacentCubes({ x, y, z, side }: Point3DWithEdgeSide): Point3D[] {
   return EDGE_ADJACENT_CUBES[side].map(([dx, dy, dz]) => ({
     x: x + dx,
     y: y + dy,
@@ -112,20 +124,22 @@ export function edgeAdjacentCubes({ x, y, z, side }: Point3D & { side: number })
   }));
 }
 
-export const CORNER_ADJACENT_CORNERS = [
-  [
-    [+0, +1, -1, 1], // left
-    [+1, +0, -1, 1], // right
-    [+1, +1, -2, 1], // top
+export const CORNER_ADJACENT_CORNERS = {
+  0: [
+    [+0, +1, -1, 6], // left
+    [+1, +0, -
+      1, 6,
+    ], // right
+    [+1, +1, -2, 6], // top
   ],
-  [
+  6: [
     [-1, +0, +1, 0], // left
     [+0, -1, +1, 0], // right
     [-1, -1, +2, 0], // bottom
   ],
-];
+} as const;
 
-export function cornerAdjacentCorners({ x, y, z, side }: Point3D & { side: number }): (Point3D & { side: number })[] {
+export function cornerAdjacentCorners({ x, y, z, side }: Point3DWithCornerSide): (Point3DWithCornerSide)[] {
   return CORNER_ADJACENT_CORNERS[side].map(([dx, dy, dz, side]) => ({
     x: x + dx,
     y: y + dy,

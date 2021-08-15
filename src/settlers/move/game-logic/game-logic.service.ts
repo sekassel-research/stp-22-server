@@ -6,7 +6,13 @@ import { Map as GameMap, Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
 import { PlayerService } from '../../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
-import { cornerAdjacentCorners, cornerAdjacentCubes, cubeCorners, edgeAdjacentCubes } from '../../shared/hexagon';
+import {
+  cornerAdjacentCorners,
+  cornerAdjacentCubes,
+  CornerSide,
+  cubeCorners,
+  edgeAdjacentCubes, EdgeSide, Point3DWithCornerSide, Point3DWithEdgeSide,
+} from '../../shared/hexagon';
 import { randInt } from '../../shared/random';
 import { Point3D } from '../../shared/schema';
 import { State } from '../../state/state.schema';
@@ -168,7 +174,7 @@ export class GameLogicService {
     const adjacent = await this.buildingService.findAll({
       gameId,
       type: {$in: ['settlement', 'city']},
-      $or: [...cornerAdjacentCorners(building), { x, y, z, side }],
+      $or: [...cornerAdjacentCorners(building as Point3DWithCornerSide), { x, y, z, side }],
     });
     if (adjacent.length !== 0) {
       throw new ForbiddenException('Too close to another settlement or city');
@@ -274,9 +280,9 @@ export class GameLogicService {
 
   private adjacentTileFilter(building: Pick<Building, keyof Point3D | 'side' | 'type'>): Point3D[] {
     if (building.type === 'road') {
-      return edgeAdjacentCubes(building);
+      return edgeAdjacentCubes(building as Point3DWithEdgeSide);
     } else {
-      return cornerAdjacentCubes(building);
+      return cornerAdjacentCubes(building as Point3DWithCornerSide);
     }
   }
 

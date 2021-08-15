@@ -4,6 +4,7 @@ import { IsIn } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType } from '../shared/constants';
+import { CORNER_SIDES, EDGE_SIDES, Side, SIDES } from '../shared/hexagon';
 import { Point3D } from '../shared/schema';
 
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, versionKey: false, timestamps: false })
@@ -13,20 +14,17 @@ export class Building extends Point3D {
 
   @Prop()
   @ApiProperty({
-    type: 'integer', minimum: 0, maximum: 2, description: `
+    type: 'integer',
+    enum: SIDES,
+    description: `
 [Reference](https://www.redblobgames.com/grids/hexagons/#coordinates-cube)
 
-For roads:
-- 0 = Edge labeled x
-- 1 = Edge labeled y
-- 2 = Edge labeled z
-
-For settlements and cities:
-- 0 = Top vertex
-- 1 = Bottom vertex
+${CORNER_SIDES.map(s => `- ${s} = Settlement/City at ${s} o'clock`).join('\n')}
+${EDGE_SIDES.map(s => `- ${s} = Road at ${s} o'clock`).join('\n')}
 `,
   })
-  side: number;
+  @IsIn(SIDES)
+  side: Side;
 
   @Prop()
   @ApiProperty({ enum: BUILDING_TYPES })
