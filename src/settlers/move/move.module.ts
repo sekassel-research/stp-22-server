@@ -8,6 +8,7 @@ import { GameLogicService } from './game-logic/game-logic.service';
 import { MoveController } from './move.controller';
 import { MoveService } from './move.service';
 import { StateTransitionService } from './game-logic/state-transition.service';
+import { RollService } from './game-logic/roll.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { StateTransitionService } from './game-logic/state-transition.service';
     EventModule,
   ],
   controllers: [MoveController],
-  providers: [MoveService, GameLogicService, StateTransitionService],
+  providers: [MoveService, GameLogicService, StateTransitionService, RollService],
 })
 export class MoveModule {
 }

@@ -1,0 +1,91 @@
+import { Injectable } from '@nestjs/common';
+import { BuildingService } from '../../building/building.service';
+import { Tile } from '../../map/map.schema';
+import { MapService } from '../../map/map.service';
+import { PlayerService } from '../../player/player.service';
+import { ResourceType, TILE_RESOURCES } from '../../shared/constants';
+import { cubeCorners } from '../../shared/hexagon';
+import { randInt } from '../../shared/random';
+import { CreateMoveDto } from '../move.dto';
+import { Move } from '../move.schema';
+import { MoveService } from '../move.service';
+
+@Injectable()
+export class RollService {
+  constructor(
+    private playerService: PlayerService,
+    private moveService: MoveService,
+    private mapService: MapService,
+    private buildingService: BuildingService,
+  ) {
+  }
+
+  private d6(): number {
+    return randInt(6) + 1;
+  }
+
+  async foundingRoll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    const roll = this.d6();
+    await this.playerService.update(gameId, userId, {
+      foundingRoll: roll,
+    });
+
+    return this.moveService.create({
+      ...move,
+      building: undefined,
+      gameId,
+      userId,
+      roll,
+    });
+  }
+
+  async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    const roll = this.d6() + this.d6();
+    const map = await this.mapService.findByGame(gameId);
+    const tiles = map.tiles.filter(tile => tile.numberToken === roll);
+    const players: Record<string, Partial<Record<ResourceType, number>>> = {};
+
+    await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));
+    await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
+
+    return this.moveService.create({
+      ...move,
+      building: undefined,
+      gameId,
+      userId,
+      roll,
+    });
+  }
+
+  private async giveResources(gameId: string, players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
+    if (tile.type === 'desert') {
+      return;
+    }
+
+    const adjacentBuildings = await this.buildingService.findAll({
+      gameId,
+      $or: cubeCorners(tile),
+    });
+    for (const building of adjacentBuildings) {
+      const resources = players[building.owner] ??= {};
+      const resourceType = TILE_RESOURCES[tile.type];
+      const resourceCount = resources[resourceType] || 0;
+      switch (building.type) {
+        case 'settlement':
+          resources[resourceType] = resourceCount + 1;
+          break;
+        case 'city':
+          resources[resourceType] = resourceCount + 2;
+          break;
+      }
+    }
+  }
+
+  private async updateResources(gameId: string, userId: string, resources: Partial<Record<string, number>>): Promise<void> {
+    const $inc = {};
+    for (const key of Object.keys(resources)) {
+      $inc[`resources.${key}`] = resources[key];
+    }
+    await this.playerService.update(gameId, userId, { $inc });
+  }
+}

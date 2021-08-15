@@ -2,25 +2,24 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from '../../building/building.dto';
 import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
-import { Map as GameMap, Tile } from '../../map/map.schema';
+import { Map as GameMap } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
 import { PlayerService } from '../../player/player.service';
-import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
+import { BUILDING_COSTS, BuildingType, ResourceType, TILE_RESOURCES } from '../../shared/constants';
 import {
   cornerAdjacentCorners,
   cornerAdjacentCubes,
   cornerAdjacentEdges,
-  cubeCorners,
   edgeAdjacentCubes,
   Point3DWithCornerSide,
   Point3DWithEdgeSide,
 } from '../../shared/hexagon';
-import { randInt } from '../../shared/random';
 import { Point3D } from '../../shared/schema';
 import { StateService } from '../../state/state.service';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
+import { RollService } from './roll.service';
 import { StateTransitionService } from './state-transition.service';
 
 @Injectable()
@@ -32,6 +31,7 @@ export class GameLogicService {
     private buildingService: BuildingService,
     private moveService: MoveService,
     private transitionService: StateTransitionService,
+    private rollService: RollService,
   ) {
   }
 
@@ -55,7 +55,7 @@ export class GameLogicService {
   private async doMove(move: CreateMoveDto, gameId: string, userId: string): Promise<Move> {
     switch (move.action) {
       case 'founding-roll':
-        return this.foundingRoll(gameId, userId, move);
+        return this.rollService.foundingRoll(gameId, userId, move);
       case 'founding-house-1':
       case 'founding-house-2':
       case 'founding-road-1':
@@ -63,27 +63,8 @@ export class GameLogicService {
       case 'build':
         return this.build(gameId, userId, move);
       case 'roll':
-        return this.roll(gameId, userId, move);
+        return this.rollService.roll(gameId, userId, move);
     }
-  }
-
-  private async foundingRoll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    const roll = this.d6();
-    await this.playerService.update(gameId, userId, {
-      foundingRoll: roll,
-    });
-
-    return this.moveService.create({
-      ...move,
-      building: undefined,
-      gameId,
-      userId,
-      roll,
-    });
-  }
-
-  private d6(): number {
-    return randInt(6) + 1;
   }
 
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
@@ -240,60 +221,6 @@ export class GameLogicService {
       const current = $inc[key] || 0;
       $inc[key] = current + 1;
     }
-  }
-
-  private async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    const roll = this.d6() + this.d6();
-    const map = await this.mapService.findByGame(gameId);
-    const tiles = map.tiles.filter(tile => tile.numberToken === roll);
-    const players: Record<string, Partial<Record<ResourceType, number>>> = {};
-
-    await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));
-    await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
-
-    return this.moveService.create({
-      ...move,
-      building: undefined,
-      gameId,
-      userId,
-      roll,
-    });
-  }
-
-  private async giveResources(gameId: string, players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
-    if (tile.type === 'desert') {
-      return;
-    }
-
-    const adjacentBuildings = await this.buildingService.findAll({
-      gameId,
-      $or: this.adjacentBuildingFilter(tile),
-    });
-    for (const building of adjacentBuildings) {
-      const resources = players[building.owner] ??= {};
-      const resourceType = TILE_RESOURCES[tile.type];
-      const resourceCount = resources[resourceType] || 0;
-      switch (building.type) {
-        case 'settlement':
-          resources[resourceType] = resourceCount + 1;
-          break;
-        case 'city':
-          resources[resourceType] = resourceCount + 2;
-          break;
-      }
-    }
-  }
-
-  private async updateResources(gameId: string, userId: string, resources: Partial<Record<string, number>>): Promise<void> {
-    const $inc = {};
-    for (const key of Object.keys(resources)) {
-      $inc[`resources.${key}`] = resources[key];
-    }
-    await this.playerService.update(gameId, userId, { $inc });
-  }
-
-  private adjacentBuildingFilter(tile: Point3D): Pick<Building, keyof Point3D | 'side'>[] {
-    return cubeCorners(tile);
   }
 
   private adjacentTileFilter(building: Pick<Building, keyof Point3D | 'side' | 'type'>): Point3D[] {
