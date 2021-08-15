@@ -162,6 +162,7 @@ export class GameLogicService {
     if (existing) {
       throw new ForbiddenException('There is already a road here');
     }
+    // TODO check connection to existing owned road or settlement
     return undefined;
   }
 
