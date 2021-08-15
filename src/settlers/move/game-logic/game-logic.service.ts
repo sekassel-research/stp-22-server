@@ -49,7 +49,8 @@ export class GameLogicService {
         return this.foundingRoll(gameId, userId, move);
       case 'founding-house-1':
       case 'founding-house-2':
-      case 'founding-streets':
+      case 'founding-road-1':
+      case 'founding-road-2':
       case 'build':
         return this.build(gameId, userId, move);
       case 'roll':
@@ -132,7 +133,8 @@ export class GameLogicService {
     const expectedType = {
       'founding-house-1': 'settlement',
       'founding-house-2': 'settlement',
-      'founding-streets': 'road',
+      'founding-road-1': 'road',
+      'founding-road-2': 'road',
     }[move.action];
     if (!expectedType) {
       return;

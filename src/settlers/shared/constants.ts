@@ -66,7 +66,8 @@ export const TASKS = [
   'founding-roll',
   'founding-house-1',
   'founding-house-2',
-  'founding-streets',
+  'founding-road-1',
+  'founding-road-2',
   'roll',
   'build',
 ] as const;
