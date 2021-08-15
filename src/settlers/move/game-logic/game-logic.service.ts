@@ -102,7 +102,7 @@ export class GameLogicService {
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     this.checkExpectedType(move);
-    await this.checkAllowedPlacement(gameId, move.building);
+    const existing = await this.checkAllowedPlacement(gameId, move.building);
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
@@ -118,6 +118,11 @@ export class GameLogicService {
 
     await this.playerService.update(gameId, userId, { $inc });
 
+    if (existing) {
+      return this.buildingService.update(existing._id, {
+        type: move.building.type,
+      });
+    }
     return this.buildingService.create(gameId, userId, move.building);
   }
 
@@ -132,7 +137,7 @@ export class GameLogicService {
     }
   }
 
-  private async checkAllowedPlacement(gameId: string, building: CreateBuildingDto) {
+  private async checkAllowedPlacement(gameId: string, building: CreateBuildingDto): Promise<Building | undefined> {
     switch (building.type) {
       case 'road':
         return this.checkRoadPlacement(gameId, building);
@@ -148,6 +153,7 @@ export class GameLogicService {
     if (existing) {
       throw new ForbiddenException('There is already a road here');
     }
+    return undefined;
   }
 
   private async checkCityPlacement(gameId: string, building: CreateBuildingDto) {
@@ -157,6 +163,7 @@ export class GameLogicService {
     } else if (existing.type === 'city') {
       throw new ForbiddenException('There is already a city here');
     }
+    return existing;
   }
 
   private async buildingAt(gameId: string, building: CreateBuildingDto, types: BuildingType[]): Promise<Building | undefined> {
@@ -179,6 +186,7 @@ export class GameLogicService {
     if (adjacent.length !== 0) {
       throw new ForbiddenException('Too close to another settlement or city');
     }
+    return undefined;
   }
 
   private async checkCosts(gameId: string, userId: string, building: CreateBuildingDto) {
