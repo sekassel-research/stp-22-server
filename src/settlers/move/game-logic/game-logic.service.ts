@@ -80,17 +80,20 @@ export class GameLogicService {
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     this.checkExpectedType(move);
 
-    const building = move.building ? await this.doBuild(gameId, userId, move) : undefined;
-
-    await this.advanceState(gameId, {
-      'founding-house-1': 'founding-house-2',
-      'founding-house-2': 'founding-streets',
-      'founding-streets': 'roll',
-      'build': 'roll',
-    }[move.action], {
-      'founding-house-1': { foundingRoll: -1 },
-      'founding-house-2': { foundingRoll: 1 },
-    }[move.action]);
+    let building: Building | undefined;
+    if (move.building) {
+      building = await this.doBuild(gameId, userId, move);
+    } else {
+      await this.advanceState(gameId, {
+        'founding-house-1': 'founding-house-2',
+        'founding-house-2': 'founding-streets',
+        'founding-streets': 'roll',
+        'build': 'roll',
+      }[move.action], {
+        'founding-house-1': { foundingRoll: -1 },
+        'founding-house-2': { foundingRoll: 1 },
+      }[move.action]);
+    }
 
     return this.moveService.create({
       ...move,
