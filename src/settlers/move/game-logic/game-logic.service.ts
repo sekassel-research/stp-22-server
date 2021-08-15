@@ -153,7 +153,7 @@ export class GameLogicService {
       case 'settlement':
         return this.checkSettlementPlacement(gameId, userId, building);
       case 'city':
-        return this.checkCityPlacement(gameId, building);
+        return this.checkCityPlacement(gameId, userId, building);
     }
   }
 
@@ -165,12 +165,14 @@ export class GameLogicService {
     return undefined;
   }
 
-  private async checkCityPlacement(gameId: string, building: CreateBuildingDto) {
+  private async checkCityPlacement(gameId: string, userId: string, building: CreateBuildingDto) {
     const existing = await this.buildingAt(gameId, building, ['settlement', 'city']);
     if (!existing) {
       throw new ForbiddenException('There needs to be a settlement first');
     } else if (existing.type === 'city') {
       throw new ForbiddenException('There is already a city here');
+    } else if (existing.owner !== userId) {
+      throw new ForbiddenException('You need to be the owner of this settlement');
     }
     return existing;
   }
