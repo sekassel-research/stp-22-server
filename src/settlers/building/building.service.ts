@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Document, FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { EventService } from '../../event/event.service';
-import { Building } from './building.schema';
+import { CreateBuildingDto } from './building.dto';
+import { Building, BuildingDocument } from './building.schema';
 
 @Injectable()
 export class BuildingService {
@@ -12,12 +13,16 @@ export class BuildingService {
   ) {
   }
 
-  async findAll(filter?: FilterQuery<Building>): Promise<Building[]> {
+  async findAll(filter?: FilterQuery<Building>): Promise<BuildingDocument[]> {
     return this.model.find(filter).exec();
   }
 
-  async create(building: Building): Promise<Building & Document> {
-    const created = await this.model.create(building);
+  async create(gameId: string, owner: string, building: CreateBuildingDto): Promise<BuildingDocument> {
+    const created = await this.model.create({
+      ...building,
+      gameId,
+      owner,
+    });
     created && this.emit('created', created);
     return created;
   }
@@ -26,7 +31,7 @@ export class BuildingService {
     await this.model.deleteMany({ gameId }).exec();
   }
 
-  private emit(event: string, building: Building & Document) {
+  private emit(event: string, building: BuildingDocument) {
     this.eventEmitter.emit(`games.${building.gameId}.buildings.${building._id}.${event}`, building); // TODO visibility
   }
 }

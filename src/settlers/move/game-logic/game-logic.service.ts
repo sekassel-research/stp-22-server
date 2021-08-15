@@ -112,11 +112,7 @@ export class GameLogicService {
 
     await this.playerService.update(gameId, userId, { $inc });
 
-    return this.buildingService.create({
-      ...move.building,
-      gameId,
-      owner: userId,
-    });
+    return this.buildingService.create(gameId, userId, move.building);
   }
 
   private checkExpectedType(move: CreateMoveDto) {

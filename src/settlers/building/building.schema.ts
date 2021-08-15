@@ -1,12 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn } from 'class-validator';
+import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, versionKey: false, timestamps: false })
 export class Building extends Point3D {
+  @ApiProperty(MONGO_ID_FORMAT)
+  _id!: string;
+
   @Prop()
   @ApiProperty({
     type: 'integer', minimum: 0, maximum: 2, description: `
@@ -37,6 +41,8 @@ For settlements and cities:
   @ApiProperty(MONGO_ID_FORMAT)
   owner: string;
 }
+
+export type BuildingDocument = Building & Document;
 
 export const BuildingSchema = SchemaFactory.createForClass(Building)
   .index({ gameId: 1, x: 1, y: 1, z: 1, side: 1 }, { unique: true })
