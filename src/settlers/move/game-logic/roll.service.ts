@@ -40,7 +40,12 @@ export class RollService {
   }
 
   async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    const roll = this.d6() + this.d6();
+    // TODO v3: Remove 7 avoidance logic
+    let roll: number;
+    do {
+      roll = this.d6() + this.d6();
+    } while (roll === 7);
+
     const map = await this.mapService.findByGame(gameId);
     const tiles = map.tiles.filter(tile => tile.numberToken === roll);
     const players: Record<string, Partial<Record<ResourceType, number>>> = {};
