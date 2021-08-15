@@ -49,6 +49,10 @@ export class BuildService {
       [`remainingBuildings.${move.building.type}`]: -1,
     };
 
+    if (move.building.type === 'city') {
+      $inc['remainingBuildings.settlement'] = +1;
+    }
+
     if (move.action === 'build') {
       await this.checkCosts(gameId, userId, move.building);
       this.deductCosts(move, $inc);
