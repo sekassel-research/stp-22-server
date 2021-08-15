@@ -23,7 +23,7 @@ export class StateTransitionService {
   }
 
   async transition(gameId: string, move: CreateMoveDto) {
-    if (move.building) {
+    if (move.action === 'build' && move.building) {
       return;
     }
 
