@@ -17,11 +17,11 @@ import {
 } from '../../shared/hexagon';
 import { randInt } from '../../shared/random';
 import { Point3D } from '../../shared/schema';
-import { State } from '../../state/state.schema';
 import { StateService } from '../../state/state.service';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
+import { StateTransitionService } from './state-transition.service';
 
 @Injectable()
 export class GameLogicService {
@@ -31,6 +31,7 @@ export class GameLogicService {
     private playerService: PlayerService,
     private buildingService: BuildingService,
     private moveService: MoveService,
+    private transitionService: StateTransitionService,
   ) {
   }
 
@@ -46,6 +47,12 @@ export class GameLogicService {
       throw new ForbiddenException('You\'re not supposed to do that!');
     }
 
+    const result = await this.doMove(move, gameId, userId);
+    await this.transitionService.transition(gameId, move);
+    return result;
+  }
+
+  private async doMove(move: CreateMoveDto, gameId: string, userId: string): Promise<Move> {
     switch (move.action) {
       case 'founding-roll':
         return this.foundingRoll(gameId, userId, move);
@@ -66,7 +73,6 @@ export class GameLogicService {
       foundingRoll: roll,
     });
 
-    await this.advanceState(gameId, 'founding-house-1');
     return this.moveService.create({
       ...move,
       building: undefined,
@@ -83,23 +89,7 @@ export class GameLogicService {
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     this.checkExpectedType(move);
 
-    let building: Building | undefined;
-    if (move.building) {
-      building = await this.doBuild(gameId, userId, move);
-    } else {
-      await this.advanceState(gameId, {
-        'founding-house-1': 'founding-house-2',
-        'founding-house-2': 'founding-streets',
-        'founding-road-1': 'founding-road-2',
-        'founding-road-2': 'roll',
-        'build': 'roll',
-      }[move.action], {
-        'founding-house-1': { foundingRoll: -1 },
-        'founding-house-2': { foundingRoll: 1 },
-        'founding-road-1': { foundingRoll: -1 },
-        'founding-road-2': { foundingRoll: 1 },
-      }[move.action]);
-    }
+    const building = move.building ? await this.doBuild(gameId, userId, move) : undefined;
 
     return this.moveService.create({
       ...move,
@@ -261,10 +251,6 @@ export class GameLogicService {
     await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));
     await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
 
-    await this.stateService.update(gameId, {
-      activeTask: 'build',
-    });
-
     return this.moveService.create({
       ...move,
       building: undefined,
@@ -316,22 +302,5 @@ export class GameLogicService {
     } else {
       return cornerAdjacentCubes(building as Point3DWithCornerSide);
     }
-  }
-
-  private async advanceState(gameId: string, next: Task, sort?: any): Promise<void> {
-    const state = await this.stateService.findByGame(gameId);
-    const stateUpdate: Partial<State> = {};
-    if (state.nextPlayers.length === 0) {
-      const players = await this.playerService.findAll(gameId, sort);
-      const [first, ...rest] = players;
-      stateUpdate.activeTask = next;
-      stateUpdate.activePlayer = first.userId;
-      stateUpdate.nextPlayers = rest.map(p => p.userId);
-    } else {
-      const [next, ...rest] = state.nextPlayers;
-      stateUpdate.activePlayer = next;
-      stateUpdate.nextPlayers = rest;
-    }
-    await this.stateService.update(gameId, stateUpdate);
   }
 }

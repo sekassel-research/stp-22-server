@@ -7,6 +7,7 @@ import { StateModule } from '../state/state.module';
 import { GameLogicService } from './game-logic/game-logic.service';
 import { MoveController } from './move.controller';
 import { MoveService } from './move.service';
+import { StateTransitionService } from './game-logic/state-transition.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { MoveService } from './move.service';
     EventModule,
   ],
   controllers: [MoveController],
-  providers: [MoveService, GameLogicService],
+  providers: [MoveService, GameLogicService, StateTransitionService],
 })
 export class MoveModule {
 }
