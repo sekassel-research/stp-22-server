@@ -78,7 +78,7 @@ export class GameLogicService {
   }
 
   private async build(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    // TODO require building in founding phase
+    this.checkExpectedType(move);
 
     const building = move.building ? await this.doBuild(gameId, userId, move) : undefined;
 
@@ -101,7 +101,6 @@ export class GameLogicService {
   }
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
-    this.checkExpectedType(move);
     const existing = await this.checkAllowedPlacement(gameId, move.building);
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
@@ -132,8 +131,11 @@ export class GameLogicService {
       'founding-house-2': 'settlement',
       'founding-streets': 'road',
     }[move.action];
-    if (expectedType && move.building.type !== expectedType) {
-      throw new ForbiddenException('You are not allowed to build that now');
+    if (!expectedType) {
+      return;
+    }
+    if (!move.building || move.building.type !== expectedType) {
+      throw new ForbiddenException(`You need to build a ${expectedType}`);
     }
   }
 
