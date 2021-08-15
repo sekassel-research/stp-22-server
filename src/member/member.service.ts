@@ -81,6 +81,7 @@ export class MemberService {
     for (const member of members) {
       this.emit('deleted', member);
     }
+    await Promise.all(members.map(member => this.gameService.changeMembers(member.gameId, -1)));
     await this.model.deleteMany({ userId }).exec();
     return members;
   }
