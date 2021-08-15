@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { EventService } from '../../event/event.service';
-import { CreateBuildingDto } from './building.dto';
+import { CreateBuildingDto, UpdateBuildingDto } from './building.dto';
 import { Building, BuildingDocument } from './building.schema';
 
 @Injectable()
@@ -25,6 +25,12 @@ export class BuildingService {
     });
     created && this.emit('created', created);
     return created;
+  }
+
+  async update(id: string, building: UpdateBuildingDto): Promise<BuildingDocument | undefined> {
+    const updated = await this.model.findByIdAndUpdate(id, building, { new: true });
+    updated && this.emit('updated', updated);
+    return updated;
   }
 
   async deleteByGame(gameId: string): Promise<void> {
