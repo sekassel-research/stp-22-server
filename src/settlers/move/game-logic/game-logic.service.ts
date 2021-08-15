@@ -90,11 +90,14 @@ export class GameLogicService {
       await this.advanceState(gameId, {
         'founding-house-1': 'founding-house-2',
         'founding-house-2': 'founding-streets',
-        'founding-streets': 'roll',
+        'founding-road-1': 'founding-road-2',
+        'founding-road-2': 'roll',
         'build': 'roll',
       }[move.action], {
         'founding-house-1': { foundingRoll: -1 },
         'founding-house-2': { foundingRoll: 1 },
+        'founding-road-1': { foundingRoll: -1 },
+        'founding-road-2': { foundingRoll: 1 },
       }[move.action]);
     }
 
