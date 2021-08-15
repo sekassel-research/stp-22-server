@@ -9,9 +9,10 @@ import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from
 import {
   cornerAdjacentCorners,
   cornerAdjacentCubes,
-  CornerSide,
   cubeCorners,
-  edgeAdjacentCubes, EdgeSide, Point3DWithCornerSide, Point3DWithEdgeSide,
+  edgeAdjacentCubes,
+  Point3DWithCornerSide,
+  Point3DWithEdgeSide,
 } from '../../shared/hexagon';
 import { randInt } from '../../shared/random';
 import { Point3D } from '../../shared/schema';
@@ -177,7 +178,7 @@ export class GameLogicService {
     const { x, y, z, side } = building;
     const existing = await this.buildingService.findAll({
       gameId,
-      type: {$in: types},
+      type: { $in: types },
       x, y, z, side,
     });
     return existing[0];
@@ -187,7 +188,7 @@ export class GameLogicService {
     const { x, y, z, side } = building;
     const adjacent = await this.buildingService.findAll({
       gameId,
-      type: {$in: ['settlement', 'city']},
+      type: { $in: ['settlement', 'city'] },
       $or: [...cornerAdjacentCorners(building as Point3DWithCornerSide), { x, y, z, side }],
     });
     if (adjacent.length !== 0) {
