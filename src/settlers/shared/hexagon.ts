@@ -72,12 +72,7 @@ export const CUBE_CORNERS = [
 ] as const;
 
 export function cubeCorners({ x, y, z }: Point3D): Point3DWithCornerSide[] {
-  return CUBE_CORNERS.map(([dx, dy, dz, side]) => ({
-    x: x + dx,
-    y: y + dy,
-    z: z + dz,
-    side,
-  }));
+  return mapSidedPoints(CUBE_CORNERS, x, y, z);
 }
 
 export const CORNER_ADJACENT_CUBES = {
@@ -94,11 +89,7 @@ export const CORNER_ADJACENT_CUBES = {
 } as const;
 
 export function cornerAdjacentCubes({ x, y, z, side }: Point3DWithCornerSide): Point3D[] {
-  return CORNER_ADJACENT_CUBES[side].map(([dx, dy, dz]) => ({
-    x: x + dx,
-    y: y + dy,
-    z: z + dz,
-  }));
+  return mapPoints(CORNER_ADJACENT_CUBES[side], x, y, z);
 }
 
 export const EDGE_ADJACENT_CUBES = {
@@ -114,14 +105,10 @@ export const EDGE_ADJACENT_CUBES = {
     [+0, +0, +0],
     [+1, -1, +0],
   ],
-};
+} as const;
 
 export function edgeAdjacentCubes({ x, y, z, side }: Point3DWithEdgeSide): Point3D[] {
-  return EDGE_ADJACENT_CUBES[side].map(([dx, dy, dz]) => ({
-    x: x + dx,
-    y: y + dy,
-    z: z + dz,
-  }));
+  return mapPoints(EDGE_ADJACENT_CUBES[side], x, y, z);
 }
 
 export const CORNER_ADJACENT_CORNERS = {
@@ -140,12 +127,7 @@ export const CORNER_ADJACENT_CORNERS = {
 } as const;
 
 export function cornerAdjacentCorners({ x, y, z, side }: Point3DWithCornerSide): (Point3DWithCornerSide)[] {
-  return CORNER_ADJACENT_CORNERS[side].map(([dx, dy, dz, side]) => ({
-    x: x + dx,
-    y: y + dy,
-    z: z + dz,
-    side,
-  }));
+  return mapSidedPoints(CORNER_ADJACENT_CORNERS[side], x, y, z);
 }
 
 export const CORNER_ADJACENT_EDGES = {
@@ -162,7 +144,19 @@ export const CORNER_ADJACENT_EDGES = {
 } as const;
 
 export function cornerAdjacentEdges({ x, y, z, side}: Point3DWithCornerSide): Point3DWithEdgeSide[] {
-  return CORNER_ADJACENT_EDGES[side].map(([dx, dy, dz, side]) => ({
+  return mapSidedPoints(CORNER_ADJACENT_EDGES[side], x, y, z);
+}
+
+function mapPoints(array: readonly (readonly [number, number, number])[], x: number, y: number, z: number): Point3D[] {
+  return array.map(([dx, dy, dz]) => ({
+    x: x + dx,
+    y: y + dy,
+    z: z + dz,
+  }));
+}
+
+function mapSidedPoints<SIDE>(array: readonly (readonly [number, number, number, SIDE])[], x: number, y: number, z: number): (Point3D & {side: SIDE})[] {
+  return array.map(([dx, dy, dz, side]) => ({
     x: x + dx,
     y: y + dy,
     z: z + dz,
