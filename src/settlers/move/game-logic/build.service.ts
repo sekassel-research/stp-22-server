@@ -10,7 +10,9 @@ import {
   cornerAdjacentCorners,
   cornerAdjacentCubes,
   cornerAdjacentEdges,
+  edgeAdjacentCorners,
   edgeAdjacentCubes,
+  edgeAdjacentEdges,
   Point3DWithCornerSide,
   Point3DWithEdgeSide,
 } from '../../shared/hexagon';
@@ -89,7 +91,7 @@ export class BuildService {
   private async checkAllowedPlacement(gameId: string, userId: string, move: CreateMoveDto): Promise<Building | undefined> {
     switch (move.building.type) {
       case 'road':
-        return this.checkRoadPlacement(gameId, move.building);
+        return this.checkRoadPlacement(gameId, userId, move.building);
       case 'settlement':
         return this.checkSettlementPlacement(gameId, userId, move);
       case 'city':
@@ -97,13 +99,32 @@ export class BuildService {
     }
   }
 
-  private async checkRoadPlacement(gameId: string, building: CreateBuildingDto) {
+  private async checkRoadPlacement(gameId: string, userId: string, building: CreateBuildingDto) {
     const existing = await this.buildingAt(gameId, building, ['road']);
     if (existing) {
       throw new ForbiddenException('There is already a road here');
     }
-    // TODO check connection to existing owned road or settlement
+    const adjacentBuildings = await this.findRoadAdjacentBuildings(userId, building);
+    if (adjacentBuildings.length <= 0) {
+      throw new ForbiddenException('Needs to be connected to one of your buildings');
+    }
     return undefined;
+  }
+
+  private async findRoadAdjacentBuildings(userId: string, building: CreateBuildingDto) {
+    return this.buildingService.findAll({
+      owner: userId,
+      $or: [
+        {
+          type: 'road',
+          $or: edgeAdjacentEdges(building as Point3DWithEdgeSide),
+        },
+        {
+          type: { $in: ['settlement', 'city'] },
+          $or: edgeAdjacentCorners(building as Point3DWithEdgeSide),
+        },
+      ],
+    });
   }
 
   private async checkCityPlacement(gameId: string, userId: string, building: CreateBuildingDto) {

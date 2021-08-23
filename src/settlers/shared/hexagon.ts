@@ -147,6 +147,50 @@ export function cornerAdjacentEdges({ x, y, z, side}: Point3DWithCornerSide): Po
   return mapSidedPoints(CORNER_ADJACENT_EDGES[side], x, y, z);
 }
 
+export const EDGE_ADJACENT_CORNERS = {
+  3: [
+    [+1, +0, -1, 6],
+    [+0, -1, +1, 0],
+  ],
+  7: [
+    [-1, +0, +1, 0],
+    [+0, +0, +0, 6],
+  ],
+  11: [
+    [+0, +1, -1, 6],
+    [+0, +0, +0, 0],
+  ],
+} as const;
+
+export function edgeAdjacentCorners({ x, y, z, side }: Point3DWithEdgeSide): Point3DWithCornerSide[] {
+  return mapSidedPoints(EDGE_ADJACENT_CORNERS[side], x, y, z);
+}
+
+export const EDGE_ADJACENT_EDGES = {
+  3: [
+    [+1, +0, -1, 7], // top left
+    [+1, -1, +0, 11], // top right
+    [+1, -1, +0, 7], // bottom right
+    [+0, -1, +1, 11], // bottom left
+  ],
+  7: [
+    [-1, +1, +0, 3], // top
+    [+0, -1, +1, 11], // right
+    [-1, +0, +1, 3], // bottom
+    [-1, +0, +1, 11], // left
+  ],
+  11: [
+    [+0, +1, -1, 3], // top
+    [+1, +0, -1, 7], // right
+    [-1, +1, +0, 3], // bottom
+    [+0, +1, -1, 7], // left
+  ],
+} as const;
+
+export function edgeAdjacentEdges({ x, y, z, side }: Point3DWithEdgeSide): Point3DWithEdgeSide[] {
+  return mapSidedPoints(EDGE_ADJACENT_EDGES[side], x, y, z);
+}
+
 function mapPoints(array: readonly (readonly [number, number, number])[], x: number, y: number, z: number): Point3D[] {
   return array.map(([dx, dy, dz]) => ({
     x: x + dx,
