@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BuildingService } from '../../building/building.service';
 import { Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
+import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { ResourceType, TILE_RESOURCES } from '../../shared/constants';
 import { cubeCorners } from '../../shared/hexagon';
@@ -40,18 +41,12 @@ export class RollService {
   }
 
   async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    // TODO v3: Remove 7 avoidance logic
-    let roll: number;
-    do {
-      roll = this.d6() + this.d6();
-    } while (roll === 7);
-
-    const map = await this.mapService.findByGame(gameId);
-    const tiles = map.tiles.filter(tile => tile.numberToken === roll);
-    const players: Record<string, Partial<Record<ResourceType, number>>> = {};
-
-    await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));
-    await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
+    const roll = this.d6() + this.d6();
+    if (roll === 7) {
+      await this.roll7(gameId);
+    } else {
+      await this.rollResources(gameId, roll);
+    }
 
     return this.moveService.create({
       ...move,
@@ -60,6 +55,50 @@ export class RollService {
       userId,
       roll,
     });
+  }
+
+  private async roll7(gameId: string): Promise<void> {
+    const players = await this.playerService.findAll(gameId);
+    await Promise.all(players.map(p => this.stealResources(p)));
+  }
+
+  private async stealResources(player: Player) {
+    const resources = { ...player.resources };
+    let total = Object.values(resources).reduce((a, c) => a + c, 0);
+    if (total <= 7) {
+      return;
+    }
+
+    const keys = Object.keys(resources);
+    const stealCount = Math.floor(total / 2);
+
+    for (let i = 0; i < stealCount; i++) {
+      let rand = randInt(total);
+      for (const key of keys) {
+        const amount = resources[key];
+        if (rand >= amount) {
+          rand -= amount;
+          continue;
+        }
+
+        resources[key]--;
+        total--;
+        break;
+      }
+    }
+
+    await this.playerService.update(player.gameId, player.userId, {
+      resources,
+    });
+  }
+
+  private async rollResources(gameId: string, roll: number): Promise<void> {
+    const map = await this.mapService.findByGame(gameId);
+    const tiles = map.tiles.filter(tile => tile.numberToken === roll);
+    const players: Record<string, Partial<Record<ResourceType, number>>> = {};
+
+    await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));
+    await Promise.all(Object.keys(players).map(pid => this.updateResources(gameId, pid, players[pid])));
   }
 
   private async giveResources(gameId: string, players: Record<string, Partial<Record<ResourceType, number>>>, tile: Tile): Promise<void> {
