@@ -17,6 +17,10 @@ export class BuildingService {
     return this.model.find(filter).exec();
   }
 
+  async findOne(id: string): Promise<BuildingDocument> {
+    return this.model.findById(id).exec();
+  }
+
   async create(gameId: string, owner: string, building: CreateBuildingDto): Promise<BuildingDocument> {
     const created = await this.model.create({
       ...building,

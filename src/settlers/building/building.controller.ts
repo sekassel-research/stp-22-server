@@ -28,4 +28,15 @@ export class BuildingController {
   ): Promise<Building[]> {
     return this.buildingService.findAll({ gameId });
   }
+
+  @Get(':buildingId')
+  @ApiOkResponse({ type: Building })
+  @NotFound()
+  async findOne(
+    @AuthUser() user: User,
+    @Param('gameId') gameId: string,
+    @Param('buildingId') buildingId: string,
+  ): Promise<Building> {
+    return this.buildingService.findOne(buildingId);
+  }
 }
