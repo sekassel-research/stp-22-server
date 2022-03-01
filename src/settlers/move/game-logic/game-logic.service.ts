@@ -21,15 +21,15 @@ export class GameLogicService {
     if (!state) {
       return undefined;
     }
-    if (state.activePlayer !== userId) {
+    if (!state.expectedMoves[0].players.includes(userId)) {
       throw new ForbiddenException('Not your turn!');
     }
-    if (state.activeTask !== move.action) {
+    if (state.expectedMoves[0].action !== move.action) {
       throw new ForbiddenException('You\'re not supposed to do that!');
     }
 
     const result = await this.doMove(move, gameId, userId);
-    await this.transitionService.transition(gameId, move);
+    await this.transitionService.transition(gameId, userId, move);
     return result;
   }
 

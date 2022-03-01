@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
@@ -21,17 +21,18 @@ export class StateService {
 
   async createForGame(game: Game): Promise<State> {
     const members = await this.memberService.findAll(game._id);
-    const [first, ...rest] = members;
-    return this.model.create({
+    const state: State = {
       gameId: game._id,
-      activePlayer: first.userId,
-      nextPlayers: rest.map(m => m.userId),
-      activeTask: 'founding-roll',
       round: 0,
-    });
+      expectedMoves: [{
+        action: 'founding-roll',
+        players: members.map(m => m.userId),
+      }],
+    };
+    return this.model.create(state);
   }
 
-  async update(gameId: string, dto: Partial<State>): Promise<State> {
+  async update(gameId: string, dto: UpdateQuery<State>): Promise<State> {
     const updated = await this.model.findOneAndUpdate({ gameId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;

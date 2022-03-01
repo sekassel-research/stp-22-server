@@ -1,8 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsInt, IsMongoId } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsIn, IsInt, IsMongoId, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_ARRAY_FORMAT, MONGO_ID_FORMAT } from '../../util/schema';
 import { Task, TASKS } from '../shared/constants';
+
+export class ExpectedMove {
+  @Prop()
+  @ApiProperty({ enum: TASKS })
+  @IsIn(TASKS)
+  action: Task;
+
+  @Prop()
+  @ApiProperty(MONGO_ID_ARRAY_FORMAT)
+  @IsMongoId({ each: true })
+  players: string[];
+}
 
 @Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false })
 export class State {
@@ -17,19 +30,10 @@ export class State {
   round: number;
 
   @Prop()
-  @ApiProperty(MONGO_ID_FORMAT)
-  @IsMongoId()
-  activePlayer: string;
-
-  @Prop()
-  @ApiProperty(MONGO_ID_ARRAY_FORMAT)
-  @IsMongoId({ each: true })
-  nextPlayers: string[];
-
-  @Prop()
-  @ApiProperty({ enum: TASKS })
-  @IsIn(TASKS)
-  activeTask: Task;
+  @ApiProperty()
+  @ValidateNested({ each: true })
+  @Type(() => ExpectedMove)
+  expectedMoves: ExpectedMove[];
 }
 
 export const StateSchema = SchemaFactory.createForClass(State)
