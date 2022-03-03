@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsOptional,
   Max,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -46,8 +47,9 @@ export class GameSettings {
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Game extends GlobalSchema {
   @Prop({ index: 1 })
-  @ApiProperty()
+  @ApiProperty({ minLength: 1, maxLength: 32 })
   @IsNotEmpty()
+  @MaxLength(32)
   name: string;
 
   @Prop()
