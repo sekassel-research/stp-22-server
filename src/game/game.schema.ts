@@ -1,14 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, MaxLength } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Game extends GlobalSchema {
   @Prop({ index: 1 })
-  @ApiProperty()
+  @ApiProperty({ minLength: 1, maxLength: 32 })
   @IsNotEmpty()
+  @MaxLength(32)
   name: string;
 
   @Prop()
