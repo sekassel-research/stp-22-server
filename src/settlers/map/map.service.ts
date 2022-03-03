@@ -19,7 +19,7 @@ export class MapService {
   }
 
   async createForGame(game: Game): Promise<Map> {
-    const radius = 2;
+    const radius = game.settings?.mapRadius ?? 2;
     return this.model.create({
       gameId: game._id,
       tiles: this.generateTiles(radius),

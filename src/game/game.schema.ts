@@ -1,8 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsMongoId, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min, ValidateNested } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
+
+export class GameSettings {
+  @Prop()
+  @ApiPropertyOptional({
+    minimum: 0,
+    multipleOf: 1,
+    default: 2,
+    description: 'Controls the number of rings around the center of the map. Zero means only one tile will be placed.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  mapRadius?: number;
+}
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Game extends GlobalSchema {
@@ -26,6 +41,13 @@ export class Game extends GlobalSchema {
   @IsOptional()
   @IsBoolean()
   started?: boolean;
+
+  @Prop()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GameSettings)
+  settings?: GameSettings;
 
   @Prop({
     transform: () => undefined,
