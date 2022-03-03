@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsMongoId } from 'class-validator';
+import { IsBoolean, IsMongoId, IsOptional } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../util/schema';
 
@@ -20,6 +20,12 @@ export class Member extends GlobalSchemaWithoutID {
   @ApiProperty()
   @IsBoolean()
   ready: boolean;
+
+  @Prop()
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  spectator?: boolean;
 }
 
 export type MemberDocument = Member & Document;

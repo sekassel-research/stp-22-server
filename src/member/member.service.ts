@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 
 import { EventService } from '../event/event.service';
 import { GameService } from '../game/game.service';
@@ -59,8 +59,8 @@ export class MemberService {
     return created;
   }
 
-  async findAll(gameId: string): Promise<Member[]> {
-    return this.model.find({ gameId }).exec();
+  async findAll(gameId: string, filter?: FilterQuery<Member>): Promise<Member[]> {
+    return this.model.find({ ...filter, gameId }).exec();
   }
 
   async findOne(gameId: string, userId: string): Promise<Member | undefined> {

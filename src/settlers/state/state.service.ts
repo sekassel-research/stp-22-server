@@ -20,7 +20,9 @@ export class StateService {
   }
 
   async createForGame(game: Game): Promise<State> {
-    const members = await this.memberService.findAll(game._id);
+    const members = await this.memberService.findAll(game._id, {
+      spectator: {$ne: true},
+    });
     const state: State = {
       gameId: game._id,
       round: 0,

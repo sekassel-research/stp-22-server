@@ -52,7 +52,9 @@ export class PlayerService {
   }
 
   async createForGame(gameId: string): Promise<PlayerDocument[]> {
-    const members = await this.memberService.findAll(gameId);
+    const members = await this.memberService.findAll(gameId, {
+      spectator: {$ne: true},
+    });
 
     const players = members.map((m, index) => ({
       gameId,
