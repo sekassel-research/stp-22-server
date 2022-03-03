@@ -1,5 +1,5 @@
 export const environment = {
-  version: 'v2',
+  version: 'v3',
   mongo: {
     uri: process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21',
   },
