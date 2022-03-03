@@ -47,12 +47,15 @@ export class BuildService {
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     const existing = await this.checkAllowedPlacement(gameId, userId, move);
 
-    const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
+    const $inc: Partial<Record<'victoryPoints' | `remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
       [`remainingBuildings.${move.building.type}`]: -1,
     };
 
     if (move.building.type === 'city') {
       $inc['remainingBuildings.settlement'] = +1;
+    }
+    if (move.building.type !== 'road') {
+      $inc.victoryPoints = +1;
     }
 
     if (move.action === 'build') {

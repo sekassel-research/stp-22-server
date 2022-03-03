@@ -48,6 +48,11 @@ export class Player {
   })
   @IsObject()
   remainingBuildings: BuildingCount;
+
+  @Prop()
+  @ApiProperty()
+  @IsInt()
+  victoryPoints: number;
 }
 
 export type PlayerDocument = Player & Document;
