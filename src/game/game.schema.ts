@@ -29,6 +29,18 @@ export class GameSettings {
   @Min(0)
   @Max(10)
   mapRadius?: number;
+
+  @Prop()
+  @ApiPropertyOptional({
+    type: 'integer',
+    minimum: 3,
+    default: 10,
+    description: 'Specifies how many victory points are required to win the game.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(3)
+  victoryPoints?: number;
 }
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
