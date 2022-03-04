@@ -70,5 +70,6 @@ export const TASKS = [
   'founding-road-2',
   'roll',
   'build',
+  'drop',
 ] as const;
 export type Task = (typeof TASKS)[number];

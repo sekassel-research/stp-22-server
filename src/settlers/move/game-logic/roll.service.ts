@@ -42,9 +42,7 @@ export class RollService {
 
   async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     const roll = this.d6() + this.d6();
-    if (roll === 7) {
-      await this.roll7(gameId);
-    } else {
+    if (roll !== 7) {
       await this.rollResources(gameId, roll);
     }
 
@@ -54,41 +52,6 @@ export class RollService {
       gameId,
       userId,
       roll,
-    });
-  }
-
-  private async roll7(gameId: string): Promise<void> {
-    const players = await this.playerService.findAll(gameId);
-    await Promise.all(players.map(p => this.stealResources(p)));
-  }
-
-  private async stealResources(player: Player) {
-    const resources = { ...player.resources };
-    let total = Object.values(resources).reduce((a, c) => a + c, 0);
-    if (total <= 7) {
-      return;
-    }
-
-    const keys = Object.keys(resources);
-    const stealCount = Math.floor(total / 2);
-
-    for (let i = 0; i < stealCount; i++) {
-      let rand = randInt(total);
-      for (const key of keys) {
-        const amount = resources[key];
-        if (rand >= amount) {
-          rand -= amount;
-          continue;
-        }
-
-        resources[key]--;
-        total--;
-        break;
-      }
-    }
-
-    await this.playerService.update(player.gameId, player.userId, {
-      resources,
     });
   }
 

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from 'src/settlers/state/state.service';
 import { PlayerService } from '../../player/player.service';
 import { ExpectedMove } from '../../state/state.schema';
-import { CreateMoveDto } from '../move.dto';
+import { Move } from '../move.schema';
 
 @Injectable()
 export class StateTransitionService {
@@ -12,7 +12,7 @@ export class StateTransitionService {
   ) {
   }
 
-  async transition(gameId: string, userId: string, move: CreateMoveDto) {
+  async transition(gameId: string, userId: string, move: Move) {
     if (move.action === 'build') {
       if (move.building) {
         return;
@@ -29,6 +29,18 @@ export class StateTransitionService {
     }
 
     if (move.action === 'roll') {
+      if (move.roll === 7) {
+        const allPlayers = await this.playerService.findAll(gameId);
+        const players = allPlayers.filter(p => Object.values(p.resources).reduce((a, c) => a + c, 0) > 7);
+        if (players.length) {
+          const newMove: ExpectedMove = { action: 'drop', players: players.map(p => p.userId) };
+          await this.stateService.update(gameId, {
+            $push: { expectedMoves: { $each: [newMove], $position: 0 } },
+            'expectedMoves.1.action': 'build',
+          });
+          return;
+        }
+      }
       await this.stateService.update(gameId, {
         'expectedMoves.0.action': 'build',
       });

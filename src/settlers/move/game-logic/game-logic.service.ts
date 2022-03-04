@@ -29,7 +29,7 @@ export class GameLogicService {
     }
 
     const result = await this.doMove(move, gameId, userId);
-    await this.transitionService.transition(gameId, userId, move);
+    await this.transitionService.transition(gameId, userId, result);
     return result;
   }
 
