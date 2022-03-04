@@ -4,6 +4,7 @@ import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
 import { Map as GameMap } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
+import { PlayerDocument, ResourceCount } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, TILE_RESOURCES } from '../../shared/constants';
 import {
@@ -44,6 +45,22 @@ export class BuildService {
     });
   }
 
+  async drop(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    const player = await this.playerService.findOne(gameId, userId);
+    this.checkResourceCosts(move.resources, player);
+
+    const $inc: Partial<Record<`resources.${ResourceType}`, number>> = {};
+    this.deductCosts(move.resources, $inc);
+    await this.playerService.update(gameId, userId, { $inc });
+
+    return this.moveService.create({
+      ...move,
+      gameId,
+      userId,
+      building: undefined,
+    });
+  }
+
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     const existing = await this.checkAllowedPlacement(gameId, userId, move);
 
@@ -59,8 +76,11 @@ export class BuildService {
     }
 
     if (move.action === 'build') {
-      await this.checkCosts(gameId, userId, move.building);
-      this.deductCosts(move, $inc);
+      const player = await this.playerService.findOne(gameId, userId);
+      const costs = BUILDING_COSTS[move.building.type];
+      this.checkAvailableBuildings(player, move.building.type);
+      this.checkResourceCosts(costs, player);
+      this.deductCosts(costs, $inc);
     } else if (move.action === 'founding-house-1') {
       const map = await this.mapService.findByGame(gameId);
       this.giveAdjacentResources(map, move.building, $inc);
@@ -178,14 +198,13 @@ export class BuildService {
     return undefined;
   }
 
-  private async checkCosts(gameId: string, userId: string, building: CreateBuildingDto) {
-    const player = await this.playerService.findOne(gameId, userId);
-    if ((player.remainingBuildings[building.type] || 0) <= 0) {
-      throw new ForbiddenException(`You can't build any more ${building.type}!`);
+  private checkAvailableBuildings(player: PlayerDocument, type: BuildingType) {
+    if ((player.remainingBuildings[type] || 0) <= 0) {
+      throw new ForbiddenException(`You can't build any more ${type}!`);
     }
+  }
 
-    const costs = BUILDING_COSTS[building.type];
-
+  private checkResourceCosts(costs: ResourceCount, player: PlayerDocument) {
     for (const key of Object.keys(costs)) {
       if ((player.resources[key] || 0) < costs[key]) {
         throw new ForbiddenException('You can\'t afford that!');
@@ -193,8 +212,7 @@ export class BuildService {
     }
   }
 
-  private deductCosts(move: CreateMoveDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
-    const costs = BUILDING_COSTS[move.building.type];
+  private deductCosts(costs: ResourceCount, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
     for (const resource of Object.keys(costs)) {
       $inc[`resources.${resource}`] = -costs[resource];
     }
