@@ -40,14 +40,12 @@ export class PlayerService {
     return this.model.findOne({ gameId, userId }).exec();
   }
 
-  maskResources(player: PlayerDocument): Player {
-    const { _id, resources, ...rest } = player.toObject();
-    const total = Object.values(resources).reduce((a, c) => a + c, 0);
+  mask(player: PlayerDocument): Player {
+    const { _id, resources, victoryPoints, ...rest } = player.toObject();
+    const unknown = Object.values(resources).reduce((a, c) => a + c, 0);
     return {
       ...rest,
-      resources: {
-        unknown: total,
-      },
+      resources: { unknown },
     };
   }
 
@@ -56,12 +54,13 @@ export class PlayerService {
       spectator: {$ne: true},
     });
 
-    const players = members.map((m, index) => ({
+    const players: Player[] = members.map((m, index) => ({
       gameId,
       userId: m.userId,
       color: COLOR_PALETTE[index % COLOR_PALETTE.length],
       resources: {},
       remainingBuildings: INITIAL_BUILDINGS,
+      victoryPoints: 0,
     }));
     return this.model.insertMany(players);
   }
@@ -80,7 +79,7 @@ export class PlayerService {
     const event = `games.${player.gameId}.players.${player.userId}.${action}`;
     this.eventEmitter.emit(event, player, [player.userId]);
 
-    const maskedPlayer = this.maskResources(player);
+    const maskedPlayer = this.mask(player);
     const otherUserIds = allPlayers.map(m => m.userId).filter(u => u !== player.userId);
     this.eventEmitter.emit(event, maskedPlayer, otherUserIds);
   }

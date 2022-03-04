@@ -50,6 +50,6 @@ export class PlayerController {
       return player;
     }
 
-    return this.playerService.maskResources(player);
+    return this.playerService.mask(player);
   }
 }
