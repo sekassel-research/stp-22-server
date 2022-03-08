@@ -33,10 +33,12 @@ export class StateTransitionService {
         const allPlayers = await this.playerService.findAll(gameId);
         const players = allPlayers.filter(p => Object.values(p.resources).reduce((a, c) => a + c, 0) > 7);
         if (players.length) {
-          const newMove: ExpectedMove = { action: 'drop', players: players.map(p => p.userId) };
+          const expectedMoves: ExpectedMove[] = [
+            { action: 'drop', players: players.map(p => p.userId) },
+            { action: 'build', players: [userId] },
+          ];
           await this.stateService.update(gameId, {
-            $push: { expectedMoves: { $each: [newMove], $position: 0 } },
-            'expectedMoves.1.action': 'build',
+            expectedMoves,
           });
           return;
         }
