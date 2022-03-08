@@ -32,17 +32,17 @@ export class StateTransitionService {
       if (move.roll === 7) {
         const allPlayers = await this.playerService.findAll(gameId);
         const players = allPlayers.filter(p => Object.values(p.resources).sum() > 7);
+        const expectedMoves: ExpectedMove[] = [
+          { action: 'rob', players: [userId] },
+          { action: 'build', players: [userId] },
+        ];
         if (players.length) {
-          const expectedMoves: ExpectedMove[] = [
-            { action: 'drop', players: players.map(p => p.userId) },
-            { action: 'rob', players: [userId] },
-            { action: 'build', players: [userId] },
-          ];
-          await this.stateService.update(gameId, {
-            expectedMoves,
-          });
-          return;
+          expectedMoves.splice(0, 0, { action: 'drop', players: players.map(p => p.userId) });
         }
+        await this.stateService.update(gameId, {
+          expectedMoves,
+        });
+        return;
       }
       await this.stateService.update(gameId, {
         'expectedMoves.0.action': 'build',
