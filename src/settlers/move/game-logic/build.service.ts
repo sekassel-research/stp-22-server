@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from '../../building/building.dto';
 import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
@@ -46,6 +46,10 @@ export class BuildService {
   }
 
   async drop(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    if (!move.resources) {
+      throw new BadRequestException('Missing resources property');
+    }
+
     const player = await this.playerService.findOne(gameId, userId);
     this.checkResourceCosts(move.resources, player);
 
