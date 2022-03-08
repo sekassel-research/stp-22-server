@@ -31,7 +31,7 @@ export class StateTransitionService {
     if (move.action === 'roll') {
       if (move.roll === 7) {
         const allPlayers = await this.playerService.findAll(gameId);
-        const players = allPlayers.filter(p => Object.values(p.resources).reduce((a, c) => a + c, 0) > 7);
+        const players = allPlayers.filter(p => Object.values(p.resources).sum() > 7);
         if (players.length) {
           const expectedMoves: ExpectedMove[] = [
             { action: 'drop', players: players.map(p => p.userId) },
