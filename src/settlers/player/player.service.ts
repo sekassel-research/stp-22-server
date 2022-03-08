@@ -42,7 +42,7 @@ export class PlayerService {
 
   maskResources(player: PlayerDocument): Player {
     const { _id, resources, ...rest } = player.toObject();
-    const total = Object.values(resources).reduce((a, c) => a + c, 0);
+    const total = Object.values(resources).sum();
     return {
       ...rest,
       resources: {

@@ -64,7 +64,7 @@ export class RollService {
 
   private async stealResources(player: Player) {
     const resources = { ...player.resources };
-    let total = Object.values(resources).reduce((a, c) => a + c, 0);
+    let total = Object.values(resources).sum();
     if (total <= 7) {
       return;
     }
