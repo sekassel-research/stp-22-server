@@ -6,6 +6,7 @@ import { Move } from './move.schema';
 export class CreateMoveDto extends PickType(Move, [
   'action',
   'resources',
+  'rob',
 ] as const) {
   @Prop()
   @ApiProperty({ type: CreateBuildingDto, required: false })

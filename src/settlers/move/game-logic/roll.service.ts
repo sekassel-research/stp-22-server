@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { BuildingService } from '../../building/building.service';
 import { Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
-import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
-import { ResourceType, TILE_RESOURCES } from '../../shared/constants';
+import { RESOURCE_TYPES, ResourceType, TILE_RESOURCES } from '../../shared/constants';
 import { cubeCorners } from '../../shared/hexagon';
 import { randInt } from '../../shared/random';
+import { StateService } from '../../state/state.service';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
@@ -18,6 +18,7 @@ export class RollService {
     private moveService: MoveService,
     private mapService: MapService,
     private buildingService: BuildingService,
+    private stateService: StateService,
   ) {
   }
 
@@ -55,9 +56,50 @@ export class RollService {
     });
   }
 
+  async rob(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    if (!move.rob) {
+      throw new BadRequestException('Missing rob property');
+    }
+
+    const {target: targetId, ...robber} = move.rob;
+    const target = await this.playerService.findOne(gameId, targetId);
+    if (!target) {
+      throw new BadRequestException('Target player does not exist');
+    }
+
+    const buildings = await this.buildingService.findAll({
+      gameId,
+      owner: targetId,
+      $or: cubeCorners(move.rob),
+    });
+    if (!buildings.length) {
+      throw new ForbiddenException('The target player has no buildings adjacent to the tile');
+    }
+
+    const resources = Object.keys(target.resources).filter(k => target.resources[k] > 0);
+    if (!resources.length) {
+      throw new BadRequestException('The target player has no resources');
+    }
+
+    const randomResource = resources[randInt(resources.length)];
+    await Promise.all([
+      this.updateResources(gameId, targetId, { [randomResource]: -1 }),
+      this.updateResources(gameId, userId, { [randomResource]: +1 }),
+      this.stateService.update(gameId, { robber }),
+    ]);
+
+    return this.moveService.create({
+      ...move,
+      building: undefined,
+      gameId,
+      userId,
+    });
+  }
+
   private async rollResources(gameId: string, roll: number): Promise<void> {
+    const { robber } = await this.stateService.findByGame(gameId);
     const map = await this.mapService.findByGame(gameId);
-    const tiles = map.tiles.filter(tile => tile.numberToken === roll);
+    const tiles = map.tiles.filter(tile => tile.numberToken === roll && !(robber && tile.x === robber.x && tile.y === robber.y && tile.z === robber.z));
     const players: Record<string, Partial<Record<ResourceType, number>>> = {};
 
     await Promise.all(tiles.map(tile => this.giveResources(gameId, players, tile)));

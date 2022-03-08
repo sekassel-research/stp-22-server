@@ -47,6 +47,8 @@ export class GameLogicService {
         return this.rollService.roll(gameId, userId, move);
       case 'drop':
         return this.buildService.drop(gameId, userId, move);
+      case 'rob':
+        return this.rollService.rob(gameId, userId, move);
     }
   }
 }

@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsMongoId, ValidateNested } from 'class-validator';
+import { IsIn, IsInt, IsMongoId, IsOptional, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_ARRAY_FORMAT, MONGO_ID_FORMAT } from '../../util/schema';
 import { Task, TASKS } from '../shared/constants';
+import { Point3D } from '../shared/schema';
 
 export class ExpectedMove {
   @Prop()
@@ -34,6 +35,13 @@ export class State {
   @ValidateNested({ each: true })
   @Type(() => ExpectedMove)
   expectedMoves: ExpectedMove[];
+
+  @Prop()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Point3D)
+  robber?: Point3D;
 }
 
 export const StateSchema = SchemaFactory.createForClass(State)

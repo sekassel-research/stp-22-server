@@ -71,5 +71,6 @@ export const TASKS = [
   'roll',
   'build',
   'drop',
+  'rob',
 ] as const;
 export type Task = (typeof TASKS)[number];

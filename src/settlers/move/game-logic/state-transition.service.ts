@@ -35,6 +35,7 @@ export class StateTransitionService {
         if (players.length) {
           const expectedMoves: ExpectedMove[] = [
             { action: 'drop', players: players.map(p => p.userId) },
+            { action: 'rob', players: [userId] },
             { action: 'build', players: [userId] },
           ];
           await this.stateService.update(gameId, {

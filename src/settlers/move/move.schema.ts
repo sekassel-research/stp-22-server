@@ -1,9 +1,18 @@
 import { Prop } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
 import { MONGO_ID_FORMAT } from '../../util/schema';
 import { ResourceCount } from '../player/player.schema';
 import { RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
+import { Point3D } from '../shared/schema';
+
+export class RobDto extends Point3D {
+  @Prop()
+  @ApiProperty(MONGO_ID_FORMAT)
+  @IsMongoId()
+  target: string;
+}
 
 export class Move {
   @ApiProperty(MONGO_ID_FORMAT)
@@ -32,6 +41,12 @@ export class Move {
   @IsOptional()
   @IsMongoId()
   building?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RobDto)
+  rob?: RobDto;
 
   @Prop({ type: Object })
   @ApiPropertyOptional({
