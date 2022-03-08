@@ -49,6 +49,12 @@ export class BuildService {
     const player = await this.playerService.findOne(gameId, userId);
     this.checkResourceCosts(move.resources, player);
 
+    const total = Object.values(player.resources).sum();
+    const dropped = Object.values(move.resources).sum();
+    if (dropped !== ((total / 2) | 0)) {
+      throw new ForbiddenException('You must drop exactly half of your resources (rounded down)');
+    }
+
     const $inc: Partial<Record<`resources.${ResourceType}`, number>> = {};
     this.deductCosts(move.resources, $inc);
     await this.playerService.update(gameId, userId, { $inc });
