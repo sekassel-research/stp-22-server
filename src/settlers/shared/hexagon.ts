@@ -25,12 +25,13 @@ export function cubeNeighbor(cube: Point3D, index: number) {
   return cubeAdd(cube, cubeDirection(index));
 }
 
-export function cubeRing(center: Point3D, radius: number): Point3D[] {
-  const results: Point3D[] = [];
+export function cubeRing(center: Point3D, radius: number): Point3DWithAnyEdgeSide[] {
+  const results: Point3DWithAnyEdgeSide[] = [];
   let cube = cubeAdd(center, cubeScale(cubeDirection(4), radius));
   for (let i = 0; i < 6; i++) {
+    const side = (8 + i * 2) % 12 + 1 as AnyEdgeSide;
     for (let j = 0; j < radius; j++) {
-      results.push(cube);
+      results.push({ ...cube, side });
       cube = cubeNeighbor(cube, i);
     }
   }
@@ -50,17 +51,34 @@ export function cubeCircle(radius: number): Point3D[] {
   return results;
 }
 
+export function normalizeEdge(point: Point3D, side: AnyEdgeSide): Point3DWithEdgeSide {
+  switch (side) {
+    case 1:
+      return { ...cubeAdd(point, cubeDirection(0)), side: 7 };
+    case 5:
+      return { ...cubeAdd(point, cubeDirection(2)), side: 11 };
+    case 9:
+      return { ...cubeAdd(point, cubeDirection(4)), side: 3 };
+    default:
+      return {...point, side};
+  }
+}
+
 export const CORNER_SIDES = [0, 6] as const;
 export type CornerSide = (typeof CORNER_SIDES)[number];
 
 export const EDGE_SIDES = [3, 7, 11] as const;
 export type EdgeSide = (typeof EDGE_SIDES)[number];
 
+export const ALL_EDGE_SIDES = [1, 3, 5, 7, 9, 11] as const;
+export type AnyEdgeSide = (typeof ALL_EDGE_SIDES)[number];
+
 export const SIDES = [...CORNER_SIDES, ...EDGE_SIDES] as const;
 export type Side = CornerSide | EdgeSide;
 
 export type Point3DWithCornerSide = Point3D & { side: CornerSide };
 export type Point3DWithEdgeSide = Point3D & { side: EdgeSide };
+export type Point3DWithAnyEdgeSide = Point3D & { side: AnyEdgeSide };
 
 export const CUBE_CORNERS = [
   [+0, +0, +0, 0], // top

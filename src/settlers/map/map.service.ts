@@ -2,10 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from '../../game/game.schema';
-import { RESOURCE_TILE_TYPES, TileType, WEIGHTED_NUMBER_TOKENS } from '../shared/constants';
-import { cubeCircle } from '../shared/hexagon';
+import {
+  RESOURCE_TILE_TYPES,
+  RESOURCE_TYPES,
+  ResourceType,
+  TileType,
+  WEIGHTED_NUMBER_TOKENS,
+} from '../shared/constants';
+import { Cube, cubeCircle, cubeRing } from '../shared/hexagon';
 import { randInt, shuffle } from '../shared/random';
-import { Map, Tile } from './map.schema';
+import { Harbor, Map, Tile } from './map.schema';
 
 @Injectable()
 export class MapService {
@@ -23,6 +29,7 @@ export class MapService {
     return this.model.create({
       gameId: game._id,
       tiles: this.generateTiles(radius),
+      harbors: this.generateHarbors(radius),
     });
   }
 
@@ -53,6 +60,23 @@ export class MapService {
       type: tileTypes[tileIndex],
       numberToken: numberTokens[tileIndex],
     }));
+  }
+
+  private generateHarbors(radius: number): Harbor[] {
+    const resourcesCount = 3 * radius;
+    const resourcesPool: ResourceType[] = [];
+    while (resourcesPool.length < resourcesCount) {
+      resourcesPool.push(...RESOURCE_TYPES);
+    }
+    shuffle(resourcesPool);
+
+    return cubeRing(Cube(0, 0, 0), radius).map((pos, i) => {
+      console.log(pos);
+      if (i % 2 === 0) {
+        return pos;
+      }
+      return { ...pos, type: resourcesPool[i / 2] };
+    });
   }
 
   async deleteByGame(gameId: string): Promise<Map | undefined> {
