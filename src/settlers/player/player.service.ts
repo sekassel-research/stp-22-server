@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Document, Model, UpdateQuery } from 'mongoose';
+import { Document, FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { MemberService } from '../../member/member.service';
 import { INITIAL_BUILDINGS } from '../shared/constants';
@@ -65,8 +65,8 @@ export class PlayerService {
     return this.model.insertMany(players);
   }
 
-  async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<PlayerDocument | undefined> {
-    const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
+  async update(gameId: string, userId: string, dto: UpdateQuery<Player>, filter?: FilterQuery<Player>): Promise<PlayerDocument | undefined> {
+    const updated = await this.model.findOneAndUpdate({ ...filter, gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated, await this.findAll(gameId));
     return updated;
   }
