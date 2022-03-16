@@ -1,17 +1,42 @@
 import { Prop } from '@nestjs/mongoose';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
 import { MONGO_ID_FORMAT } from '../../util/schema';
 import { ResourceCount } from '../player/player.schema';
-import { RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
+import { RESOURCE_TYPES, ResourceType, Task, TASKS } from '../shared/constants';
 import { Point3D } from '../shared/schema';
+
+const RESOURCE_COUNT_OPTIONS: ApiPropertyOptions = {
+  type: 'object',
+  properties: Object.assign({}, ...RESOURCE_TYPES.map(rt => ({ [rt]: { type: 'integer', required: false } }))),
+};
+
+export const BANK_TRADE_ID = '684072366f72202b72406465';
 
 export class RobDto extends Point3D {
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   target: string;
+}
+
+export class Trade {
+  @Prop()
+  @ApiProperty(RESOURCE_COUNT_OPTIONS)
+  @IsObject()
+  offer: ResourceCount;
+
+  @Prop()
+  @ApiProperty(RESOURCE_COUNT_OPTIONS)
+  @IsObject()
+  request: Record<ResourceType, number>;
+
+  @Prop()
+  @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
+  @IsOptional()
+  @IsMongoId()
+  partner?: string;
 }
 
 export class Move {
@@ -49,11 +74,15 @@ export class Move {
   rob?: RobDto;
 
   @Prop({ type: Object })
-  @ApiPropertyOptional({
-    type: 'object',
-    properties: Object.assign({}, ...RESOURCE_TYPES.map(rt => ({ [rt]: { type: 'integer', required: false } }))),
-  })
+  @ApiPropertyOptional(RESOURCE_COUNT_OPTIONS)
   @IsOptional()
   @IsObject()
   resources?: ResourceCount;
+
+  @Prop()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Trade)
+  trade?: Trade;
 }

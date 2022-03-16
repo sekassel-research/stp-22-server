@@ -5,6 +5,7 @@ import { Move } from '../move.schema';
 import { BuildService } from './build.service';
 import { RollService } from './roll.service';
 import { StateTransitionService } from './state-transition.service';
+import { TradeService } from './trade.service';
 
 @Injectable()
 export class GameLogicService {
@@ -13,6 +14,7 @@ export class GameLogicService {
     private transitionService: StateTransitionService,
     private rollService: RollService,
     private buildService: BuildService,
+    private tradeService: TradeService,
   ) {
   }
 
@@ -49,6 +51,8 @@ export class GameLogicService {
         return this.buildService.drop(gameId, userId, move);
       case 'rob':
         return this.rollService.rob(gameId, userId, move);
+      case 'trade':
+        return this.tradeService.trade(gameId, userId, move);
     }
   }
 }
