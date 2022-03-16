@@ -71,8 +71,7 @@ export class MapService {
     shuffle(resourcesPool);
 
     return cubeRing(Cube(0, 0, 0), radius).map((pos, i) => {
-      console.log(pos);
-      if (i % 2 === 0) {
+      if (i % 2 !== 0) {
         return pos;
       }
       return { ...pos, type: resourcesPool[i / 2] };

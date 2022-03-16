@@ -29,7 +29,8 @@ export function cubeRing(center: Point3D, radius: number): Point3DWithAnyEdgeSid
   const results: Point3DWithAnyEdgeSide[] = [];
   let cube = cubeAdd(center, cubeScale(cubeDirection(4), radius));
   for (let i = 0; i < 6; i++) {
-    const side = (8 + i * 2) % 12 + 1 as AnyEdgeSide;
+    // 7 7 5 5 3 3 1 1 11 11 9 9
+    const side = (18 - i * 2) % 12 + 1 as AnyEdgeSide;
     for (let j = 0; j < radius; j++) {
       results.push({ ...cube, side });
       cube = cubeNeighbor(cube, i);
