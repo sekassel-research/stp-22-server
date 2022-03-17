@@ -14,6 +14,9 @@ export class StateTransitionService {
 
   async transition(gameId: string, userId: string, move: Move) {
     if (move.action === 'build') {
+      if (move.trade) {
+        return;
+      }
       if (move.building) {
         return;
       }

@@ -44,6 +44,9 @@ export class GameLogicService {
       case 'founding-road-1':
       case 'founding-road-2':
       case 'build':
+        if (move.trade) {
+          return this.tradeService.trade(gameId, userId, move);
+        }
         return this.buildService.build(gameId, userId, move);
       case 'roll':
         return this.rollService.roll(gameId, userId, move);
