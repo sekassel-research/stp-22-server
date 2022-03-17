@@ -22,15 +22,15 @@ export class RobDto extends Point3D {
 }
 
 export class Trade {
-  @Prop()
+  @Prop({ type: Object })
   @ApiProperty(RESOURCE_COUNT_OPTIONS)
   @IsObject()
   offer: ResourceCount;
 
-  @Prop()
+  @Prop({ type: Object })
   @ApiProperty(RESOURCE_COUNT_OPTIONS)
   @IsObject()
-  request: Record<ResourceType, number>;
+  request: ResourceCount;
 
   @Prop()
   @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
