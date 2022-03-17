@@ -75,6 +75,7 @@ export class TradeService {
     const player = await this.playerService.update(gameId, userId, {
       $inc: {
         ['resources.' + requestResource]: requestCount,
+        ['resources.' + offerResource]: -offerCount,
       },
     }, {
       ['resources.' + offerResource]: { $gte: offerCount },
