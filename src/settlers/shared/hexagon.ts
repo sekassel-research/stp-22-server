@@ -65,7 +65,7 @@ export type Point3DWithEdgeSide = Point3D & { side: EdgeSide };
 export const CUBE_CORNERS = [
   [+0, +0, +0, 0], // top
   [+1, +0, -1, 6], // top right
-  [+1, -1, +1, 0], // bottom right
+  [+0, -1, +1, 0], // bottom right
   [+0, +0, +0, 6], // bottom
   [-1, +0, +1, 0], // bottom left
   [+0, +1, -1, 6], // top left
