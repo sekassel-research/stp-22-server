@@ -23,7 +23,7 @@ export class MemberService {
     if (!game) {
       return 'notfound';
     }
-    if (game.started) {
+    if (game.started && member.spectator !== true) {
       return 'started';
     }
 
