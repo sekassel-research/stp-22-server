@@ -54,6 +54,12 @@ export class Player {
   @IsOptional()
   @IsInt()
   victoryPoints?: number;
+
+  @Prop()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  longestRoad?: number;
 }
 
 export type PlayerDocument = Player & Document;

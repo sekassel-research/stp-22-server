@@ -1,10 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { UpdateQuery } from 'mongoose';
 import { CreateBuildingDto } from '../../building/building.dto';
 import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
 import { Map as GameMap } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
-import { PlayerDocument, ResourceCount } from '../../player/player.schema';
+import { Player, PlayerDocument, ResourceCount } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, TILE_RESOURCES } from '../../shared/constants';
 import {
@@ -74,15 +75,31 @@ export class BuildService {
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
     const existing = await this.checkAllowedPlacement(gameId, userId, move);
 
-    const $inc: Partial<Record<'victoryPoints' | `remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
-      [`remainingBuildings.${move.building.type}`]: -1,
+    const update: UpdateQuery<Player> = {
+      $inc: {
+        [`remainingBuildings.${move.building.type}`]: -1,
+      }
     };
 
     if (move.building.type === 'city') {
-      $inc['remainingBuildings.settlement'] = +1;
+      update.$inc['remainingBuildings.settlement'] = +1;
     }
-    if (move.building.type !== 'road') {
-      $inc.victoryPoints = +1;
+    if (move.building.type === 'road') {
+      const longestRoad = await this.findLongestRoad(gameId, userId, move.building as Point3DWithEdgeSide);
+      if (longestRoad >= 5) {
+        const players = await this.playerService.findAll(gameId, userId);
+        const bestPlayer = players.find(p => p.longestRoad);
+        if (!bestPlayer || longestRoad > bestPlayer.longestRoad) {
+          update.$inc.victoryPoints = +2;
+          update.$set = {longestRoad};
+          bestPlayer && await this.playerService.update(gameId, bestPlayer.userId, {
+            $inc: { victoryPoints: -2 },
+            $unset: { longestRoad: 1 },
+          });
+        }
+      }
+    } else {
+      update.$inc.victoryPoints = +1;
     }
 
     if (move.action === 'build') {
@@ -90,13 +107,13 @@ export class BuildService {
       const costs = BUILDING_COSTS[move.building.type];
       this.checkAvailableBuildings(player, move.building.type);
       this.checkResourceCosts(costs, player);
-      this.deductCosts(costs, $inc);
+      this.deductCosts(costs, update.$inc);
     } else if (move.action === 'founding-house-1') {
       const map = await this.mapService.findByGame(gameId);
-      this.giveAdjacentResources(map, move.building, $inc);
+      this.giveAdjacentResources(map, move.building, update.$inc);
     }
 
-    await this.playerService.update(gameId, userId, { $inc });
+    await this.playerService.update(gameId, userId, update);
 
     if (existing) {
       return this.buildingService.update(existing._id, {
@@ -250,6 +267,34 @@ export class BuildService {
       return edgeAdjacentCubes(building as Point3DWithEdgeSide);
     } else {
       return cornerAdjacentCubes(building as Point3DWithCornerSide);
+    }
+  }
+
+  private async findLongestRoad(gameId: string, userId: string, start: Point3DWithEdgeSide): Promise<number> {
+    const allRoads: Point3DWithEdgeSide[] = await this.buildingService.findAll({ gameId, owner: userId, type: 'road' }) as Point3DWithEdgeSide[];
+    allRoads.push(start);
+
+    let longestPath: Point3DWithEdgeSide[] = [];
+    for (const path of this.dfs(allRoads, start, new Set(), [start])) {
+      if (path.length >= longestPath.length) {
+        longestPath = path;
+      }
+    }
+
+    return longestPath.length;
+  }
+
+  private *dfs(roads: Point3DWithEdgeSide[], current: Point3DWithEdgeSide, seen: Set<Point3DWithEdgeSide>, path: Point3DWithEdgeSide[]) {
+    seen.add(current);
+    for (const a of edgeAdjacentEdges(current)) {
+      const road = roads.find(r => r.x === a.x && r.y === a.y && r.z === a.z && r.side === a.side);
+      if (!road || seen.has(road)) {
+        continue;
+      }
+
+      const newPath = [...path, road];
+      yield newPath;
+      yield* this.dfs(roads, road, new Set(seen), newPath)
     }
   }
 }
