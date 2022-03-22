@@ -20,10 +20,13 @@ export class MapService {
 
   async createForGame(game: Game): Promise<Map> {
     const radius = 2;
-    return this.model.create({
-      gameId: game._id,
+    const gameId = game._id;
+    return this.model.findOneAndUpdate({ gameId }, {
+      $setOnInsert: {
+        gameId,
       tiles: this.generateTiles(radius),
-    });
+    },
+    }, { upsert: true, new: true });
   }
 
   private generateTiles(radius: number): Tile[] {
