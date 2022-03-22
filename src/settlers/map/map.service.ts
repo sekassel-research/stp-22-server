@@ -26,11 +26,14 @@ export class MapService {
 
   async createForGame(game: Game): Promise<Map> {
     const radius = game.settings?.mapRadius ?? 2;
-    return this.model.create({
-      gameId: game._id,
-      tiles: this.generateTiles(radius),
-      harbors: this.generateHarbors(radius),
-    });
+    const gameId = game._id;
+    return this.model.findOneAndUpdate({ gameId }, {
+      $setOnInsert: {
+        gameId,
+        tiles: this.generateTiles(radius),
+        harbors: this.generateHarbors(radius),
+      },
+    }, { upsert: true, new: true });
   }
 
   private generateTiles(radius: number): Tile[] {
