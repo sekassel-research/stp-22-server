@@ -13,10 +13,11 @@ export class StateTransitionService {
   }
 
   async transition(gameId: string, userId: string, move: Move) {
+    if (move.trade) {
+      // handled by trade action impl.
+      return;
+    }
     if (move.action === 'build') {
-      if (move.trade) {
-        return;
-      }
       if (move.building) {
         return;
       }
@@ -73,6 +74,10 @@ export class StateTransitionService {
       }
     }
 
+    await this.advanceSimple(gameId, userId);
+  }
+
+  async advanceSimple(gameId: string, userId: string) {
     const state = await this.stateService.findByGame(gameId);
     const players = state.expectedMoves[0].players;
     if (players.length > 1) {

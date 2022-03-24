@@ -45,7 +45,7 @@ export class GameLogicService {
       case 'founding-road-2':
       case 'build':
         if (move.trade) {
-          return this.tradeService.trade(gameId, userId, move);
+          return this.tradeService.buildTrade(gameId, userId, move);
         }
         return this.buildService.build(gameId, userId, move);
       case 'roll':
@@ -54,8 +54,10 @@ export class GameLogicService {
         return this.buildService.drop(gameId, userId, move);
       case 'rob':
         return this.rollService.rob(gameId, userId, move);
-      case 'trade':
-        return this.tradeService.trade(gameId, userId, move);
+      case 'offer':
+        return this.tradeService.offer(gameId, userId, move);
+      case 'accept':
+        return this.tradeService.accept(gameId, userId, move);
     }
   }
 }

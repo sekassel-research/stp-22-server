@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType, RESOURCE_TYPES, ResourceType } from '../shared/constants';
@@ -36,7 +37,12 @@ export class Player {
   @Prop({ type: Object })
   @ApiProperty({
     type: 'object',
-    properties: Object.assign({ unknown: { type: 'integer', required: false } }, ...RESOURCE_TYPES.map(rt => ({ [rt]: { type: 'integer', required: false } }))),
+    properties: Object.assign({
+      unknown: {
+        type: 'integer',
+        required: false,
+      },
+    }, ...RESOURCE_TYPES.map(rt => ({ [rt]: { type: 'integer', required: false } }))),
   })
   @IsObject()
   resources: ResourceCount;
@@ -60,6 +66,12 @@ export class Player {
   @IsOptional()
   @IsInt()
   longestRoad?: number;
+
+  @Prop({ type: Object })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  previousTradeOffer?: ResourceCount;
 }
 
 export type PlayerDocument = Player & Document;

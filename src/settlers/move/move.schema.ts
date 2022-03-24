@@ -21,24 +21,6 @@ export class RobDto extends Point3D {
   target: string;
 }
 
-export class Trade {
-  @Prop({ type: Object })
-  @ApiProperty(RESOURCE_COUNT_OPTIONS)
-  @IsObject()
-  offer: ResourceCount;
-
-  @Prop({ type: Object })
-  @ApiProperty(RESOURCE_COUNT_OPTIONS)
-  @IsObject()
-  request: ResourceCount;
-
-  @Prop()
-  @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
-  @IsOptional()
-  @IsMongoId()
-  partner?: string;
-}
-
 export class Move {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
@@ -79,10 +61,15 @@ export class Move {
   @IsObject()
   resources?: ResourceCount;
 
-  @Prop()
+  @Prop({ type: Object })
   @ApiPropertyOptional()
   @IsOptional()
-  @ValidateNested()
-  @Type(() => Trade)
-  trade?: Trade;
+  @IsObject()
+  trade?: ResourceCount;
+
+  @Prop()
+  @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
+  @IsOptional()
+  @IsMongoId()
+  partner?: string;
 }
