@@ -1,10 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { FilterQuery, UpdateQuery } from 'mongoose';
 import { StateService } from 'src/settlers/state/state.service';
 import { isDeepStrictEqual } from 'util';
 import { BuildingDocument } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
 import { MapService } from '../../map/map.service';
-import { ResourceCount } from '../../player/player.schema';
+import { Player, ResourceCount } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { ResourceType } from '../../shared/constants';
 import { edgeAdjacentCorners, normalizeEdge, Point3DWithCornerSide } from '../../shared/hexagon';
@@ -174,21 +175,20 @@ export class TradeService {
     }
 
     // TODO transaction?
-    const resourceFilter = Object.entries(move.trade).reduce((a, [resource, count]) => {
-      count < 0 && (a[resource] = { $gte: -count });
-      return a;
-    }, {});
-    await this.playerService.update(gameId, userId, {
-      $inc: { resources: move.trade },
-    }, {
-      resources: resourceFilter,
-    });
+    const filter: FilterQuery<Player> = {resources: {}};
+    const update: UpdateQuery<Player> = { $inc: {} };
+    const updateOther: UpdateQuery<Player> = { $inc: {} };
+    for (const [resource, count] of Object.entries(move.trade)) {
+      count < 0 && (filter.resources[resource] = { $gte: -count });
+      update.$inc['resources.' + resource] = count;
+      updateOther.$inc['resources.' + resource] = -count;
+    }
+
+    await this.playerService.update(gameId, userId, update, filter);
 
     // the other player definitely has the resources - it was checked above
     // and there is no way for them to gain or spend any in the meantime.
-    await this.playerService.update(gameId, otherPlayer.userId, {
-      $inc: { resources: previousTradeOffer },
-    });
+    await this.playerService.update(gameId, otherPlayer.userId, updateOther);
 
     await this.stateTransitionService.advanceSimple(gameId, userId);
     return this.createMove(gameId, userId, move);

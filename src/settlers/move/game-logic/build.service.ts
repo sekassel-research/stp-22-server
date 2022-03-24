@@ -239,13 +239,13 @@ export class BuildService {
     }
   }
 
-  private deductCosts(costs: ResourceCount, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
+  private deductCosts(costs: ResourceCount, $inc: Record<string, number>) {
     for (const resource of Object.keys(costs)) {
       $inc[`resources.${resource}`] = -costs[resource];
     }
   }
 
-  private giveAdjacentResources(map: GameMap, building: CreateBuildingDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
+  private giveAdjacentResources(map: GameMap, building: CreateBuildingDto, $inc: Record<string, number>) {
     const adjacentTilePositions = this.adjacentTileFilter(building);
     for (const tile of map.tiles) {
       if (!adjacentTilePositions.find(({ x, y, z }) => tile.x === x && tile.y === y && tile.z === z)) {
