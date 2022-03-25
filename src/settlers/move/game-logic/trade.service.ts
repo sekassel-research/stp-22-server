@@ -123,7 +123,7 @@ export class TradeService {
 
   async accept(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     if (!move.partner) {
-      throw new BadRequestException('Missing partner property');
+      return this.createMove(gameId, userId, move);
     }
 
     const otherPlayer = await this.playerService.findOne(gameId, move.partner);
@@ -137,7 +137,7 @@ export class TradeService {
     }
 
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
-      if ((otherPlayer.resources[resource] || 0) < count) {
+      if (count < 0 && (otherPlayer.resources[resource] || 0) < -count) {
         throw new BadRequestException('The player can no longer afford the trade');
       }
     }
@@ -152,7 +152,10 @@ export class TradeService {
       updateOther.$inc['resources.' + resource] = count;
     }
 
-    await this.playerService.update(gameId, userId, update, filter);
+    const currentPlayer = await this.playerService.update(gameId, userId, update, filter);
+    if (!currentPlayer) {
+      throw new BadRequestException('You cannot afford that!');
+    }
 
     // the other player definitely has the resources - it was checked above
     // and there is no way for them to gain or spend any in the meantime.
