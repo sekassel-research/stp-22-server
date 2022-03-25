@@ -1,7 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { FilterQuery, UpdateQuery } from 'mongoose';
 import { StateService } from 'src/settlers/state/state.service';
-import { isDeepStrictEqual } from 'util';
 import { BuildingDocument } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
 import { MapService } from '../../map/map.service';
@@ -151,6 +150,10 @@ export class TradeService {
   }
 
   async accept(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
+    if (!move.partner) {
+      throw new BadRequestException('Missing partner property');
+    }
+
     const otherPlayer = await this.playerService.findOne(gameId, move.partner);
     if (!otherPlayer) {
       throw new BadRequestException('The player does not exist!');
@@ -160,14 +163,7 @@ export class TradeService {
     if (!previousTradeOffer) {
       throw new BadRequestException('The player did not offer trade!');
     }
-    const negOffer: ResourceCount = {};
-    for (const [resource, count] of Object.entries(previousTradeOffer)) {
-      negOffer[resource] = -count;
-    }
 
-    if (!isDeepStrictEqual(move.trade, negOffer)) {
-      throw new BadRequestException('Offers do not match!');
-    }
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
       if ((otherPlayer.resources[resource] || 0) < count) {
         throw new BadRequestException('The player can no longer afford the trade');
@@ -178,10 +174,10 @@ export class TradeService {
     const filter: FilterQuery<Player> = {resources: {}};
     const update: UpdateQuery<Player> = { $inc: {} };
     const updateOther: UpdateQuery<Player> = { $inc: {} };
-    for (const [resource, count] of Object.entries(move.trade)) {
-      count < 0 && (filter.resources[resource] = { $gte: -count });
-      update.$inc['resources.' + resource] = count;
-      updateOther.$inc['resources.' + resource] = -count;
+    for (const [resource, count] of Object.entries(previousTradeOffer)) {
+      count > 0 && (filter.resources[resource] = { $gte: count });
+      update.$inc['resources.' + resource] = -count;
+      updateOther.$inc['resources.' + resource] = count;
     }
 
     await this.playerService.update(gameId, userId, update, filter);
