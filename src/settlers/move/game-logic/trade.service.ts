@@ -143,11 +143,11 @@ export class TradeService {
     }
 
     // TODO transaction?
-    const filter: FilterQuery<Player> = { resources: {} };
+    const filter: FilterQuery<Player> = {};
     const update: UpdateQuery<Player> = { $inc: {} };
     const updateOther: UpdateQuery<Player> = { $inc: {} };
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
-      count > 0 && (filter.resources[resource] = { $gte: count });
+      count > 0 && (filter['resources.' + resource] = { $gte: count });
       update.$inc['resources.' + resource] = -count;
       updateOther.$inc['resources.' + resource] = count;
     }
