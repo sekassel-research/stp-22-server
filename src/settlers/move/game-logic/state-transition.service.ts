@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from 'src/settlers/state/state.service';
 import { PlayerService } from '../../player/player.service';
 import { ExpectedMove } from '../../state/state.schema';
-import { Move } from '../move.schema';
+import { BANK_TRADE_ID, Move } from '../move.schema';
 
 @Injectable()
 export class StateTransitionService {
@@ -12,12 +12,15 @@ export class StateTransitionService {
   ) {
   }
 
-  async transition(gameId: string, userId: string, move: Move) {
-    if (move.trade) {
-      // handled by trade action impl.
-      return;
+  async transition(gameId: string, userId: string, move: Move): Promise<void> {
+    if (move.action === 'build' && move.trade && move.partner !== BANK_TRADE_ID) {
+      return this.addOfferAndAccept(gameId, userId);
     }
+
     if (move.action === 'build') {
+      if (move.trade) {
+        return;
+      }
       if (move.building) {
         return;
       }
@@ -75,6 +78,30 @@ export class StateTransitionService {
     }
 
     await this.advanceSimple(gameId, userId);
+  }
+
+  private async addOfferAndAccept(gameId: string, userId: string): Promise<void> {
+    const players = await this.playerService.findAll(gameId);
+    const others = players.filter(p => p.userId !== userId);
+    const othersOffer: ExpectedMove = {
+      action: 'offer',
+      players: others.map(o => o.userId),
+    };
+    const playerAccepts: ExpectedMove = {
+      action: 'accept',
+      players: [userId],
+    };
+    await this.stateService.update(gameId, {
+      $push: {
+        expectedMoves: {
+          $position: 0,
+          $each: [
+            othersOffer,
+            playerAccepts,
+          ],
+        },
+      },
+    });
   }
 
   async advanceSimple(gameId: string, userId: string) {

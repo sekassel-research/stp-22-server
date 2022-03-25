@@ -1,6 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { FilterQuery, UpdateQuery } from 'mongoose';
-import { StateService } from 'src/settlers/state/state.service';
 import { BuildingDocument } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
 import { MapService } from '../../map/map.service';
@@ -8,11 +7,9 @@ import { Player, ResourceCount } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { ResourceType } from '../../shared/constants';
 import { edgeAdjacentCorners, normalizeEdge, Point3DWithCornerSide } from '../../shared/hexagon';
-import { ExpectedMove } from '../../state/state.schema';
 import { CreateMoveDto } from '../move.dto';
 import { BANK_TRADE_ID, Move } from '../move.schema';
 import { MoveService } from '../move.service';
-import { StateTransitionService } from './state-transition.service';
 
 @Injectable()
 export class TradeService {
@@ -21,8 +18,6 @@ export class TradeService {
     private mapService: MapService,
     private buildingService: BuildingService,
     private playerService: PlayerService,
-    private stateService: StateService,
-    private stateTransitionService: StateTransitionService,
   ) {
   }
 
@@ -113,33 +108,10 @@ export class TradeService {
 
   private async startOffer(gameId: string, userId: string, move: CreateMoveDto) {
     await this.createOffer(gameId, userId, move.trade);
-
-    const players = await this.playerService.findAll(gameId);
-    const others = players.filter(p => p.userId !== userId);
-    const othersOffer: ExpectedMove = {
-      action: 'offer',
-      players: others.map(o => o.userId),
-    };
-    const playerAccepts: ExpectedMove = {
-      action: 'accept',
-      players: [userId],
-    };
-    await this.stateService.update(gameId, {
-      $push: {
-        expectedMoves: {
-          $position: 0,
-          $each: [
-            othersOffer,
-            playerAccepts,
-          ],
-        },
-      },
-    });
   }
 
   async offer(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     await this.createOffer(gameId, userId, move.trade);
-    await this.stateTransitionService.advanceSimple(gameId, userId);
     return this.createMove(gameId, userId, move);
   }
 
@@ -171,7 +143,7 @@ export class TradeService {
     }
 
     // TODO transaction?
-    const filter: FilterQuery<Player> = {resources: {}};
+    const filter: FilterQuery<Player> = { resources: {} };
     const update: UpdateQuery<Player> = { $inc: {} };
     const updateOther: UpdateQuery<Player> = { $inc: {} };
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
@@ -186,7 +158,6 @@ export class TradeService {
     // and there is no way for them to gain or spend any in the meantime.
     await this.playerService.update(gameId, otherPlayer.userId, updateOther);
 
-    await this.stateTransitionService.advanceSimple(gameId, userId);
     return this.createMove(gameId, userId, move);
   }
 }
