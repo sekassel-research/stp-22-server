@@ -49,7 +49,7 @@ export class EventGateway implements OnGatewayInit, OnGatewayConnection {
       const subscription = nats.subscribe(event, {
         callback: (err, msg) => {
           const event = msg.subject;
-          const dataStr = msg.data.toString();
+          const dataStr = Buffer.from(msg.data).toString('utf-8');
           let parsed: any;
           try {
             parsed = JSON.parse(dataStr);
