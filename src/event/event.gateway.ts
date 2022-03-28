@@ -49,7 +49,14 @@ export class EventGateway implements OnGatewayInit, OnGatewayConnection {
       const subscription = nats.subscribe(event, {
         callback: (err, msg) => {
           const event = msg.subject;
-          const parsed = JSON.parse(msg.data.toString());
+          const dataStr = msg.data.toString();
+          let parsed: any;
+          try {
+            parsed = JSON.parse(dataStr);
+          } catch (err) {
+            console.error('Invalid message:', dataStr, err);
+            return;
+          }
           const { data: { data, users } } = parsed;
           if (users && (!client.user || !users.includes(client.user._id))) {
             return;
