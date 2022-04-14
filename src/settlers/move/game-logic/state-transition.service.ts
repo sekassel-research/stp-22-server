@@ -42,11 +42,11 @@ export class StateTransitionService {
         const ids = players.map(m => m.userId);
         const expectedMoves: ExpectedMove[] = [];
         for (const id of ids) {
-          expectedMoves.push({ action: 'founding-house-1', players: [id] });
+          expectedMoves.push({ action: 'founding-settlement-1', players: [id] });
           expectedMoves.push({ action: 'founding-road-1', players: [id] });
         }
         for (const id of ids.reverse()) {
-          expectedMoves.push({ action: 'founding-house-2', players: [id] });
+          expectedMoves.push({ action: 'founding-settlement-2', players: [id] });
           expectedMoves.push({ action: 'founding-road-2', players: [id] });
         }
         expectedMoves.push({ action: 'roll', players: [ids[0]] });
