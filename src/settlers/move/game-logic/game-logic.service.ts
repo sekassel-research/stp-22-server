@@ -39,8 +39,8 @@ export class GameLogicService {
     switch (move.action) {
       case 'founding-roll':
         return this.rollService.foundingRoll(gameId, userId, move);
-      case 'founding-house-1':
-      case 'founding-house-2':
+      case 'founding-settlement-1':
+      case 'founding-settlement-2':
       case 'founding-road-1':
       case 'founding-road-2':
       case 'build':

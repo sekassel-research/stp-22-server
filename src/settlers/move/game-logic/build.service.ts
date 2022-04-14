@@ -108,7 +108,7 @@ export class BuildService {
       this.checkAvailableBuildings(player, move.building.type);
       this.checkResourceCosts(costs, player);
       this.deductCosts(costs, update.$inc);
-    } else if (move.action === 'founding-house-1') {
+    } else if (move.action === 'founding-settlement-1') {
       const map = await this.mapService.findByGame(gameId);
       this.giveAdjacentResources(map, move.building, update.$inc);
     }
@@ -125,8 +125,8 @@ export class BuildService {
 
   private checkExpectedType(move: CreateMoveDto) {
     const expectedType = {
-      'founding-house-1': 'settlement',
-      'founding-house-2': 'settlement',
+      'founding-settlement-1': 'settlement',
+      'founding-settlement-2': 'settlement',
       'founding-road-1': 'road',
       'founding-road-2': 'road',
     }[move.action];

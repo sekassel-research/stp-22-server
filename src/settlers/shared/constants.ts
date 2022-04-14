@@ -64,8 +64,8 @@ export const WEIGHTED_NUMBER_TOKENS = [
 
 export const TASKS = [
   'founding-roll',
-  'founding-house-1',
-  'founding-house-2',
+  'founding-settlement-1',
+  'founding-settlement-2',
   'founding-road-1',
   'founding-road-2',
   'roll',
