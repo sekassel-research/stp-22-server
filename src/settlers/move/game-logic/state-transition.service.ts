@@ -40,14 +40,16 @@ export class StateTransitionService {
 
       if (!players.find(p => !p.foundingRoll)) {
         const ids = players.map(m => m.userId);
-        const reverseIds = ids.reverse();
-        const expectedMoves: ExpectedMove[] = [
-          ...ids.map(id => ({ action: 'founding-house-1', players: [id] }) as ExpectedMove),
-          ...reverseIds.map(id => ({ action: 'founding-house-2', players: [id] }) as ExpectedMove),
-          { action: 'founding-road-1', players: ids },
-          { action: 'founding-road-2', players: ids },
-          { action: 'roll', players: [ids[0]] },
-        ];
+        const expectedMoves: ExpectedMove[] = [];
+        for (const id of ids) {
+          expectedMoves.push({ action: 'founding-house-1', players: [id] });
+          expectedMoves.push({ action: 'founding-road-1', players: [id] });
+        }
+        for (const id of ids.reverse()) {
+          expectedMoves.push({ action: 'founding-house-2', players: [id] });
+          expectedMoves.push({ action: 'founding-road-2', players: [id] });
+        }
+        expectedMoves.push({ action: 'roll', players: [ids[0]] });
         await this.stateService.update(gameId, {
           expectedMoves,
         });
