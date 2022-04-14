@@ -42,6 +42,15 @@ export class GameSettings {
   @IsInt()
   @Min(3)
   victoryPoints?: number;
+
+  @Prop()
+  @ApiPropertyOptional({
+    ...MONGO_ID_FORMAT,
+    description: 'ID of map template to use. If set, the mapRadius is ignored.',
+  })
+  @IsOptional()
+  @IsMongoId()
+  mapTemplate?: string;
 }
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
