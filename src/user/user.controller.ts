@@ -9,6 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { NotFound } from '../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
@@ -52,7 +53,7 @@ export class UserController {
   @ApiOperation({ description: 'Informs about the user with the given ID.' })
   @ApiOkResponse({ type: User })
   @NotFound()
-  async getUser(@Param('id') id: string): Promise<User> {
+  async getUser(@Param('id', ParseObjectIdPipe) id: string): Promise<User> {
     return this.userService.find(id);
   }
 
@@ -70,7 +71,7 @@ export class UserController {
   @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s user.' })
   async update(
     @AuthUser() user: User,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateUserDto,
   ): Promise<User | undefined> {
     if (id !== user._id) {
@@ -86,7 +87,7 @@ export class UserController {
   @ApiForbiddenResponse({ description: 'Attempt to delete someone else\'s user.' })
   async delete(
     @AuthUser() user: User,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<User | undefined> {
     if (id !== user._id) {
       throw new ForbiddenException('Cannot delete someone else\'s user.');
