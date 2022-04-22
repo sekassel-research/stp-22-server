@@ -3,6 +3,7 @@ import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiQuery, ApiT
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateGroupDto, UpdateGroupDto } from './group.dto';
@@ -43,7 +44,7 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to get a group in which the current user is not a member.' })
   @NotFound()
-  async findOne(@AuthUser() user: User, @Param('id') id: string): Promise<Group | undefined> {
+  async findOne(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
     this.checkMembership(group.members, user);
     return group;
@@ -61,7 +62,7 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to change a group in which the current user is not or will not be a member.' })
   @NotFound()
-  async update(@AuthUser() user: User, @Param('id') id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
+  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
     this.checkMembership(dto.members, user);
     const existing = await this.groupService.find(id);
     if (!existing) {
@@ -75,7 +76,7 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to delete a group in which the current user is not a member.' })
   @NotFound()
-  async delete(@AuthUser() user: User, @Param('id') id: string): Promise<Group | undefined> {
+  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
     const existing = await this.groupService.find(id);
     if (!existing) {
       return undefined;
