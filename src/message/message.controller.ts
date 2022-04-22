@@ -23,6 +23,7 @@ import { Auth, AuthUser } from '../auth/auth.decorator';
 import { MemberResolverService } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateMessageDto, UpdateMessageDto } from './message.dto';
@@ -93,8 +94,8 @@ export class MessageController {
   async get(
     @AuthUser() user: User,
     @Param('namespace') namespace: string,
-    @Param('parent') parent: string,
-    @Param('id') id: string,
+    @Param('parent', ParseObjectIdPipe) parent: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<Message> {
     await this.checkParentAndGetMembers(namespace, parent, user);
     return await this.messageService.find(namespace, parent, id);
@@ -107,7 +108,7 @@ export class MessageController {
   async create(
     @AuthUser() user: User,
     @Param('namespace') namespace: string,
-    @Param('parent') parent: string,
+    @Param('parent', ParseObjectIdPipe) parent: string,
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
@@ -121,8 +122,8 @@ export class MessageController {
   async update(
     @AuthUser() user: User,
     @Param('namespace') namespace: string,
-    @Param('parent') parent: string,
-    @Param('id') id: string,
+    @Param('parent', ParseObjectIdPipe) parent: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateMessageDto,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
@@ -143,8 +144,8 @@ export class MessageController {
   async delete(
     @AuthUser() user: User,
     @Param('namespace') namespace: string,
-    @Param('parent') parent: string,
-    @Param('id') id: string,
+    @Param('parent', ParseObjectIdPipe) parent: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);

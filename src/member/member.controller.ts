@@ -24,6 +24,7 @@ import {
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
@@ -43,14 +44,19 @@ export class MemberController {
 
   @Get()
   @ApiOkResponse({ type: [Member] })
-  async findAll(@Param('gameId') gameId: string): Promise<Member[]> {
+  async findAll(
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+  ): Promise<Member[]> {
     return this.memberService.findAll(gameId);
   }
 
   @Get(':userId')
   @ApiOkResponse({ type: Member })
   @NotFound()
-  async findOne(@Param('gameId') gameId: string, @Param('userId') userId: string): Promise<Member | undefined> {
+  async findOne(
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('userId', ParseObjectIdPipe) userId: string,
+  ): Promise<Member | undefined> {
     return this.memberService.findOne(gameId, userId);
   }
 
@@ -61,7 +67,7 @@ export class MemberController {
   @ApiBadRequestResponse({ description: 'Incorrect password.' })
   async create(
     @AuthUser() user: User,
-    @Param('gameId') gameId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Body() member: CreateMemberDto,
   ): Promise<Member> {
     const passwordMatch = await this.memberService.checkPassword(gameId, member);
@@ -81,8 +87,8 @@ export class MemberController {
   @NotFound('Game or membership not found.')
   async update(
     @AuthUser() user: User,
-    @Param('gameId') gameId: string,
-    @Param('userId') userId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('userId', ParseObjectIdPipe) userId: string,
     @Body() dto: UpdateMemberDto,
   ): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, user, userId);
@@ -103,8 +109,8 @@ export class MemberController {
   @NotFound('Game or membership not found.')
   async delete(
     @AuthUser() user: User,
-    @Param('gameId') gameId: string,
-    @Param('userId') userId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('userId', ParseObjectIdPipe) userId: string,
   ): Promise<Member | undefined> {
     const access = await this.memberService.checkUserModification(gameId, user, userId);
     switch (access) {
