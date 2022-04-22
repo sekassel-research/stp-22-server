@@ -50,3 +50,12 @@ jobs:
           namespace: ${{ secrets.NAMESPACE }}
           deployment: ${{ secrets.DEPLOYMENT }}-v${{ needs.deployment.outputs.prefix }}
           docker_image: ${{ secrets.DOCKER_REGISTRY }}/stp/settlers:${{ needs.deployment.outputs.version }}
+      - name: Discord Notification
+        if: needs.deployment.outputs.version
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: |
+            Eine neue Serverversion ist verfügbar: `${{ needs.deployment.outputs.version }}`
+            <https://pioneers.uniks.de/api/v${{ needs.deployment.outputs.prefix }}>
