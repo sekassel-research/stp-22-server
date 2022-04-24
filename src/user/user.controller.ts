@@ -1,5 +1,17 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
+  Body,
+  ConflictException,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
@@ -60,7 +72,12 @@ export class UserController {
   @Post()
   @ApiOperation({ description: 'Create a new user (sign up).' })
   @ApiCreatedResponse({ type: User })
+  @ApiConflictResponse({ type: User, description: 'Username was already taken.' })
   async create(@Body() dto: CreateUserDto): Promise<User> {
+    const existing = await this.userService.findByName(dto.name);
+    if (existing) {
+      throw new ConflictException('Username already taken');
+    }
     return this.userService.create(dto);
   }
 

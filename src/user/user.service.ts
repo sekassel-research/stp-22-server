@@ -44,11 +44,6 @@ export class UserService {
   }
 
   async create(dto: CreateUserDto): Promise<User> {
-    const existing = await this.findByName(dto.name);
-    if (existing) {
-      return existing;
-    }
-
     const created = await this.model.create(await this.hash(dto));
     created && this.emit('created', created);
     return created;
