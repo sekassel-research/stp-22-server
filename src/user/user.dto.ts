@@ -1,5 +1,6 @@
 import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import { IsByteLength, IsNotEmpty, IsString } from 'class-validator';
+import { environment } from '../environment';
 import { User } from './user.schema';
 
 class UserAndPassword extends PickType(User, [
@@ -29,9 +30,15 @@ export class RefreshDto {
 }
 
 export class LoginResult extends User {
-  @ApiProperty({ format: 'jwt' })
+  @ApiProperty({
+    format: 'jwt',
+    description: `Token for use with Bearer Authorization. Expires after ${environment.auth.expiry}.`,
+  })
   accessToken: string;
 
-  @ApiProperty({ format: 'jwt' })
+  @ApiProperty({
+    format: 'jwt',
+    description: `Token for use with the \`POST /api/${environment.version}/auth/refresh\` endpoint. Expires after ${environment.auth.refreshExpiry}.`
+  })
   refreshToken: string;
 }
