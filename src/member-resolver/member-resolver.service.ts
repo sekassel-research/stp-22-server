@@ -4,6 +4,11 @@ import { Group } from '../group/group.schema';
 import { GroupService } from '../group/group.service';
 import { MemberService } from '../member/member.service';
 
+export enum Namespace {
+  groups = 'groups',
+  games = 'games',
+}
+
 @Injectable()
 export class MemberResolverService {
   constructor(
@@ -12,22 +17,22 @@ export class MemberResolverService {
   ) {
   }
 
-  async resolveFrom(entity: Game | Group): Promise<[string, string[]] | undefined> {
+  async resolveFrom(entity: Game | Group): Promise<[Namespace, string[]] | undefined> {
     if ('owner' in entity) {
-      return ['games', await this.getGameMembers(entity._id)];
+      return [Namespace.games, await this.getGameMembers(entity._id)];
     } else if ('members' in entity) {
-      return ['groups', entity.members];
+      return [Namespace.groups, entity.members];
     } else {
       return undefined;
     }
   }
 
-  async resolve(namespace: string, id: string): Promise<string[]> {
+  async resolve(namespace: Namespace, id: string): Promise<string[]> {
     switch (namespace) {
-      case 'groups':
+      case Namespace.groups:
         const group = await this.groupService.find(id);
         return group?.members ?? [];
-      case 'games':
+      case Namespace.games:
         return this.getGameMembers(id);
       default:
         return [];

@@ -6,6 +6,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -20,7 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
-import { MemberResolverService } from '../member-resolver/member-resolver.service';
+import { MemberResolverService, Namespace } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
@@ -42,7 +43,7 @@ export class MessageController {
   ) {
   }
 
-  private async checkParentAndGetMembers(namespace: string, parent: string, user: User): Promise<string[]> {
+  private async checkParentAndGetMembers(namespace: Namespace, parent: string, user: User): Promise<string[]> {
     const users = await this.memberResolver.resolve(namespace, parent);
     if (!users || users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
@@ -71,7 +72,7 @@ export class MessageController {
   @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   async getAll(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent') parent: string,
     @Query('createdBefore') createdBefore?: Date,
     @Query('limit') limit = 100,
@@ -93,7 +94,7 @@ export class MessageController {
   @NotFound()
   async get(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<Message> {
@@ -107,7 +108,7 @@ export class MessageController {
   @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
   async create(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
@@ -121,7 +122,7 @@ export class MessageController {
   @NotFound()
   async update(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateMessageDto,
@@ -143,7 +144,7 @@ export class MessageController {
   @NotFound()
   async delete(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<Message> {
