@@ -34,3 +34,15 @@
 ## Bugfixes
 
 * The rate limit is no longer shared between all clients.
+
+# v1.0.3
+
+## Documentation
+
+* Improved examples for WebSocket event patterns.
+* Added a server definition to the OpenAPI spec.
+* Documented the `namespace` path parameter for messages.
+
+## Improvements
+
+* Invalid `namespace` path parameters for messages now result in a `400 Bad Request` error.
