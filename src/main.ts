@@ -53,6 +53,7 @@ async function bootstrap() {
     .setTitle('STP Server')
     .setDescription(await loadDescription())
     .setVersion(environment.version)
+    .addServer(environment.baseUrl)
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config, {
@@ -61,7 +62,7 @@ async function bootstrap() {
   SwaggerModule.setup(globalPrefix, app, document);
 
   await app.startAllMicroservices();
-  await app.listen(3000);
+  await app.listen(environment.port);
 }
 
 bootstrap();

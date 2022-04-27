@@ -1,5 +1,9 @@
+const port = +process.env.PORT || 3000;
+
 export const environment = {
   version: 'v1',
+  port,
+  baseUrl: process.env.BASE_URL || `http://localhost:${port}`,
   mongo: {
     uri: process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21',
   },
