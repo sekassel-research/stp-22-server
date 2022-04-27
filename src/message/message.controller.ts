@@ -17,6 +17,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -56,6 +57,7 @@ export class MessageController {
 
   @Get()
   @ApiOperation({ description: 'Lists the last (limit) messages sent before (createdBefore).' })
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiQuery({
     name: 'createdBefore',
     description: 'The timestamp before which messages are requested',
@@ -89,6 +91,7 @@ export class MessageController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   @NotFound()
@@ -103,6 +106,7 @@ export class MessageController {
   }
 
   @Post()
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiCreatedResponse({ type: Message })
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
   @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
@@ -117,6 +121,7 @@ export class MessageController {
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to change messages in an inaccessible parent, or to change someone else\'s message.' })
   @NotFound()
@@ -139,6 +144,7 @@ export class MessageController {
   }
 
   @Delete(':id')
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to delete messages in an inaccessible parent, or to delete someone else\'s message.' })
   @NotFound()
