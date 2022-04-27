@@ -30,18 +30,22 @@ Commands are sent as JSON, for example:
 
 Events are subscribed to and unsubscribed from using the commands described above.
 Each event has a qualified name consisting of one or segments separated by periods (`.`).
-You can subscribe to multiple events using qualified names or wildcard patterns, as described in the following table:
+You can subscribe to multiple events using qualified names or wildcard patterns, as shown by the following example patterns:
 
-| Event Pattern     | Matches (Examples)                                            | Does not match (Examples)                            |
-|-------------------|---------------------------------------------------------------|------------------------------------------------------|
-| `message`         | `message`                                                     | `message.updated`, `message.created`, `game.created` |
-| `message.created` | `message.created`                                             | `message`, `message.updated`, `game.created`         |
-| `message.*`       | `message.created`, `message.updated`, `message.deleted`       | `message`, `game`, `game.created`                    |
-| `*.created`       | `message.created`, `game.created`                             | `message`, `message.updated`, `game.deleted`         |
-| `message.**`      | `message.created`, `message.created.error`, `message.deleted` | `message`, `game`, `game.created`                    |
-| `**`              | Every event                                                   | N/A                                                  |
+* `games.507f191e810c19729de860ea.created`
+  * Matches: `games.507f191e810c19729de860ea.created`
+  * Does not match: `games.507f191e810c19729de860ea.updated`, `groups.507f191e810c19729de860ea.created`, `games.60bfe4dff98fef16e696ce6c.created`
+* `games.*.created`
+  * Matches: `games.507f191e810c19729de860ea.created`, `games.60bfe4dff98fef16e696ce6c.created`
+  * Does not match: `games.507f191e810c19729de860ea.updated`, `groups.507f191e810c19729de860ea.created`
+* `games.507f191e810c19729de860ea.*`
+  * Matches: `games.507f191e810c19729de860ea.created`, `games.507f191e810c19729de860ea.updated`, `games.507f191e810c19729de860ea.deleted`
+  * Does not match: `groups.507f191e810c19729de860ea.updated`, `games.60bfe4dff98fef16e696ce6c.deleted`
+* `games.*.*`
+  * Matches: `games.507f191e810c19729de860ea.created`, `games.60bfe4dff98fef16e696ce6c.updated`, `games.507f191e810c19729de860ea.deleted`, `games.60bfe4dff98fef16e696ce6c.deleted`
+  * Does not match: `groups.507f191e810c19729de860ea.updated`
 
-You receive events from the moment you send the `subscribe` command, up until you send the `unsubscribe` command *with the same pattern*.
+You receive events from the moment you send the `subscribe` command, up until you send the `unsubscribe` command *with the exact same pattern*.
 That means it is **not** possible to
 a) subscribe with a wilcard pattern and selectively unsubscribe with a more specific pattern, or
 b) subscribe with one or more specific pattern and unsubscribe with a wildcard pattern.
