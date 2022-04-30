@@ -67,6 +67,7 @@ export class MemberController {
   @ApiCreatedResponse({ type: Member })
   @ApiNotFoundResponse({ description: 'Game not found.' })
   @ApiUnauthorizedResponse({ description: 'Incorrect password.' })
+  @ApiConflictResponse({ description: 'User already joined.' })
   async create(
     @AuthUser() user: User,
     @Param('gameId', ParseObjectIdPipe) gameId: string,
@@ -79,7 +80,12 @@ export class MemberController {
 
     const passwordMatch = await this.memberService.checkPassword(game, member);
     if (!passwordMatch) {
-      throw new UnauthorizedException('Incorrect password.');
+      throw new UnauthorizedException('Incorrect password');
+    }
+
+    const existing = await this.memberService.findOne(gameId, user._id);
+    if (existing) {
+      throw new ConflictException('User already joined');
     }
 
     return this.memberService.create(gameId, user._id, member);
