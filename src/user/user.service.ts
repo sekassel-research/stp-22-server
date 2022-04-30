@@ -78,7 +78,7 @@ export class UserService {
       return undefined;
     }
 
-    const passwordMatch = bcrypt.compare(password, user.passwordHash);
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) {
       return undefined;
     }
