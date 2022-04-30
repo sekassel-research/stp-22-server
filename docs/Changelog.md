@@ -27,7 +27,7 @@
 ## Improvements
 
 * `POST /api/v1/users` now returns a `409 Conflict` error instead of the existing user if the username is already taken.
-* `POST /api/v1/logout` now returns a `204 No Content` on success.
+* `POST /api/v1/logout` now returns `204 No Content` on success.
 * Changed the rate limit and made it dynamically configurable.
 * Improved documentation for login tokens and WebSocket events.
 
@@ -46,3 +46,11 @@
 ## Improvements
 
 * Invalid `namespace` path parameters for messages now result in a `400 Bad Request` error.
+
+# v1.0.4
+
+## Bugfixes
+
+* Login no longer allows incorrect passwords. [STP22SRV-2](https://jira.uniks.de/browse/STP22SRV-2)
+* `POST /api/v1/games/{gameId}/members` now returns a `401 Unauthorized` error when the password is wrong.
+* `POST /api/v1/games/{gameId}/members` now returns a `409 Conflict` error when the user has already joined the game.
