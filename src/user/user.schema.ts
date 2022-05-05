@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsByteLength, IsIn, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { IsByteLength, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema } from '../util/schema';
+import { IsUrlOrUri } from '../util/url-or-uri.validator';
 
 const MAX_AVATAR_LENGTH = 16 * 1024;
 export const STATUS = ['online', 'offline'] as const;
@@ -24,7 +25,7 @@ export class User extends OmitType(GlobalSchema, ['createdAt', 'updatedAt']) {
 
   @Prop()
   @IsOptional()
-  @Matches(/^\w+:/, { message: 'avatar must be a valid URI' })
+  @IsUrlOrUri()
   @IsByteLength(0, MAX_AVATAR_LENGTH)
   @ApiProperty({ format: 'url', required: false, maxLength: MAX_AVATAR_LENGTH })
   avatar?: string;
