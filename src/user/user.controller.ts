@@ -72,7 +72,7 @@ export class UserController {
   @Post()
   @ApiOperation({ description: 'Create a new user (sign up).' })
   @ApiCreatedResponse({ type: User })
-  @ApiConflictResponse({ type: User, description: 'Username was already taken.' })
+  @ApiConflictResponse({ description: 'Username was already taken.' })
   async create(@Body() dto: CreateUserDto): Promise<User> {
     const existing = await this.userService.findByName(dto.name);
     if (existing) {
