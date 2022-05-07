@@ -72,7 +72,7 @@ export class UserController {
   @Post()
   @ApiOperation({ description: 'Create a new user (sign up).' })
   @ApiCreatedResponse({ type: User })
-  @ApiConflictResponse({ type: User, description: 'Username was already taken.' })
+  @ApiConflictResponse({ description: 'Username was already taken.' })
   async create(@Body() dto: CreateUserDto): Promise<User> {
     const existing = await this.userService.findByName(dto.name);
     if (existing) {
@@ -86,11 +86,19 @@ export class UserController {
   @NotFound()
   @ApiOkResponse({ type: User })
   @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s user.' })
+  @ApiConflictResponse({ description: 'Username was already taken.' })
   async update(
     @AuthUser() user: User,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateUserDto,
   ): Promise<User | undefined> {
+    if (dto.name) {
+      const existing = await this.userService.findByName(dto.name);
+      if (existing && existing.id !== id) {
+        throw new ConflictException('Username already taken');
+      }
+    }
+
     if (id !== user._id) {
       throw new ForbiddenException('Cannot change someone else\'s user.');
     }

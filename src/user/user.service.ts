@@ -35,27 +35,27 @@ export class UserService {
       .exec();
   }
 
-  async find(id: string): Promise<User | undefined> {
+  async find(id: string): Promise<UserDocument | undefined> {
     return this.model.findById(id).exec();
   }
 
-  async findByName(name: string): Promise<User | undefined> {
+  async findByName(name: string): Promise<UserDocument | undefined> {
     return this.model.findOne({ name }).exec();
   }
 
-  async create(dto: CreateUserDto): Promise<User> {
+  async create(dto: CreateUserDto): Promise<UserDocument> {
     const created = await this.model.create(await this.hash(dto));
     created && this.emit('created', created);
     return created;
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<User | undefined> {
+  async update(id: string, dto: UpdateUserDto): Promise<UserDocument | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async delete(id: string): Promise<User | undefined> {
+  async delete(id: string): Promise<UserDocument | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;
@@ -78,7 +78,7 @@ export class UserService {
       return undefined;
     }
 
-    const passwordMatch = bcrypt.compare(password, user.passwordHash);
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) {
       return undefined;
     }
@@ -119,7 +119,7 @@ export class UserService {
     };
   }
 
-  async logout(user: User): Promise<User> {
+  async logout(user: User): Promise<UserDocument> {
     return this.model.findByIdAndUpdate(user._id, { refreshKey: undefined }).exec();
   }
 

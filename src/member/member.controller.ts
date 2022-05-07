@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -10,9 +9,9 @@ import {
   Param,
   Patch,
   Post,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -20,8 +19,10 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
+import { GameService } from '../game/game.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
@@ -39,6 +40,7 @@ import { MemberService } from './member.service';
 export class MemberController {
   constructor(
     private readonly memberService: MemberService,
+    private readonly gameService: GameService,
   ) {
   }
 
@@ -64,17 +66,26 @@ export class MemberController {
   @ApiOperation({ description: 'Join a game with the current user.' })
   @ApiCreatedResponse({ type: Member })
   @ApiNotFoundResponse({ description: 'Game not found.' })
-  @ApiBadRequestResponse({ description: 'Incorrect password.' })
+  @ApiUnauthorizedResponse({ description: 'Incorrect password.' })
+  @ApiConflictResponse({ description: 'User already joined.' })
   async create(
     @AuthUser() user: User,
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Body() member: CreateMemberDto,
   ): Promise<Member> {
-    const passwordMatch = await this.memberService.checkPassword(gameId, member);
-    if (passwordMatch === undefined) {
+    const game = await this.gameService.findOne(gameId);
+    if (!game) {
       throw new NotFoundException(gameId);
-    } else if (!passwordMatch) {
-      throw new BadRequestException('Incorrect password.');
+    }
+
+    const passwordMatch = await this.memberService.checkPassword(game, member);
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Incorrect password');
+    }
+
+    const existing = await this.memberService.findOne(gameId, user._id);
+    if (existing) {
+      throw new ConflictException('User already joined');
     }
 
     return this.memberService.create(gameId, user._id, member);
