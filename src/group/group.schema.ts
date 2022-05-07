@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMaxSize, IsMongoId, IsOptional, IsString, Length } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsMongoId, IsOptional, IsString, Length } from 'class-validator';
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_ARRAY_FORMAT } from '../util/schema';
 
@@ -17,7 +17,8 @@ export class Group extends GlobalSchema {
 
   @Prop()
   @IsMongoId({ each: true })
-  @ApiProperty({ ...MONGO_ID_ARRAY_FORMAT, maxItems: MAX_MEMBERS })
+  @ApiProperty({ ...MONGO_ID_ARRAY_FORMAT, minItems: 1, maxItems: MAX_MEMBERS })
+  @ArrayMinSize(1)
   @ArrayMaxSize(MAX_MEMBERS)
   members: string[];
 }
