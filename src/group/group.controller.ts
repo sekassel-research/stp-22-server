@@ -46,6 +46,9 @@ export class GroupController {
   @NotFound()
   async findOne(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
+    if (!group) {
+      return undefined;
+    }
     this.checkMembership(group.members, user);
     return group;
   }
