@@ -11,7 +11,7 @@ export class GameScheduler {
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async deleteEmptyGames(): Promise<void> {
-    const oneHourInMillis = 60 * 60 * 1000;
-    await this.gameService.deleteEmptyGames(oneHourInMillis);
+    const oneHourMs = 60 * 60 * 1000;
+    await this.gameService.deleteOldGames(oneHourMs);
   }
 }
