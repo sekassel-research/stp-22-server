@@ -34,7 +34,7 @@ export class User extends GlobalSchema {
   passwordHash?: string;
 
   @Prop({ transform: () => undefined })
-  refreshKey?: string;
+  refreshKey?: string | null;
 }
 
 export type UserDocument = User & Document;

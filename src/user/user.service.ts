@@ -120,7 +120,7 @@ export class UserService {
   }
 
   async logout(user: User): Promise<UserDocument> {
-    return this.model.findByIdAndUpdate(user._id, { refreshKey: undefined }).exec();
+    return this.model.findByIdAndUpdate(user._id, { refreshKey: null }).exec();
   }
 
   private emit(event: string, user: User) {
