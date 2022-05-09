@@ -18,6 +18,9 @@ export const environment = {
     ttl: +process.env.RATE_LIMIT_TTL || 60,
     limit: +process.env.RATE_LIMIT || 60,
   },
+  cleanup: {
+    deleteGameAfterHours: +process.env.GAME_LIFETIME_HOURS || 2,
+  },
   nats: {
     servers: process.env.NATS_URL || 'nats://localhost:4222',
   },
