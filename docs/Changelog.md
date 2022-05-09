@@ -65,3 +65,20 @@
 
 * The `PATCH /api/v1/users/{id}` endpoint now returns a `409 Conflict` error if the new username is already taken.
 * The `User.avatar` property now only accepts http(s) URLs and Data URIs.
+
+# v1.1.0
+
+## New Features
+
++ Users now have `createdAt` and `updatedAt` properties.
++ Groups may now have a name.
+
+## Improvements
+
+* Games are deleted after two hours of inactivity (delay may be adapted in the future).
+
+## Bugfixes
+
+* Limited the number of Group members to a maximum of 100.
+* The `GET /api/v1/groups/{id}` endpoint now returns a `404 Not Found` error if the group can't be found.
+* The `DELETE /api/v1/groups/{id}` endpoint now returns a `403 Forbidden` error unless called by the last remaining group member.
