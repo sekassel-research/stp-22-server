@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
-import { IsByteLength, IsNotEmpty, IsString } from 'class-validator';
+import { IsByteLength, IsJWT, IsNotEmpty, IsString } from 'class-validator';
 import { environment } from '../environment';
 import { User } from './user.schema';
 
@@ -26,6 +26,7 @@ export class LoginDto extends PickType(UserAndPassword, ['name', 'password']) {
 
 export class RefreshDto {
   @ApiProperty({ format: 'jwt' })
+  @IsJWT()
   refreshToken: string;
 }
 
