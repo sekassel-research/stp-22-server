@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Game } from '../game/game.schema';
-import { Group } from '../group/group.schema';
 import { GroupService } from '../group/group.service';
 import { MemberService } from '../member/member.service';
 
@@ -15,16 +13,6 @@ export class MemberResolverService {
     private groupService: GroupService,
     private memberService: MemberService,
   ) {
-  }
-
-  async resolveFrom(entity: Game | Group): Promise<[Namespace, string[]] | undefined> {
-    if ('owner' in entity) {
-      return [Namespace.games, await this.getGameMembers(entity._id)];
-    } else if ('members' in entity) {
-      return [Namespace.groups, entity.members];
-    } else {
-      return undefined;
-    }
   }
 
   async resolve(namespace: Namespace, id: string): Promise<string[]> {
