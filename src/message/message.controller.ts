@@ -28,7 +28,7 @@ import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
-import { CreateMessageDto, UpdateMessageDto } from './message.dto';
+import { CreateMessageDto, QueryMessagesDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
@@ -76,16 +76,8 @@ export class MessageController {
     @AuthUser() user: User,
     @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent') parent: string,
-    @Query('createdBefore') createdBefore?: Date,
-    @Query('limit') limit = 100,
+    @Query() { createdBefore, limit }: QueryMessagesDto,
   ): Promise<Message[]> {
-    limit = +limit;
-    if (limit < 1) {
-      limit = 1;
-    }
-    if (limit > 100) {
-      limit = 100;
-    }
     await this.checkParentAndGetMembers(namespace, parent, user);
     return this.messageService.findBy(namespace, parent, createdBefore, limit);
   }
