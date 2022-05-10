@@ -63,7 +63,7 @@
 
 ## Bugfixes
 
-* The `PATCH /api/v1/users/{id}` endpoint now returns a `409 Conflict` error if the new username is already taken.
+* The `PATCH /api/v1/users/{id}` endpoint now returns a `409 Conflict` error if the new username is already taken. [STP22SRV-4](https://jira.uniks.de/browse/STP22SRV-4)
 * The `User.avatar` property now only accepts http(s) URLs and Data URIs.
 
 # v1.1.0
@@ -71,7 +71,7 @@
 ## New Features
 
 + Users now have `createdAt` and `updatedAt` properties.
-+ Groups may now have a name.
++ Groups may now have a name. [STP22SRV-3](https://jira.uniks.de/browse/STP22SRV-3)
 
 ## Improvements
 
@@ -82,3 +82,11 @@
 * Limited the number of Group members to a maximum of 100.
 * The `GET /api/v1/groups/{id}` endpoint now returns a `404 Not Found` error if the group can't be found.
 * The `DELETE /api/v1/groups/{id}` endpoint now returns a `403 Forbidden` error unless called by the last remaining group member.
+
+# v1.1.1
+
+## Bugfixes
+
+* The `PATCH /api/v1/users/{id}` endpoint no longer sets the status to `offline`. [STP22SRV-5](https://jira.uniks.de/browse/STP22SRV-5)
+* The `GET /api/v1/{namespace}/{parent}/messages` endpoint no longer incorrectly returns `400 Bad Request`. [STP22SRV-6](https://jira.uniks.de/browse/STP22SRV-6)
+* The `POST /api/v1/auth/refresh` endpoint no longer incorrectly returns `400 Bad Request`. [STP22SRV-7](https://jira.uniks.de/browse/STP22SRV-7)
