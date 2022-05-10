@@ -44,7 +44,9 @@ export class UserService {
   }
 
   async create(dto: CreateUserDto): Promise<UserDocument> {
-    const created = await this.model.create(await this.hash(dto));
+    const hashed = await this.hash(dto);
+    hashed.status = 'offline';
+    const created = await this.model.create(hashed);
     created && this.emit('created', created);
     return created;
   }
@@ -68,7 +70,6 @@ export class UserService {
       const passwordSalt = await bcrypt.genSalt();
       result.passwordHash = await bcrypt.hash(password, passwordSalt);
     }
-    result.status ||= 'offline';
     return result;
   }
 
