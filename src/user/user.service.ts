@@ -66,7 +66,7 @@ export class UserService {
   async deleteTempUsers(maxAgeMs: number): Promise<User[]> {
     const users = await this.model.find({
       createdAt: { $lt: new Date(Date.now() - maxAgeMs) },
-      name: /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
+      name: environment.cleanup.tempUserNamePattern,
       $or: [
         { avatar: { $exists: false } },
         { avatar: null },

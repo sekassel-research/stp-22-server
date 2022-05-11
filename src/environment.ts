@@ -22,6 +22,9 @@ export const environment = {
     deleteGameAfterHours: +process.env.GAME_LIFETIME_HOURS || 2,
     deleteEmptyGroupAfterHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
     deleteTempUserAfterHours: +process.env.TEMP_USER_LIFETIME_HOURS || 1,
+    tempUserNamePattern: process.env.TEMP_USER_NAME_PATTERN
+      ? new RegExp(process.env.TEMP_USER_NAME_PATTERN)
+      : /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
   },
   nats: {
     servers: process.env.NATS_URL || 'nats://localhost:4222',
