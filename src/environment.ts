@@ -20,6 +20,7 @@ export const environment = {
   },
   cleanup: {
     deleteGameAfterHours: +process.env.GAME_LIFETIME_HOURS || 2,
+    deleteEmptyGroupAfterHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
   },
   nats: {
     servers: process.env.NATS_URL || 'nats://localhost:4222',
