@@ -63,6 +63,23 @@ export class UserService {
     return deleted;
   }
 
+  async deleteTempUsers(maxAgeMs: number): Promise<User[]> {
+    const users = await this.model.find({
+      createdAt: { $lt: new Date(Date.now() - maxAgeMs) },
+      name: /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
+      $or: [
+        { avatar: { $exists: false } },
+        { avatar: null },
+        { avatar: 'data:image/png;base64,null' },
+      ],
+    });
+    await this.model.deleteMany({ _id: { $in: users.map(u => u._id) } });
+    for (const user of users) {
+      this.emit('deleted', user);
+    }
+    return users;
+  }
+
   private async hash(dto: UpdateUserDto): Promise<Partial<User>> {
     const { password, ...rest } = dto;
     const result: Partial<User> = rest;
