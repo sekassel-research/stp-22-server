@@ -12,7 +12,10 @@ export class ExpectedMove {
   action: Task;
 
   @Prop()
-  @ApiProperty(MONGO_ID_ARRAY_FORMAT)
+  @ApiProperty({
+    ...MONGO_ID_ARRAY_FORMAT,
+    description: 'The players that may perform the move (in any order).',
+  })
   @IsMongoId({ each: true })
   players: string[];
 }
@@ -30,7 +33,10 @@ export class State {
   round: number;
 
   @Prop()
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The next possible moves, including known future moves.',
+    type: [ExpectedMove],
+  })
   @ValidateNested({ each: true })
   @Type(() => ExpectedMove)
   expectedMoves: ExpectedMove[];
