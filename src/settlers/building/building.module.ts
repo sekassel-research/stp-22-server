@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventModule } from '../../event/event.module';
+import { MemberModule } from '../../member/member.module';
 import { BuildingController } from './building.controller';
 import { BuildingHandler } from './building.handler';
 import { BuildingSchema } from './building.schema';
@@ -15,6 +16,7 @@ import { BuildingService } from './building.service';
       },
     ]),
     EventModule,
+    MemberModule,
   ],
   providers: [BuildingService, BuildingHandler],
   controllers: [BuildingController],

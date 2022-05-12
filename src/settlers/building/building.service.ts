@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { EventService } from '../../event/event.service';
+import { MemberService } from '../../member/member.service';
 import { CreateBuildingDto, UpdateBuildingDto } from './building.dto';
 import { Building, BuildingDocument } from './building.schema';
 
@@ -10,6 +11,7 @@ export class BuildingService {
   constructor(
     @InjectModel('buildings') private model: Model<Building>,
     private eventEmitter: EventService,
+    private memberService: MemberService,
   ) {
   }
 
@@ -42,6 +44,8 @@ export class BuildingService {
   }
 
   private emit(event: string, building: BuildingDocument) {
-    this.eventEmitter.emit(`games.${building.gameId}.buildings.${building._id}.${event}`, building); // TODO visibility
+    this.memberService.findAll(building.gameId).then(members => {
+      this.eventEmitter.emit(`games.${building.gameId}.buildings.${building._id}.${event}`, building, members.map(m => m.userId));
+    });
   }
 }
