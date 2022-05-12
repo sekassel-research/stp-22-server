@@ -84,4 +84,5 @@ Similarly, to receive all events regarding the member list of a game, you could 
 
 <sup>3</sup>:
 The Player who is being updated receives different data from other players.
-In particular, they can see their own resources instead of `unknown`.
+In particular, they can see the number of their own resources.
+Other players receive the total number of resources under the key `unknown`.
