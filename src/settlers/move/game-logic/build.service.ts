@@ -58,7 +58,7 @@ export class BuildService {
     if (move.action === 'build') {
       await this.checkCosts(gameId, userId, move.building);
       this.deductCosts(move, $inc);
-    } else if (move.action === 'founding-settlement-1') {
+    } else if (move.action === 'founding-settlement-2') {
       const map = await this.mapService.findByGame(gameId);
       this.giveAdjacentResources(map, move.building, $inc);
     }
