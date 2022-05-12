@@ -9,7 +9,7 @@ import { Building } from './building.schema';
 import { BuildingService } from './building.service';
 
 @Controller('games/:gameId/buildings')
-@ApiTags('Settlers of Catan')
+@ApiTags('Pioneers')
 @Validated()
 @Throttled()
 @Auth()

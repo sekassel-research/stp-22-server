@@ -9,7 +9,7 @@ import { State } from './state.schema';
 import { StateService } from './state.service';
 
 @Controller()
-@ApiTags('Settlers of Catan')
+@ApiTags('Pioneers')
 @Validated()
 @Throttled()
 @Auth()

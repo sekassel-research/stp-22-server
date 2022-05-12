@@ -10,7 +10,7 @@ import { CreateMoveDto } from './move.dto';
 import { Move } from './move.schema';
 
 @Controller('games/:gameId/moves')
-@ApiTags('Settlers of Catan')
+@ApiTags('Pioneers')
 @Validated()
 @Throttled()
 @Auth()

@@ -108,7 +108,7 @@
 
 * Group cleanup is now a little less aggressive.
 
-# v2.0.0 - Base Settlers Game
+# v2.0.0 - Pioneers Base Game
 
 ## New Features
 
