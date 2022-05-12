@@ -67,9 +67,16 @@ export class GroupService {
         },
       },
       {
+        $addFields: {
+          id: {
+            $toString: '$_id',
+          },
+        },
+      },
+      {
         $lookup: {
           from: 'messages',
-          localField: '_id',
+          localField: 'id',
           foreignField: 'parent',
           as: 'messages',
         },
@@ -80,7 +87,7 @@ export class GroupService {
         },
       },
       {
-        $unset: 'messages',
+        $unset: ['messages', 'id'],
       },
     ]);
     await this.model.deleteMany({ _id: { $in: groups.map(g => g._id) } });
