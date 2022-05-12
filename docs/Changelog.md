@@ -98,6 +98,16 @@
 * Empty groups (no messages and no name) are deleted after one hour.
 * Temporary users (determined by <span title="aka regex">advanced pattern recognition algorithms</a>) are deleted after one hour.
 
+# v1.1.3
+
+## Improvements
+
+* Preparations for upcoming release, including configurable cleanup and API version.
+
+## Bugfixes
+
+* Group cleanup is now a little less aggressive.
+
 # v2.0.0 - Base Settlers Game
 
 ## New Features
