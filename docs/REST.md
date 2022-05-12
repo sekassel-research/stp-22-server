@@ -27,15 +27,15 @@ The following table shows which delete operations trigger other deletes.
 Cascading deletes are transitive, meaning a cascading deletion can trigger more cascading deletions.
 All delete operations, whether explicit or cascading, trigger the same events.
 
-| Deleting a... | Also deletes... |
-| --- | --- |
-| User | Games they are the owner of |
-| User | Memberships in games they joined |
-| Group | All Messages sent within the group |
-| Game | All Memberships of the game |
-| Game | All Messages sent within the game |
+| Deleting a... | Also deletes...                       |
+|---------------|---------------------------------------|
+| User          | Games they are the owner of           |
+| User          | Their Membership in Games they joined |
+| Group         | All Messages sent within the Group    |
+| Game          | All Members of the Game               |
+| Game          | All Messages sent within the Game     |
 
 Cascading deletes do not apply to some resources:
 
 * Deleting a User does not delete any of their Messages.
-* Deleting a User does not delete any Group in which they are a member.
+* Deleting a User does not delete any Group in which they are a Member.

@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 
 import { EventService } from '../event/event.service';
+import { Game } from '../game/game.schema';
 import { GameService } from '../game/game.service';
 import { User } from '../user/user.schema';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto';
@@ -18,16 +19,8 @@ export class MemberService {
   ) {
   }
 
-  async checkPassword(gameId: string, member: CreateMemberDto): Promise<'ok' | 'incorrect' | 'notfound' | 'started'> {
-    const game = await this.gameService.findOne(gameId);
-    if (!game) {
-      return 'notfound';
-    }
-    if (game.started) {
-      return 'started';
-    }
-
-    return bcrypt.compare(member.password, game.passwordHash) ? 'ok' : 'incorrect';
+  async checkPassword(game: Game, member: CreateMemberDto): Promise<boolean> {
+    return bcrypt.compare(member.password, game.passwordHash);
   }
 
   async checkUserModification(gameId: string, actingUser: User, targetUser: string): Promise<'notfound' | 'started' | 'owner' | 'owner-target' | 'target' | 'unauthorized'> {

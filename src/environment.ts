@@ -1,5 +1,9 @@
+const port = +process.env.PORT || 3000;
+
 export const environment = {
-  version: 'v2',
+  version: process.env.API_VERSION || 'v2',
+  port,
+  baseUrl: process.env.BASE_URL || `http://localhost:${port}`,
   mongo: {
     uri: process.env.MONGO_URI || 'mongodb://localhost:27017/stpss21',
   },
@@ -11,8 +15,17 @@ export const environment = {
     refreshExpiry: '28 days',
   },
   rateLimit: {
-    ttl: 60,
-    limit: 60,
+    ttl: +process.env.RATE_LIMIT_TTL || 60,
+    limit: +process.env.RATE_LIMIT || 60,
+  },
+  passive: !!process.env.PASSIVE,
+  cleanup: {
+    deleteGameAfterHours: +process.env.GAME_LIFETIME_HOURS || 2,
+    deleteEmptyGroupAfterHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
+    deleteTempUserAfterHours: +process.env.TEMP_USER_LIFETIME_HOURS || 1,
+    tempUserNamePattern: process.env.TEMP_USER_NAME_PATTERN
+      ? new RegExp(process.env.TEMP_USER_NAME_PATTERN)
+      : /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
   },
   nats: {
     servers: process.env.NATS_URL || 'nats://localhost:4222',

@@ -6,6 +6,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -16,17 +17,18 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
-import { MemberResolverService } from '../member-resolver/member-resolver.service';
+import { MemberResolverService, Namespace } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
-import { CreateMessageDto, UpdateMessageDto } from './message.dto';
+import { CreateMessageDto, QueryMessagesDto, UpdateMessageDto } from './message.dto';
 import { Message } from './message.schema';
 import { MessageService } from './message.service';
 
@@ -42,7 +44,7 @@ export class MessageController {
   ) {
   }
 
-  private async checkParentAndGetMembers(namespace: string, parent: string, user: User): Promise<string[]> {
+  private async checkParentAndGetMembers(namespace: Namespace, parent: string, user: User): Promise<string[]> {
     const users = await this.memberResolver.resolve(namespace, parent);
     if (!users || users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
@@ -55,6 +57,7 @@ export class MessageController {
 
   @Get()
   @ApiOperation({ description: 'Lists the last (limit) messages sent before (createdBefore).' })
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiQuery({
     name: 'createdBefore',
     description: 'The timestamp before which messages are requested',
@@ -71,29 +74,22 @@ export class MessageController {
   @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   async getAll(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent') parent: string,
-    @Query('createdBefore') createdBefore?: Date,
-    @Query('limit') limit = 100,
+    @Query() { createdBefore, limit }: QueryMessagesDto,
   ): Promise<Message[]> {
-    limit = +limit;
-    if (limit < 1) {
-      limit = 1;
-    }
-    if (limit > 100) {
-      limit = 100;
-    }
     await this.checkParentAndGetMembers(namespace, parent, user);
     return this.messageService.findBy(namespace, parent, createdBefore, limit);
   }
 
   @Get(':id')
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
   @NotFound()
   async get(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<Message> {
@@ -102,12 +98,13 @@ export class MessageController {
   }
 
   @Post()
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiCreatedResponse({ type: Message })
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
   @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
   async create(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
@@ -116,12 +113,13 @@ export class MessageController {
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to change messages in an inaccessible parent, or to change someone else\'s message.' })
   @NotFound()
   async update(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateMessageDto,
@@ -138,12 +136,13 @@ export class MessageController {
   }
 
   @Delete(':id')
+  @ApiParam({ name: 'namespace', enum: Namespace })
   @ApiOkResponse({ type: Message })
   @ApiForbiddenResponse({ description: 'Attempt to delete messages in an inaccessible parent, or to delete someone else\'s message.' })
   @NotFound()
   async delete(
     @AuthUser() user: User,
-    @Param('namespace') namespace: string,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<Message> {
