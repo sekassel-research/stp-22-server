@@ -21,6 +21,14 @@ export class GroupController {
   ) {
   }
 
+  @Post()
+  @ApiCreatedResponse({ type: Group })
+  @ApiForbiddenResponse({ description: 'Attempt to create a group in which the current user is not a member.' })
+  async create(@AuthUser() user: User, @Body() dto: CreateGroupDto): Promise<Group> {
+    this.checkMembership(dto.members, user);
+    return this.groupService.create(dto);
+  }
+
   @Get()
   @ApiQuery({
     name: 'members',
@@ -51,14 +59,6 @@ export class GroupController {
     }
     this.checkMembership(group.members, user);
     return group;
-  }
-
-  @Post()
-  @ApiCreatedResponse({ type: Group })
-  @ApiForbiddenResponse({ description: 'Attempt to create a group in which the current user is not a member.' })
-  async create(@AuthUser() user: User, @Body() dto: CreateGroupDto): Promise<Group> {
-    this.checkMembership(dto.members, user);
-    return this.groupService.create(dto);
   }
 
   @Patch(':id')

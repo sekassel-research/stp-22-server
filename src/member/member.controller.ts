@@ -44,24 +44,6 @@ export class MemberController {
   ) {
   }
 
-  @Get()
-  @ApiOkResponse({ type: [Member] })
-  async findAll(
-    @Param('gameId', ParseObjectIdPipe) gameId: string,
-  ): Promise<Member[]> {
-    return this.memberService.findAll(gameId);
-  }
-
-  @Get(':userId')
-  @ApiOkResponse({ type: Member })
-  @NotFound()
-  async findOne(
-    @Param('gameId', ParseObjectIdPipe) gameId: string,
-    @Param('userId', ParseObjectIdPipe) userId: string,
-  ): Promise<Member | undefined> {
-    return this.memberService.findOne(gameId, userId);
-  }
-
   @Post()
   @ApiOperation({ description: 'Join a game with the current user.' })
   @ApiCreatedResponse({ type: Member })
@@ -93,6 +75,24 @@ export class MemberController {
     }
 
     return this.memberService.create(gameId, user._id, member);
+  }
+
+  @Get()
+  @ApiOkResponse({ type: [Member] })
+  async findAll(
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+  ): Promise<Member[]> {
+    return this.memberService.findAll(gameId);
+  }
+
+  @Get(':userId')
+  @ApiOkResponse({ type: Member })
+  @NotFound()
+  async findOne(
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('userId', ParseObjectIdPipe) userId: string,
+  ): Promise<Member | undefined> {
+    return this.memberService.findOne(gameId, userId);
   }
 
   @Patch(':userId')

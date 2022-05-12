@@ -39,6 +39,13 @@ export class GameController {
   ) {
   }
 
+  @Post()
+  @ApiOperation({ description: 'Create a game. The current user becomes the owner and is automatically added as a member.' })
+  @ApiCreatedResponse({ type: Game })
+  async create(@AuthUser() user: User, @Body() createGameDto: CreateGameDto): Promise<Game> {
+    return this.gameService.create(user, createGameDto);
+  }
+
   @Get()
   @ApiOkResponse({ type: [Game] })
   async findAll(): Promise<Game[]> {
@@ -50,13 +57,6 @@ export class GameController {
   @NotFound()
   async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<Game | undefined> {
     return this.gameService.findOne(id);
-  }
-
-  @Post()
-  @ApiOperation({ description: 'Create a game. The current user becomes the owner and is automatically added as a member.' })
-  @ApiCreatedResponse({ type: Game })
-  async create(@AuthUser() user: User, @Body() createGameDto: CreateGameDto): Promise<Game> {
-    return this.gameService.create(user, createGameDto);
   }
 
   @Patch(':id')

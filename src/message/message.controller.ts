@@ -55,6 +55,21 @@ export class MessageController {
     return users;
   }
 
+  @Post()
+  @ApiParam({ name: 'namespace', enum: Namespace })
+  @ApiCreatedResponse({ type: Message })
+  @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
+  @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
+  async create(
+    @AuthUser() user: User,
+    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
+    @Param('parent', ParseObjectIdPipe) parent: string,
+    @Body() message: CreateMessageDto,
+  ): Promise<Message> {
+    const users = await this.checkParentAndGetMembers(namespace, parent, user);
+    return this.messageService.create(namespace, parent, user._id, message, users);
+  }
+
   @Get()
   @ApiOperation({ description: 'Lists the last (limit) messages sent before (createdBefore).' })
   @ApiParam({ name: 'namespace', enum: Namespace })
@@ -95,21 +110,6 @@ export class MessageController {
   ): Promise<Message> {
     await this.checkParentAndGetMembers(namespace, parent, user);
     return await this.messageService.find(namespace, parent, id);
-  }
-
-  @Post()
-  @ApiParam({ name: 'namespace', enum: Namespace })
-  @ApiCreatedResponse({ type: Message })
-  @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
-  @ApiForbiddenResponse({ description: 'Attempt to create messages in an inaccessible parent.' })
-  async create(
-    @AuthUser() user: User,
-    @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
-    @Param('parent', ParseObjectIdPipe) parent: string,
-    @Body() message: CreateMessageDto,
-  ): Promise<Message> {
-    const users = await this.checkParentAndGetMembers(namespace, parent, user);
-    return this.messageService.create(namespace, parent, user._id, message, users);
   }
 
   @Patch(':id')

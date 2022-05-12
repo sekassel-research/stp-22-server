@@ -38,6 +38,18 @@ export class UserController {
   ) {
   }
 
+  @Post()
+  @ApiOperation({ description: 'Create a new user (sign up).' })
+  @ApiCreatedResponse({ type: User })
+  @ApiConflictResponse({ description: 'Username was already taken.' })
+  async create(@Body() dto: CreateUserDto): Promise<User> {
+    const existing = await this.userService.findByName(dto.name);
+    if (existing) {
+      throw new ConflictException('Username already taken');
+    }
+    return this.userService.create(dto);
+  }
+
   @Get()
   @Auth()
   @ApiOperation({ description: 'Lists all online users.' })
@@ -67,18 +79,6 @@ export class UserController {
   @NotFound()
   async getUser(@Param('id', ParseObjectIdPipe) id: string): Promise<User> {
     return this.userService.find(id);
-  }
-
-  @Post()
-  @ApiOperation({ description: 'Create a new user (sign up).' })
-  @ApiCreatedResponse({ type: User })
-  @ApiConflictResponse({ description: 'Username was already taken.' })
-  async create(@Body() dto: CreateUserDto): Promise<User> {
-    const existing = await this.userService.findByName(dto.name);
-    if (existing) {
-      throw new ConflictException('Username already taken');
-    }
-    return this.userService.create(dto);
   }
 
   @Patch(':id')
