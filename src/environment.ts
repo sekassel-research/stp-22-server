@@ -1,7 +1,7 @@
 const port = +process.env.PORT || 3000;
 
 export const environment = {
-  version: 'v1',
+  version: process.env.API_VERSION || 'v1',
   port,
   baseUrl: process.env.BASE_URL || `http://localhost:${port}`,
   mongo: {
