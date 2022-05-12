@@ -90,3 +90,10 @@
 * The `PATCH /api/v1/users/{id}` endpoint no longer sets the status to `offline`. [STP22SRV-5](https://jira.uniks.de/browse/STP22SRV-5)
 * The `GET /api/v1/{namespace}/{parent}/messages` endpoint no longer incorrectly returns `400 Bad Request`. [STP22SRV-6](https://jira.uniks.de/browse/STP22SRV-6)
 * The `POST /api/v1/auth/refresh` endpoint no longer incorrectly returns `400 Bad Request`. [STP22SRV-7](https://jira.uniks.de/browse/STP22SRV-7)
+
+# v1.1.2
+
+## Improvements
+
+* Empty groups (no messages and no name) are deleted after one hour.
+* Temporary users (determined by <span title="aka regex">advanced pattern recognition algorithms</a>) are deleted after one hour.
