@@ -16,7 +16,6 @@ import {
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
@@ -24,8 +23,8 @@ import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
-import { Status, STATUS, User } from './user.schema';
+import { CreateUserDto, QueryUsersDto, UpdateUserDto } from './user.dto';
+import { User } from './user.schema';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -42,22 +41,10 @@ export class UserController {
   @Auth()
   @ApiOperation({ description: 'Lists all online users.' })
   @ApiOkResponse({ type: [User] })
-  @ApiQuery({
-    name: 'ids',
-    required: false,
-    description: 'A comma-separated list of IDs that should be included in the response.',
-  })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: STATUS,
-    description: 'When set, returns only users with this status',
-  })
   async getUsers(
-    @Query('status') status?: Status,
-    @Query('ids') ids?: string,
+    @Query() { status, ids }: QueryUsersDto,
   ): Promise<User[]> {
-    return this.userService.findAll(status, ids?.split(','));
+    return this.userService.findAll(status, ids);
   }
 
   @Get(':id')
