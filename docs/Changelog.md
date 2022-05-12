@@ -125,3 +125,7 @@
 + Added map features: resource tiles, number tokens
 + Added founding phase.
 + Added main game loop: dice roll, resource retrieval, buying and placing settlements, cities and roads.
+
+## Improvements
+
+* `POST /api/v1/games/{gameId}/members` now returns a `403 Forbidden` error when the password is wrong.
