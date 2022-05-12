@@ -18,6 +18,7 @@ export const environment = {
     ttl: +process.env.RATE_LIMIT_TTL || 60,
     limit: +process.env.RATE_LIMIT || 60,
   },
+  passive: !!process.env.PASSIVE,
   cleanup: {
     deleteGameAfterHours: +process.env.GAME_LIFETIME_HOURS || 2,
     deleteEmptyGroupAfterHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
