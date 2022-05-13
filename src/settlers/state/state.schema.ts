@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsMongoId, ValidateNested } from 'class-validator';
+import { IsIn, IsMongoId, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_ARRAY_FORMAT, MONGO_ID_FORMAT } from '../../util/schema';
 import { Task, TASKS } from '../shared/constants';
 
@@ -26,11 +26,6 @@ export class State {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   gameId: string;
-
-  @Prop()
-  @ApiProperty({ type: 'integer' })
-  @IsInt()
-  round: number;
 
   @Prop()
   @ApiProperty({

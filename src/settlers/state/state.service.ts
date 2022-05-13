@@ -23,7 +23,6 @@ export class StateService {
     const members = await this.memberService.findAll(game._id);
     const state: State = {
       gameId: game._id,
-      round: 0,
       expectedMoves: [{
         action: 'founding-roll',
         players: members.map(m => m.userId),
