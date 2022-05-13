@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Document, Model, UpdateQuery } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { MemberService } from '../../member/member.service';
 import { INITIAL_BUILDINGS } from '../shared/constants';
@@ -57,7 +57,7 @@ export class PlayerService {
     const players = members.map((m, index) => ({
       gameId,
       userId: m.userId,
-      color: COLOR_PALETTE[index % COLOR_PALETTE.length],
+      color: m.color ?? COLOR_PALETTE[index % COLOR_PALETTE.length],
       resources: {},
       remainingBuildings: INITIAL_BUILDINGS,
     }));
