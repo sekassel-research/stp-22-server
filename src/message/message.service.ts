@@ -20,14 +20,9 @@ export class MessageService {
     return this.model.findOne({ _id, namespace, parent }).exec();
   }
 
-  async findBy(namespace: Namespace, parent: string, createdBefore?: Date, limit?: number): Promise<MessageDocument[]> {
-    const filter: FilterQuery<MessageDocument> = {
-      namespace,
-      parent,
-    };
-    if (createdBefore) {
-      filter.createdAt = { $lt: createdBefore };
-    }
+  async findAll(namespace: Namespace, parent: string, filter: FilterQuery<Message> = {}, limit?: number): Promise<MessageDocument[]> {
+    filter.namespace = namespace;
+    filter.parent = parent;
     let query = this.model.find(filter).sort('-createdAt');
     if (limit) {
       query = query.limit(limit);
@@ -56,7 +51,7 @@ export class MessageService {
   }
 
   async deleteAll(namespace: Namespace, parent: string, users: string[]): Promise<MessageDocument[]> {
-    const messages = await this.findBy(namespace, parent);
+    const messages = await this.findAll(namespace, parent);
     for (const message of messages) {
       this.sendEvent('deleted', message, users);
     }

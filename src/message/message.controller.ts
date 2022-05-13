@@ -18,9 +18,9 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { FilterQuery } from 'mongoose';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { MemberResolverService, Namespace } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
@@ -58,17 +58,6 @@ export class MessageController {
   @Get()
   @ApiOperation({ description: 'Lists the last (limit) messages sent before (createdBefore).' })
   @ApiParam({ name: 'namespace', enum: Namespace })
-  @ApiQuery({
-    name: 'createdBefore',
-    description: 'The timestamp before which messages are requested',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'limit',
-    description: 'The maximum number of results',
-    required: false,
-    schema: { minimum: 1, maximum: 100, type: 'number', default: 100 },
-  })
   @ApiOkResponse({ type: [Message] })
   @ApiNotFoundResponse({ description: 'Namespace or parent not found.' })
   @ApiForbiddenResponse({ description: 'Attempt to read messages in an inaccessible parent.' })
@@ -76,10 +65,16 @@ export class MessageController {
     @AuthUser() user: User,
     @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent') parent: string,
-    @Query() { createdBefore, limit }: QueryMessagesDto,
+    @Query() { createdAfter, createdBefore, limit }: QueryMessagesDto,
   ): Promise<Message[]> {
     await this.checkParentAndGetMembers(namespace, parent, user);
-    return this.messageService.findBy(namespace, parent, createdBefore, limit);
+    const filter: FilterQuery<Message> = {};
+    if (createdBefore || createdAfter) {
+      filter.createdAt = {};
+      createdAfter && (filter.createdAt.$gte = createdAfter);
+      createdBefore && (filter.createdAt.$lt = createdBefore);
+    }
+    return this.messageService.findAll(namespace, parent, filter, limit);
   }
 
   @Get(':id')
