@@ -1,7 +1,8 @@
-import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
-import { IsByteLength, IsJWT, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsByteLength, IsIn, IsJWT, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { environment } from '../environment';
-import { User } from './user.schema';
+import { Status, STATUS, User } from './user.schema';
 
 class UserAndPassword extends PickType(User, [
   'name',
@@ -39,7 +40,25 @@ export class LoginResult extends User {
 
   @ApiProperty({
     format: 'jwt',
-    description: `Token for use with the \`POST /api/${environment.version}/auth/refresh\` endpoint. Expires after ${environment.auth.refreshExpiry}.`
+    description: `Token for use with the \`POST /api/${environment.version}/auth/refresh\` endpoint. Expires after ${environment.auth.refreshExpiry}.`,
   })
   refreshToken: string;
+}
+
+export class QueryUsersDto {
+  @ApiPropertyOptional({
+    description: 'A comma-separated list of IDs that should be included in the response.',
+  })
+  @Transform(({ value }) => Array.isArray(value) ? value : value?.split(','))
+  @IsOptional()
+  @IsMongoId({ each: true })
+  ids?: string[];
+
+  @ApiPropertyOptional({
+    enum: STATUS,
+    description: 'When set, returns only users with this status',
+  })
+  @IsOptional()
+  @IsIn(STATUS)
+  status?: Status;
 }
