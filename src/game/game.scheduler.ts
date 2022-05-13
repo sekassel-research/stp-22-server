@@ -12,7 +12,7 @@ export class GameScheduler {
   ) {
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_HOUR)
   async deleteEmptyGames(): Promise<void> {
     const maxAgeMs = environment.cleanup.deleteGameAfterHours * 60 * 60 * 1000;
     const games = await this.gameService.deleteOldGames(maxAgeMs);
