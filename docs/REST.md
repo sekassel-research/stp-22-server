@@ -21,11 +21,22 @@ The error schema is one of the following:
 
 Keep in mind that `ErrorResponse` may or may not include the `message` property with additional details.
 
+## Cleanup
+
+The following resources will be deleted automatically under certain conditions.
+
+| A...    | Will be deleted after...                            | If...                                     |
+|---------|-----------------------------------------------------|-------------------------------------------|
+| User    | ${environment.cleanup.tempUserLifetimeHours} h      | they seem to be for temporary use         |
+| Group   | ${environment.cleanup.emptyGroupLifetimeHours} h    | it has no messages                        |
+| Game    | ${environment.cleanup.gameLifetimeHours} h          | no members joined or left in the meantime |
+| Message | ${environment.cleanup.globalMessageLifetimeHours} h | it was posted in a global channel         |
+
 ## Cascading Deletes
 
 The following table shows which delete operations trigger other deletes.
 Cascading deletes are transitive, meaning a cascading deletion can trigger more cascading deletions.
-All delete operations, whether explicit or cascading, trigger the same events.
+All delete operations, whether manual, cleanup or cascading, trigger the same events.
 
 | Deleting a... | Also deletes...                       |
 |---------------|---------------------------------------|

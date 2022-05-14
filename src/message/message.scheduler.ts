@@ -15,7 +15,7 @@ export class MessageScheduler {
 
   @Cron(CronExpression.EVERY_HOUR)
   async deleteGlobalMessages(): Promise<void> {
-    const maxGlobalAgeMs = environment.cleanup.deleteGlobalMessagesAfterHours * 60 * 60 * 1000;
+    const maxGlobalAgeMs = environment.cleanup.globalMessageLifetimeHours * 60 * 60 * 1000;
     const messages = await this.messageService.deleteAll(Namespace.global, undefined, 'global', {
       createdAt: { $lt: new Date(Date.now() - maxGlobalAgeMs) },
     });

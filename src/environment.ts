@@ -20,13 +20,13 @@ export const environment = {
   },
   passive: !!process.env.PASSIVE,
   cleanup: {
-    deleteGameAfterHours: +process.env.GAME_LIFETIME_HOURS || 2,
-    deleteEmptyGroupAfterHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
-    deleteTempUserAfterHours: +process.env.TEMP_USER_LIFETIME_HOURS || 1,
+    gameLifetimeHours: +process.env.GAME_LIFETIME_HOURS || 2,
+    emptyGroupLifetimeHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
+    tempUserLifetimeHours: +process.env.TEMP_USER_LIFETIME_HOURS || 1,
     tempUserNamePattern: process.env.TEMP_USER_NAME_PATTERN
       ? new RegExp(process.env.TEMP_USER_NAME_PATTERN)
       : /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
-    deleteGlobalMessagesAfterHours: +process.env.GLOBAL_MESSAGE_LIFETIME_HOURS || 12,
+    globalMessageLifetimeHours: +process.env.GLOBAL_MESSAGE_LIFETIME_HOURS || 12,
   },
   nats: {
     servers: process.env.NATS_URL || 'nats://localhost:4222',
