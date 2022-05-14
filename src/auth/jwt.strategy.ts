@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       createdAt: date,
       updatedAt: date,
       status: 'online',
+      friends: [],
     };
   }
 

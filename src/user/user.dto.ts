@@ -8,6 +8,7 @@ class UserAndPassword extends PickType(User, [
   'name',
   'avatar',
   'status',
+  'friends',
 ]) {
   @IsString()
   @IsNotEmpty()
@@ -16,13 +17,13 @@ class UserAndPassword extends PickType(User, [
   password: string;
 }
 
-export class CreateUserDto extends OmitType(UserAndPassword, ['status'] as const) {
+export class CreateUserDto extends OmitType(UserAndPassword, ['status', 'friends'] as const) {
 }
 
 export class UpdateUserDto extends PartialType(UserAndPassword) {
 }
 
-export class LoginDto extends PickType(UserAndPassword, ['name', 'password']) {
+export class LoginDto extends PickType(UserAndPassword, ['name', 'password'] as const) {
 }
 
 export class RefreshDto {
