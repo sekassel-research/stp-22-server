@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
 import { Auth, AuthUser } from '../auth/auth.decorator';
-import { MemberResolverService, Namespace } from '../member-resolver/member-resolver.service';
+import { MemberResolverService, Namespace, UserFilter } from '../member-resolver/member-resolver.service';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
@@ -44,9 +44,12 @@ export class MessageController {
   ) {
   }
 
-  private async checkParentAndGetMembers(namespace: Namespace, parent: string, user: User): Promise<string[]> {
+  private async checkParentAndGetMembers(namespace: Namespace, parent: string, user: User): Promise<UserFilter> {
     const users = await this.memberResolver.resolve(namespace, parent);
-    if (!users || users.length === 0) {
+    if (!users) {
+      return undefined;
+    }
+    if (users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
     }
     if (!users.includes(user._id)) {
