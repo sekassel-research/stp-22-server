@@ -52,7 +52,7 @@ export class MessageService {
 
   async deleteAll(namespace?: Namespace, parent?: string, users?: UserFilter, filter?: FilterQuery<Message>): Promise<MessageDocument[]> {
     const messages = await this.findAll(namespace, parent, filter);
-    await this.model.deleteMany({ ...filter, namespace, parent }).exec();
+    await this.model.deleteMany({ _id: { $in: messages.map(m => m._id) } }).exec();
     for (const message of messages) {
       this.sendEvent('deleted', message, users ?? await this.resolver.resolve(message.namespace, message.parent));
     }
