@@ -26,7 +26,7 @@ export const environment = {
     tempUserNamePattern: process.env.TEMP_USER_NAME_PATTERN
       ? new RegExp(process.env.TEMP_USER_NAME_PATTERN)
       : /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
-    globalMessageLifetimeHours: +process.env.GLOBAL_MESSAGE_LIFETIME_HOURS || 12,
+    globalMessageLifetimeHours: +process.env.GLOBAL_MESSAGE_LIFETIME_HOURS || 4,
   },
   nats: {
     servers: process.env.NATS_URL || 'nats://localhost:4222',
