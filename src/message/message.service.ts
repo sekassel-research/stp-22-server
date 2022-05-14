@@ -20,7 +20,7 @@ export class MessageService {
     return this.model.findOne({ _id, namespace, parent }).exec();
   }
 
-  async findAll(namespace: Namespace, parent: string, filter: FilterQuery<Message> = {}, limit?: number): Promise<MessageDocument[]> {
+  async findAll(namespace?: Namespace, parent?: string, filter: FilterQuery<Message> = {}, limit?: number): Promise<MessageDocument[]> {
     filter.namespace = namespace;
     filter.parent = parent;
     let query = this.model.find(filter).sort('-createdAt');
@@ -50,16 +50,16 @@ export class MessageService {
     return deleted;
   }
 
-  async deleteAll(namespace: Namespace, parent: string, users: UserFilter): Promise<MessageDocument[]> {
-    const messages = await this.findAll(namespace, parent);
+  async deleteAll(namespace?: Namespace, parent?: string, users?: UserFilter, filter?: FilterQuery<Message>): Promise<MessageDocument[]> {
+    const messages = await this.findAll(namespace, parent, filter);
+    await this.model.deleteMany({ ...filter, namespace, parent }).exec();
     for (const message of messages) {
-      this.sendEvent('deleted', message, users);
+      this.sendEvent('deleted', message, users ?? await this.resolver.resolve(message.namespace, message.parent));
     }
-    await this.model.deleteMany({ namespace, parent }).exec();
     return messages;
   }
 
   private sendEvent(event: string, message: Message, users: UserFilter): void {
-    this.eventEmitter.emit(`${message.namespace}.${message.parent}.messages.${message._id}.${event}`, message, users);
+    this.eventEmitter.emit(`${message.namespace}.${message.parent}.messages.${message._id}.${event}`, message, users === 'global' ? undefined : users);
   }
 }

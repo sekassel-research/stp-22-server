@@ -8,7 +8,7 @@ export enum Namespace {
   global = 'global',
 }
 
-export type UserFilter = string[] | undefined;
+export type UserFilter = string[] | 'global';
 
 @Injectable()
 export class MemberResolverService {
@@ -26,7 +26,7 @@ export class MemberResolverService {
       case Namespace.games:
         return this.getGameMembers(id);
       case Namespace.global:
-        return undefined;
+        return 'global';
       default:
         return [];
     }
