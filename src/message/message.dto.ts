@@ -16,7 +16,13 @@ export class UpdateMessageDto extends PartialType(PickType(Message, [
 const MESSAGE_LIMIT = 100;
 
 export class QueryMessagesDto {
-  @ApiPropertyOptional({ description: 'The timestamp before which messages are requested' })
+  @ApiPropertyOptional({ description: 'Inclusive lower bound for message creation timestamp' })
+  @Transform(({ value }) => value ? new Date(value) : undefined)
+  @IsOptional()
+  @IsDate()
+  createdAfter?: Date;
+
+  @ApiPropertyOptional({ description: 'Exclusive upper bound for message creation timestamp' })
   @Transform(({ value }) => value ? new Date(value) : undefined)
   @IsOptional()
   @IsDate()

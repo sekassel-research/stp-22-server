@@ -58,11 +58,6 @@ export class GroupService {
     const groups = await this.model.aggregate([
       {
         $match: {
-          $or: [
-            { name: { $exists: false } },
-            { name: null },
-            { name: '' },
-          ],
           createdAt: {$lt: new Date(Date.now() - olderThanMs)},
         },
       },

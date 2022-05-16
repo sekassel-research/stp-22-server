@@ -5,7 +5,10 @@ import { MemberService } from '../member/member.service';
 export enum Namespace {
   groups = 'groups',
   games = 'games',
+  global = 'global',
 }
+
+export type UserFilter = string[] | 'global';
 
 @Injectable()
 export class MemberResolverService {
@@ -15,13 +18,15 @@ export class MemberResolverService {
   ) {
   }
 
-  async resolve(namespace: Namespace, id: string): Promise<string[]> {
+  async resolve(namespace: Namespace, id: string): Promise<UserFilter> {
     switch (namespace) {
       case Namespace.groups:
         const group = await this.groupService.find(id);
         return group?.members ?? [];
       case Namespace.games:
         return this.getGameMembers(id);
+      case Namespace.global:
+        return 'global';
       default:
         return [];
     }

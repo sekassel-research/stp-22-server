@@ -14,7 +14,7 @@ export class GroupScheduler {
 
   @Cron(CronExpression.EVERY_HOUR)
   async deleteStaleGroups() {
-    const maxAgeMs = environment.cleanup.deleteEmptyGroupAfterHours * 60 * 60 * 1000;
+    const maxAgeMs = environment.cleanup.emptyGroupLifetimeHours * 60 * 60 * 1000;
     const groups = await this.groupService.deleteEmptyGroups(maxAgeMs);
     if (groups.length) {
       this.logger.warn(`Deleted ${groups.length} empty groups.`);
