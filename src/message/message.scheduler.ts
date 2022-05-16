@@ -23,4 +23,16 @@ export class MessageScheduler {
       this.logger.warn(`Deleted ${messages.length} global messages.`);
     }
   }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async deleteSpamMessages(): Promise<void> {
+    const maxSpamAgeMs = environment.cleanup.spamMessageLifetimeHours * 60 * 60 * 1000;
+    const messages = await this.messageService.deleteAll(undefined, undefined, undefined, {
+      createdAt: { $lt: new Date(Date.now() - maxSpamAgeMs) },
+      body: environment.cleanup.spamMessagePattern,
+    });
+    if (messages.length) {
+      this.logger.warn(`Deleted ${messages.length} spam messages.`);
+    }
+  }
 }
