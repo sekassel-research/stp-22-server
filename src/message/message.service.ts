@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import memoizee from 'memoizee';
+import * as memoizee from 'memoizee';
 import { FilterQuery, Model } from 'mongoose';
 
 import { EventService } from '../event/event.service';
@@ -22,8 +22,8 @@ export class MessageService {
   }
 
   async findAll(namespace?: Namespace, parent?: string, filter: FilterQuery<Message> = {}, limit?: number): Promise<MessageDocument[]> {
-    filter.namespace = namespace;
-    filter.parent = parent;
+    namespace && (filter.namespace = namespace);
+    parent && (filter.parent = parent);
     let query = this.model.find(filter).sort('-createdAt');
     if (limit) {
       query = query.limit(limit);
