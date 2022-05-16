@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import memoizee from 'memoizee';
 import { FilterQuery, Model } from 'mongoose';
 
 import { EventService } from '../event/event.service';
@@ -53,8 +54,13 @@ export class MessageService {
   async deleteAll(namespace?: Namespace, parent?: string, users?: UserFilter, filter?: FilterQuery<Message>): Promise<MessageDocument[]> {
     const messages = await this.findAll(namespace, parent, filter);
     await this.model.deleteMany({ _id: { $in: messages.map(m => m._id) } }).exec();
+
+    const resolve = memoizee((namespace, parent) => this.resolver.resolve(namespace, parent), {
+      primitive: true,
+      promise: true,
+    });
     for (const message of messages) {
-      this.sendEvent('deleted', message, users ?? await this.resolver.resolve(message.namespace, message.parent));
+      this.sendEvent('deleted', message, users ?? await resolve(message.namespace, message.parent));
     }
     return messages;
   }
