@@ -107,3 +107,22 @@
 ## Bugfixes
 
 * Group cleanup is now a little less aggressive.
+
+# v1.2.0
+
+## New Features
+
+* Added the `User.friends` property. [STP22SRV-8](https://jira.uniks.de/browse/STP22SRV-8)
+* Added the `global` message namespace. [STP22SRV-9](https://jira.uniks.de/browse/STP22SRV-9)
+  * It supports multiple channels using any valid ObjectID as `parent`.
+  * All global Messages are deleted after 4 hours.
+* The `GET /api/v1/{namespace}/{parent}/messages` endpoint now supports the `createdAfter` query parameter.
+
+## Improvements
+
+* Empty groups are now deleted even if they have a custom name.
+* Spammy messages are now deleted after an hour.
+
+## Documentation
+
+* Documented when and why resources are deleted for cleanup.
