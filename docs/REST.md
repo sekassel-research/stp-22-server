@@ -31,6 +31,7 @@ The following resources will be deleted automatically under certain conditions.
 | Group   | ${environment.cleanup.emptyGroupLifetimeHours} h    | it has no messages                        |
 | Game    | ${environment.cleanup.gameLifetimeHours} h          | no members joined or left in the meantime |
 | Message | ${environment.cleanup.globalMessageLifetimeHours} h | it was posted in a global channel         |
+| Message | ${environment.cleanup.spamMessageLifetimeHours} h   | it appears to be spam                     |
 
 ## Cascading Deletes
 
