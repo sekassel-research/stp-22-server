@@ -13,5 +13,6 @@ export class CreateMoveDto extends PickType(Move, [
 
 export class MoveDto extends OmitType(Move, [
   '_id',
+  'createdAt',
 ] as const) {
 }

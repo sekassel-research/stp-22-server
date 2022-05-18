@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsMongoId, IsOptional, Max, Min } from 'class-validator';
+import { IsDate, IsIn, IsMongoId, IsOptional, Max, Min } from 'class-validator';
 import { MONGO_ID_FORMAT } from '../../util/schema';
 import { Task, TASKS } from '../shared/constants';
 
@@ -7,6 +7,10 @@ export class Move {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   _id: string;
+
+  @ApiProperty()
+  @IsDate()
+  createdAt: Date;
 
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()

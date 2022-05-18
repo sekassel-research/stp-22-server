@@ -18,6 +18,7 @@ export class MoveService {
     const result: Move = {
       ...dto,
       _id,
+      createdAt: new Date(),
     };
 
     this.memberService.findAll(dto.gameId).then(members => { // can be async, no need for await
