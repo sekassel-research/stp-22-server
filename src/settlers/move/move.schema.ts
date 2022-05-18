@@ -1,8 +1,8 @@
-import { Prop } from '@nestjs/mongoose';
-import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
-import { MONGO_ID_FORMAT } from '../../util/schema';
+import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
+import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
 import { ResourceCount } from '../player/player.schema';
 import { RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
 import { Point3D } from '../shared/schema';
@@ -21,15 +21,8 @@ export class RobDto extends Point3D {
   target: string;
 }
 
-export class Move {
-  @ApiProperty(MONGO_ID_FORMAT)
-  @IsMongoId()
-  _id: string;
-
-  @ApiProperty()
-  @IsDate()
-  createdAt: Date;
-
+@Schema({ ...GLOBAL_SCHEMA_OPTIONS, timestamps: { createdAt: true, updatedAt: false } })
+export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   gameId: string;
@@ -77,3 +70,8 @@ export class Move {
   @IsMongoId()
   partner?: string;
 }
+
+
+export const MoveSchema = SchemaFactory.createForClass(Move)
+  .index({ gameId: 1 })
+;
