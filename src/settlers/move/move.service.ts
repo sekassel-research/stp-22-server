@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { MemberService } from '../../member/member.service';
 import { MoveDto } from './move.dto';
@@ -13,6 +13,14 @@ export class MoveService {
     private eventService: EventService,
     private memberService: MemberService,
   ) {
+  }
+
+  async findAll(gameId: string, filter: FilterQuery<Move> = {}): Promise<Move[]> {
+    return this.model.find({ ...filter, gameId }).exec();
+  }
+
+  async findOne(gameId: string, id: string): Promise<Move | null> {
+    return this.model.findById(id).exec();
   }
 
   async create(dto: MoveDto): Promise<Move> {
