@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { environment } from '../environment';
 import { EventModule } from '../event/event.module';
 import { GameController } from './game.controller';
 import { GameHandler } from './game.handler';
@@ -16,10 +17,12 @@ import { GameService } from './game.service';
     EventModule,
   ],
   controllers: [GameController],
-  providers: [GameService, GameHandler, GameScheduler],
-  exports: [
+  providers: [
     GameService,
+    GameHandler,
+    ...(environment.passive ? [] : [GameScheduler]),
   ],
+  exports: [GameService],
 })
 export class GameModule {
 }

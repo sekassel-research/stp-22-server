@@ -9,7 +9,7 @@ import { Map } from './map.schema';
 import { MapService } from './map.service';
 
 @Controller()
-@ApiTags('Settlers of Catan')
+@ApiTags('Pioneers')
 @Validated()
 @Throttled()
 @Auth()

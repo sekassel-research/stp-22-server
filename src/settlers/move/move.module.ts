@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EventModule } from '../../event/event.module';
+import { MemberModule } from '../../member/member.module';
 import { BuildingModule } from '../building/building.module';
 import { MapModule } from '../map/map.module';
 import { PlayerModule } from '../player/player.module';
@@ -19,6 +20,7 @@ import { TradeService } from './game-logic/trade.service';
     BuildingModule,
     MapModule,
     EventModule,
+    MemberModule,
   ],
   controllers: [MoveController],
   providers: [MoveService, GameLogicService, StateTransitionService, RollService, BuildService, TradeService],

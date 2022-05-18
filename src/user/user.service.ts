@@ -35,35 +35,49 @@ export class UserService {
       .exec();
   }
 
-  async find(id: string): Promise<User | undefined> {
+  async find(id: string): Promise<UserDocument | undefined> {
     return this.model.findById(id).exec();
   }
 
-  async findByName(name: string): Promise<User | undefined> {
+  async findByName(name: string): Promise<UserDocument | undefined> {
     return this.model.findOne({ name }).exec();
   }
 
-  async create(dto: CreateUserDto): Promise<User> {
-    const existing = await this.findByName(dto.name);
-    if (existing) {
-      return existing;
-    }
-
-    const created = await this.model.create(await this.hash(dto));
+  async create(dto: CreateUserDto): Promise<UserDocument> {
+    const hashed = await this.hash(dto);
+    hashed.status = 'offline';
+    const created = await this.model.create(hashed);
     created && this.emit('created', created);
     return created;
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<User | undefined> {
+  async update(id: string, dto: UpdateUserDto): Promise<UserDocument | undefined> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async delete(id: string): Promise<User | undefined> {
+  async delete(id: string): Promise<UserDocument | undefined> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;
+  }
+
+  async deleteTempUsers(maxAgeMs: number): Promise<User[]> {
+    const users = await this.model.find({
+      createdAt: { $lt: new Date(Date.now() - maxAgeMs) },
+      name: environment.cleanup.tempUserNamePattern,
+      $or: [
+        { avatar: { $exists: false } },
+        { avatar: null },
+        { avatar: 'data:image/png;base64,null' },
+      ],
+    });
+    await this.model.deleteMany({ _id: { $in: users.map(u => u._id) } });
+    for (const user of users) {
+      this.emit('deleted', user);
+    }
+    return users;
   }
 
   private async hash(dto: UpdateUserDto): Promise<Partial<User>> {
@@ -73,7 +87,6 @@ export class UserService {
       const passwordSalt = await bcrypt.genSalt();
       result.passwordHash = await bcrypt.hash(password, passwordSalt);
     }
-    result.status ||= 'offline';
     return result;
   }
 
@@ -83,7 +96,7 @@ export class UserService {
       return undefined;
     }
 
-    const passwordMatch = bcrypt.compare(password, user.passwordHash);
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) {
       return undefined;
     }
@@ -124,8 +137,8 @@ export class UserService {
     };
   }
 
-  async logout(user: User): Promise<User> {
-    return this.model.findByIdAndUpdate(user._id, { refreshKey: undefined }).exec();
+  async logout(user: User): Promise<UserDocument> {
+    return this.model.findByIdAndUpdate(user._id, { refreshKey: null }).exec();
   }
 
   private emit(event: string, user: User) {

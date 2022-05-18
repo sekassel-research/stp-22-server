@@ -1,10 +1,21 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
+  Body,
+  ConflictException,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
@@ -12,8 +23,8 @@ import { NotFound } from '../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../util/parse-object-id.pipe';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
-import { Status, STATUS, User } from './user.schema';
+import { CreateUserDto, QueryUsersDto, UpdateUserDto } from './user.dto';
+import { User } from './user.schema';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -26,26 +37,26 @@ export class UserController {
   ) {
   }
 
+  @Post()
+  @ApiOperation({ description: 'Create a new user (sign up).' })
+  @ApiCreatedResponse({ type: User })
+  @ApiConflictResponse({ description: 'Username was already taken.' })
+  async create(@Body() dto: CreateUserDto): Promise<User> {
+    const existing = await this.userService.findByName(dto.name);
+    if (existing) {
+      throw new ConflictException('Username already taken');
+    }
+    return this.userService.create(dto);
+  }
+
   @Get()
   @Auth()
   @ApiOperation({ description: 'Lists all online users.' })
   @ApiOkResponse({ type: [User] })
-  @ApiQuery({
-    name: 'ids',
-    required: false,
-    description: 'A comma-separated list of IDs that should be included in the response.',
-  })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: STATUS,
-    description: 'When set, returns only users with this status',
-  })
   async getUsers(
-    @Query('status') status?: Status,
-    @Query('ids') ids?: string,
+    @Query() { status, ids }: QueryUsersDto,
   ): Promise<User[]> {
-    return this.userService.findAll(status, ids?.split(','));
+    return this.userService.findAll(status, ids);
   }
 
   @Get(':id')
@@ -57,23 +68,24 @@ export class UserController {
     return this.userService.find(id);
   }
 
-  @Post()
-  @ApiOperation({ description: 'Create a new user (sign up).' })
-  @ApiCreatedResponse({ type: User })
-  async create(@Body() dto: CreateUserDto): Promise<User> {
-    return this.userService.create(dto);
-  }
-
   @Patch(':id')
   @Auth()
   @NotFound()
   @ApiOkResponse({ type: User })
   @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s user.' })
+  @ApiConflictResponse({ description: 'Username was already taken.' })
   async update(
     @AuthUser() user: User,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateUserDto,
   ): Promise<User | undefined> {
+    if (dto.name) {
+      const existing = await this.userService.findByName(dto.name);
+      if (existing && existing.id !== id) {
+        throw new ConflictException('Username already taken');
+      }
+    }
+
     if (id !== user._id) {
       throw new ForbiddenException('Cannot change someone else\'s user.');
     }

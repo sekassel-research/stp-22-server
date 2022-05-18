@@ -21,6 +21,14 @@ export class GroupController {
   ) {
   }
 
+  @Post()
+  @ApiCreatedResponse({ type: Group })
+  @ApiForbiddenResponse({ description: 'Attempt to create a group in which the current user is not a member.' })
+  async create(@AuthUser() user: User, @Body() dto: CreateGroupDto): Promise<Group> {
+    this.checkMembership(dto.members, user);
+    return this.groupService.create(dto);
+  }
+
   @Get()
   @ApiQuery({
     name: 'members',
@@ -46,16 +54,11 @@ export class GroupController {
   @NotFound()
   async findOne(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
     const group = await this.groupService.find(id);
+    if (!group) {
+      return undefined;
+    }
     this.checkMembership(group.members, user);
     return group;
-  }
-
-  @Post()
-  @ApiCreatedResponse({ type: Group })
-  @ApiForbiddenResponse({ description: 'Attempt to create a group in which the current user is not a member.' })
-  async create(@AuthUser() user: User, @Body() dto: CreateGroupDto): Promise<Group> {
-    this.checkMembership(dto.members, user);
-    return this.groupService.create(dto);
   }
 
   @Patch(':id')
@@ -74,7 +77,7 @@ export class GroupController {
 
   @Delete(':id')
   @ApiOkResponse({ type: Group })
-  @ApiForbiddenResponse({ description: 'Attempt to delete a group in which the current user is not a member.' })
+  @ApiForbiddenResponse({ description: 'Attempt to delete a group in which the current user is not the last remaining member.' })
   @NotFound()
   async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
     const existing = await this.groupService.find(id);
@@ -82,6 +85,9 @@ export class GroupController {
       return undefined;
     }
     this.checkMembership(existing.members, user);
+    if (existing.members.length !== 1) {
+      throw new ForbiddenException('You are not the only member of this group.');
+    }
     return this.groupService.delete(id);
   }
 

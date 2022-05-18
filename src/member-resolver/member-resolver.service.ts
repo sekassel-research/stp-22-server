@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Game } from '../game/game.schema';
-import { Group } from '../group/group.schema';
 import { GroupService } from '../group/group.service';
 import { MemberService } from '../member/member.service';
+
+export enum Namespace {
+  groups = 'groups',
+  games = 'games',
+  global = 'global',
+}
+
+export type UserFilter = string[] | 'global';
 
 @Injectable()
 export class MemberResolverService {
@@ -12,23 +18,15 @@ export class MemberResolverService {
   ) {
   }
 
-  async resolveFrom(entity: Game | Group): Promise<[string, string[]] | undefined> {
-    if ('owner' in entity) {
-      return ['games', await this.getGameMembers(entity._id)];
-    } else if ('members' in entity) {
-      return ['groups', entity.members];
-    } else {
-      return undefined;
-    }
-  }
-
-  async resolve(namespace: string, id: string): Promise<string[]> {
+  async resolve(namespace: Namespace, id: string): Promise<UserFilter> {
     switch (namespace) {
-      case 'groups':
+      case Namespace.groups:
         const group = await this.groupService.find(id);
         return group?.members ?? [];
-      case 'games':
+      case Namespace.games:
         return this.getGameMembers(id);
+      case Namespace.global:
+        return 'global';
       default:
         return [];
     }

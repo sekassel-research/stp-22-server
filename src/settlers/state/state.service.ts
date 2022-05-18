@@ -25,7 +25,6 @@ export class StateService {
     });
     const state: State = {
       gameId: game._id,
-      round: 0,
       expectedMoves: [{
         action: 'founding-roll',
         players: members.map(m => m.userId),
@@ -45,6 +44,8 @@ export class StateService {
   }
 
   private emit(event: string, updated: State) {
-    this.eventService.emit(`games.${updated.gameId}.state.${event}`, updated); // TODO visibility
+    this.memberService.findAll(updated.gameId).then(members => {
+      this.eventService.emit(`games.${updated.gameId}.state.${event}`, members.map(m => m.userId));
+    });
   }
 }
