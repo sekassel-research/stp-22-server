@@ -6,14 +6,15 @@ import { BuildingModule } from '../building/building.module';
 import { MapModule } from '../map/map.module';
 import { PlayerModule } from '../player/player.module';
 import { StateModule } from '../state/state.module';
+import { BuildService } from './game-logic/build.service';
 import { GameLogicService } from './game-logic/game-logic.service';
+import { RollService } from './game-logic/roll.service';
+import { StateTransitionService } from './game-logic/state-transition.service';
+import { TradeService } from './game-logic/trade.service';
 import { MoveController } from './move.controller';
+import { MoveHandler } from './move.handler';
 import { MoveSchema } from './move.schema';
 import { MoveService } from './move.service';
-import { StateTransitionService } from './game-logic/state-transition.service';
-import { RollService } from './game-logic/roll.service';
-import { BuildService } from './game-logic/build.service';
-import { TradeService } from './game-logic/trade.service';
 
 @Module({
   imports: [
@@ -31,7 +32,15 @@ import { TradeService } from './game-logic/trade.service';
     MemberModule,
   ],
   controllers: [MoveController],
-  providers: [MoveService, GameLogicService, StateTransitionService, RollService, BuildService, TradeService],
+  providers: [
+    MoveService,
+    MoveHandler,
+    GameLogicService,
+    StateTransitionService,
+    RollService,
+    BuildService,
+    TradeService,
+  ],
 })
 export class MoveModule {
 }
