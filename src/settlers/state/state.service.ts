@@ -43,9 +43,9 @@ export class StateService {
     return this.model.findOneAndDelete({ gameId }).exec();
   }
 
-  private emit(event: string, updated: State) {
-    this.memberService.findAll(updated.gameId).then(members => {
-      this.eventService.emit(`games.${updated.gameId}.state.${event}`, members.map(m => m.userId));
+  private emit(event: string, state: State) {
+    this.memberService.findAll(state.gameId).then(members => {
+      this.eventService.emit(`games.${state.gameId}.state.${event}`, state, members.map(m => m.userId));
     });
   }
 }

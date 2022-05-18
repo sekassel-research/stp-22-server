@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Auth, AuthUser } from '../../auth/auth.decorator';
+import { AuthUser } from '../../auth/auth.decorator';
+import { MemberAuth } from '../../member/member-auth.decorator';
 import { User } from '../../user/user.schema';
 import { NotFound } from '../../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
@@ -15,7 +16,7 @@ import { MoveService } from './move.service';
 @ApiTags('Pioneers')
 @Validated()
 @Throttled()
-@Auth()
+@MemberAuth()
 export class MoveController {
   constructor(
     private gameLogicService: GameLogicService,
@@ -25,11 +26,11 @@ export class MoveController {
 
   @Post()
   @ApiCreatedResponse({ type: Move })
-  @ApiForbiddenResponse({ description: 'Not your turn or action does not match game state.' })
+  @ApiForbiddenResponse({ description: 'Not a member of this game, not your turn or action does not match game state.' })
   @NotFound('Game not found or not running.')
   async move(
     @AuthUser() user: User,
-    @Param('gameId') gameId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Body() dto: CreateMoveDto,
   ): Promise<Move> {
     return this.gameLogicService.handle(gameId, user._id, dto);
