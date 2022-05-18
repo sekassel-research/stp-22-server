@@ -9,7 +9,7 @@ import { Player, PlayerDocument } from './player.schema';
 import { PlayerService } from './player.service';
 
 @Controller('games/:gameId/players')
-@ApiTags('Settlers of Catan')
+@ApiTags('Pioneers')
 @Validated()
 @Throttled()
 @Auth()

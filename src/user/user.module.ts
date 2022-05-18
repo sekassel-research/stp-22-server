@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthModule } from '../auth/auth.module';
+import { environment } from '../environment';
 import { EventModule } from '../event/event.module';
 import { AuthController } from './auth.controller';
 import { UserController } from './user.controller';
+import { UserScheduler } from './user.scheduler';
 import { UserSchema } from './user.schema';
 import { UserService } from './user.service';
 
@@ -19,7 +21,7 @@ import { UserService } from './user.service';
     AuthModule,
     EventModule,
   ],
-  providers: [UserService],
+  providers: environment.passive ? [UserService] : [UserService, UserScheduler],
   controllers: [AuthController, UserController],
 })
 export class UserModule {

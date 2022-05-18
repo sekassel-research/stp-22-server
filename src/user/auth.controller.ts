@@ -1,5 +1,12 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
@@ -42,9 +49,10 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Auth()
   @ApiOperation({ description: 'Logs out the current user by invalidating the refresh token.' })
-  @ApiOkResponse()
+  @ApiNoContentResponse()
   async logout(@AuthUser() user: User): Promise<void> {
     await this.userService.logout(user);
   }

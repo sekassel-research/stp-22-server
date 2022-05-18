@@ -35,8 +35,8 @@ export class Harbor extends Point3D {
   side: AnyEdgeSide;
 }
 
-@Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
-export class Map extends GlobalSchemaWithoutID {
+@Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false })
+export class Map {
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()

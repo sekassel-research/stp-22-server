@@ -1,10 +1,10 @@
 import { Prop } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
+import { IsDate, IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
 import { MONGO_ID_FORMAT } from '../../util/schema';
 import { ResourceCount } from '../player/player.schema';
-import { RESOURCE_TYPES, ResourceType, Task, TASKS } from '../shared/constants';
+import { RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
 const RESOURCE_COUNT_OPTIONS: ApiPropertyOptions = {
@@ -25,6 +25,10 @@ export class Move {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   _id: string;
+
+  @ApiProperty()
+  @IsDate()
+  createdAt: Date;
 
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()

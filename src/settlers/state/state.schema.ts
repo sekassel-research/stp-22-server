@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsMongoId, IsOptional, ValidateNested } from 'class-validator';
+import { IsIn, IsMongoId, IsOptional, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_ARRAY_FORMAT, MONGO_ID_FORMAT } from '../../util/schema';
 import { Task, TASKS } from '../shared/constants';
 import { Point3D } from '../shared/schema';
@@ -13,7 +13,10 @@ export class ExpectedMove {
   action: Task;
 
   @Prop()
-  @ApiProperty(MONGO_ID_ARRAY_FORMAT)
+  @ApiProperty({
+    ...MONGO_ID_ARRAY_FORMAT,
+    description: 'The players that may perform the move (in any order).',
+  })
   @IsMongoId({ each: true })
   players: string[];
 }
@@ -26,12 +29,10 @@ export class State {
   gameId: string;
 
   @Prop()
-  @ApiProperty({ type: 'integer' })
-  @IsInt()
-  round: number;
-
-  @Prop()
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The next possible moves, including known future moves.',
+    type: [ExpectedMove],
+  })
   @ValidateNested({ each: true })
   @Type(() => ExpectedMove)
   expectedMoves: ExpectedMove[];

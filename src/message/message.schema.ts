@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsByteLength, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsByteLength, IsEnum, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { Document } from 'mongoose';
+import { Namespace } from '../member-resolver/member-resolver.service';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
 export const MAX_BODY_SIZE = 16 * 1024;
@@ -9,9 +10,8 @@ export const MAX_BODY_SIZE = 16 * 1024;
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class Message extends GlobalSchema {
   @Prop({ transform: () => undefined })
-  @IsString()
-  @IsNotEmpty()
-  namespace: string;
+  @IsEnum(Namespace)
+  namespace: Namespace;
 
   @Prop({ transform: () => undefined })
   @IsMongoId()

@@ -108,7 +108,7 @@ export class BuildService {
       this.checkAvailableBuildings(player, move.building.type);
       this.checkResourceCosts(costs, player);
       this.deductCosts(costs, update.$inc);
-    } else if (move.action === 'founding-settlement-1') {
+    } else if (move.action === 'founding-settlement-2') {
       const map = await this.mapService.findByGame(gameId);
       this.giveAdjacentResources(map, move.building, update.$inc);
     }

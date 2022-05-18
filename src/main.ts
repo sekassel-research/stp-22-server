@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFile } from 'fs/promises';
@@ -38,7 +39,8 @@ ${replacedContent}
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set('trust proxy', true);
   app.setGlobalPrefix(globalPrefix);
   app.enableCors();
   app.useWebSocketAdapter(new WsAdapter(app));
@@ -53,6 +55,7 @@ async function bootstrap() {
     .setTitle('STP Server')
     .setDescription(await loadDescription())
     .setVersion(environment.version)
+    .addServer(environment.baseUrl)
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config, {
@@ -61,7 +64,7 @@ async function bootstrap() {
   SwaggerModule.setup(globalPrefix, app, document);
 
   await app.startAllMicroservices();
-  await app.listen(3000);
+  await app.listen(environment.port);
 }
 
 bootstrap();

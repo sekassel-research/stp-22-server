@@ -54,6 +54,44 @@ export class GroupService {
     return deleted;
   }
 
+  async deleteEmptyGroups(olderThanMs: number): Promise<Group[]> {
+    const groups = await this.model.aggregate([
+      {
+        $match: {
+          createdAt: {$lt: new Date(Date.now() - olderThanMs)},
+        },
+      },
+      {
+        $addFields: {
+          id: {
+            $toString: '$_id',
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          localField: 'id',
+          foreignField: 'parent',
+          as: 'messages',
+        },
+      },
+      {
+        $match: {
+          messages: { $size: 0 },
+        },
+      },
+      {
+        $unset: ['messages', 'id'],
+      },
+    ]);
+    await this.model.deleteMany({ _id: { $in: groups.map(g => g._id) } });
+    for (const group of groups) {
+      this.emit('deleted', group);
+    }
+    return groups;
+  }
+
   private emit(event: string, group: Group): void {
     this.eventEmitter.emit(`groups.${group._id}.${event}`, group, group.members);
   }
