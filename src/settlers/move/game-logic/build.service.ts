@@ -92,7 +92,9 @@ export class BuildService {
         if (!bestPlayer || longestRoad > bestPlayer.longestRoad) {
           update.$inc.victoryPoints = +2;
           update.$set = {longestRoad};
-          bestPlayer && await this.playerService.update(gameId, bestPlayer.userId, {
+        }
+        if (bestPlayer && longestRoad >= bestPlayer.longestRoad) {
+          await this.playerService.update(gameId, bestPlayer.userId, {
             $inc: { victoryPoints: -2 },
             $unset: { longestRoad: 1 },
           });
