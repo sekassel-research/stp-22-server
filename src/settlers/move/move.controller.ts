@@ -1,13 +1,15 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../../auth/auth.decorator';
 import { User } from '../../user/user.schema';
 import { NotFound } from '../../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
 import { GameLogicService } from './game-logic/game-logic.service';
 import { CreateMoveDto } from './move.dto';
 import { Move } from './move.schema';
+import { MoveService } from './move.service';
 
 @Controller('games/:gameId/moves')
 @ApiTags('Pioneers')
@@ -17,6 +19,7 @@ import { Move } from './move.schema';
 export class MoveController {
   constructor(
     private gameLogicService: GameLogicService,
+    private moveService: MoveService,
   ) {
   }
 
@@ -30,5 +33,29 @@ export class MoveController {
     @Body() dto: CreateMoveDto,
   ): Promise<Move> {
     return this.gameLogicService.handle(gameId, user._id, dto);
+  }
+
+  @Get()
+  @ApiOkResponse({ type: [Move] })
+  @ApiQuery({
+    name: 'userId',
+    required: false,
+    description: 'Filter moves of a specific player',
+  })
+  async findAll(
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Query('userId', ParseObjectIdPipe) userId?: string,
+  ): Promise<Move[]> {
+    return this.moveService.findAll(gameId, { userId });
+  }
+
+  @Get(':moveId')
+  @ApiOkResponse({ type: Move })
+  @NotFound()
+  async findOne(
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('moveId', ParseObjectIdPipe) id: string,
+  ): Promise<Move | null> {
+    return this.moveService.findOne(gameId, id);
   }
 }
