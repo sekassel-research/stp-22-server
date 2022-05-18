@@ -30,4 +30,8 @@ export class MoveService {
     });
     return move;
   }
+
+  async deleteAll(gameId: string): Promise<void> {
+    await this.model.deleteMany({ gameId }).exec();
+  }
 }
