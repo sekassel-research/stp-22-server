@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Auth } from '../../auth/auth.decorator';
+import { MemberAuth } from '../../member/member-auth.decorator';
 import { NotFound } from '../../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
 import { Throttled } from '../../util/throttled.decorator';
@@ -12,7 +12,7 @@ import { MapService } from './map.service';
 @ApiTags('Pioneers')
 @Validated()
 @Throttled()
-@Auth()
+@MemberAuth()
 export class MapController {
   constructor(
     private settlersService: MapService,
