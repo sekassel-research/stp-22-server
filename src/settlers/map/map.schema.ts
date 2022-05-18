@@ -20,8 +20,8 @@ export class Tile extends Point3D {
   numberToken: number;
 }
 
-@Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
-export class Map extends GlobalSchemaWithoutID {
+@Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false })
+export class Map {
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
