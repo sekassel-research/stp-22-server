@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Auth, AuthUser } from '../../auth/auth.decorator';
-import { User } from '../../user/user.schema';
+import { Auth } from '../../auth/auth.decorator';
 import { NotFound } from '../../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
 import { Building } from './building.schema';
@@ -23,8 +23,7 @@ export class BuildingController {
   @ApiOkResponse({ type: [Building] })
   @NotFound()
   async find(
-    @AuthUser() user: User,
-    @Param('gameId') gameId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
   ): Promise<Building[]> {
     return this.buildingService.findAll({ gameId });
   }
@@ -33,9 +32,8 @@ export class BuildingController {
   @ApiOkResponse({ type: Building })
   @NotFound()
   async findOne(
-    @AuthUser() user: User,
-    @Param('gameId') gameId: string,
-    @Param('buildingId') buildingId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('buildingId', ParseObjectIdPipe) buildingId: string,
   ): Promise<Building> {
     return this.buildingService.findOne(buildingId);
   }
