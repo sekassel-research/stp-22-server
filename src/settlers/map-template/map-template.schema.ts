@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional, IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsMongoId, IsOptional, ValidateNested } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
 import { Harbor, Tile } from '../map/map.schema';
 import { Point3D } from '../shared/schema';
@@ -14,6 +14,13 @@ export class HarborTemplate extends Harbor {
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class MapTemplate extends GlobalSchema {
+  @Prop()
+  @ApiProperty({minLength: 1, maxLength: 32})
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(32)
+  name: string;
+
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
