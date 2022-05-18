@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Auth, AuthUser } from '../../auth/auth.decorator';
-import { User } from '../../user/user.schema';
+import { MemberAuth } from '../../member/member-auth.decorator';
 import { NotFound } from '../../util/not-found.decorator';
+import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
 import { State } from './state.schema';
@@ -12,7 +12,7 @@ import { StateService } from './state.service';
 @ApiTags('Pioneers')
 @Validated()
 @Throttled()
-@Auth()
+@MemberAuth()
 export class StateController {
   constructor(
     private stateService: StateService,
@@ -23,8 +23,7 @@ export class StateController {
   @ApiOkResponse({ type: State })
   @NotFound()
   async find(
-    @AuthUser() user: User,
-    @Param('gameId') gameId: string,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
   ): Promise<State | undefined> {
     return this.stateService.findByGame(gameId);
   }
