@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { EventModule } from '../../event/event.module';
 import { MemberModule } from '../../member/member.module';
 import { MapController } from './map.controller';
 import { MapHandler } from './map.handler';
@@ -14,6 +15,7 @@ import { MapSchema } from './map.schema';
         schema: MapSchema,
       },
     ]),
+    EventModule,
     MemberModule,
   ],
   providers: [MapService, MapHandler],
