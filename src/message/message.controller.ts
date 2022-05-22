@@ -46,8 +46,8 @@ export class MessageController {
 
   private async checkParentAndGetMembers(namespace: Namespace, parent: string, user: User): Promise<UserFilter> {
     const users = await this.memberResolver.resolve(namespace, parent);
-    if (!users) {
-      return undefined;
+    if (users === 'global') {
+      return users;
     }
     if (users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
