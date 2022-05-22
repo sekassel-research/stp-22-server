@@ -6,6 +6,7 @@ specifiers:
   '@nestjs/core': ^8.4.4
   '@nestjs/event-emitter': ^1.1.1
   '@nestjs/jwt': ^8.0.0
+  '@nestjs/mapped-types': ^1.0.1
   '@nestjs/microservices': ^8.4.4
   '@nestjs/mongoose': ^8.0.1
   '@nestjs/passport': ^8.2.1
@@ -55,6 +56,7 @@ dependencies:
   '@nestjs/core': 8.4.4_luikjii5zcaylqzbotvx36jeyy
   '@nestjs/event-emitter': 1.1.1_ri7uarpfhib2ateqzcw7uno7zy
   '@nestjs/jwt': 8.0.0_@nestjs+common@8.4.4
+  '@nestjs/mapped-types': 1.0.1_ljefuz3wxtsl6oghlkx5pszvaq
   '@nestjs/microservices': 8.4.4_zsf2urmrky5jizto4brfinddoe
   '@nestjs/mongoose': 8.0.1_tfi4qyjmpbjkhclagfas7h6c2q
   '@nestjs/passport': 8.2.1_tys52mabdspwpuru4mnhbd7smy
