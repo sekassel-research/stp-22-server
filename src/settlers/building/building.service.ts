@@ -40,12 +40,17 @@ export class BuildingService {
   }
 
   async deleteByGame(gameId: string): Promise<void> {
+    const buildings = await this.findAll({ gameId });
     await this.model.deleteMany({ gameId }).exec();
+    this.emit('deleted', ...buildings);
   }
 
-  private emit(event: string, building: BuildingDocument) {
-    this.memberService.findAll(building.gameId).then(members => {
-      this.eventEmitter.emit(`games.${building.gameId}.buildings.${building._id}.${event}`, building, members.map(m => m.userId));
+  private emit(event: string, ...buildings: BuildingDocument[]) {
+    this.memberService.findAll(buildings[0].gameId).then(members => {
+      const users = members.map(m => m.userId);
+      for (const building of buildings) {
+        this.eventEmitter.emit(`games.${building.gameId}.buildings.${building._id}.${event}`, building, users);
+      }
     });
   }
 }

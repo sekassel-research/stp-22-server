@@ -61,25 +61,36 @@ export class PlayerService {
       resources: {},
       remainingBuildings: INITIAL_BUILDINGS,
     }));
-    return this.model.insertMany(players);
+    const playerDocs = await this.model.insertMany(players);
+    this.emit('created', ...playerDocs);
+    return playerDocs;
   }
 
   async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<PlayerDocument | undefined> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
-    updated && this.emit('updated', updated, await this.findAll(gameId));
+    updated && this.emit('updated', updated);
     return updated;
   }
 
   async deleteByGame(gameId: string): Promise<void> {
+    const players = await this.findAll(gameId);
     await this.model.deleteMany({ gameId }).exec();
+    this.emit('deleted', ...players);
   }
 
-  private emit(action: string, player: PlayerDocument, allPlayers: Player[]) {
-    const event = `games.${player.gameId}.players.${player.userId}.${action}`;
-    this.eventEmitter.emit(event, player, [player.userId]);
+  private emit(action: string, ...players: PlayerDocument[]) {
+    const maskedPlayers = players.map(p => this.maskResources(p));
+    this.memberService.findAll(players[0].gameId).then(members => {
+      const users = members.map(m => m.userId);
+      for (let i = 0; i < players.length; i++){
+        const player = players[i];
+        const event = `games.${player.gameId}.players.${player.userId}.${action}`;
+        this.eventEmitter.emit(event, player, [player.userId]);
 
-    const maskedPlayer = this.maskResources(player);
-    const otherUserIds = allPlayers.map(m => m.userId).filter(u => u !== player.userId);
-    this.eventEmitter.emit(event, maskedPlayer, otherUserIds);
+        const maskedPlayer = maskedPlayers[i];
+        const otherUserIds = users.filter(u => u !== player.userId);
+        this.eventEmitter.emit(event, maskedPlayer, otherUserIds);
+      }
+    });
   }
 }

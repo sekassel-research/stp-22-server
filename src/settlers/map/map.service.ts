@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { EventService } from '../../event/event.service';
 import { Game } from '../../game/game.schema';
+import { MemberService } from '../../member/member.service';
 import { RESOURCE_TILE_TYPES, TileType, WEIGHTED_NUMBER_TOKENS } from '../shared/constants';
 import { cubeCircle } from '../shared/hexagon';
 import { randInt, shuffle } from '../shared/random';
@@ -11,6 +13,8 @@ import { Map, Tile } from './map.schema';
 export class MapService {
   constructor(
     @InjectModel('maps') private model: Model<Map>,
+    private memberService: MemberService,
+    private eventService: EventService,
   ) {
   }
 
@@ -21,12 +25,15 @@ export class MapService {
   async createForGame(game: Game): Promise<Map> {
     const radius = 2;
     const gameId = game._id;
-    return this.model.findOneAndUpdate({ gameId }, {
+    const createdOrExisting = await this.model.findOneAndUpdate({ gameId }, {
       $setOnInsert: {
         gameId,
-      tiles: this.generateTiles(radius),
-    },
+        tiles: this.generateTiles(radius),
+      },
     }, { upsert: true, new: true });
+    // FIXME don't emit when the map already existed
+    this.emit('created', createdOrExisting);
+    return createdOrExisting;
   }
 
   private generateTiles(radius: number): Tile[] {
@@ -59,6 +66,14 @@ export class MapService {
   }
 
   async deleteByGame(gameId: string): Promise<Map | undefined> {
-    return this.model.findOneAndDelete({ gameId }).exec();
+    const deleted = await this.model.findOneAndDelete({ gameId }).exec();
+    deleted && this.emit('deleted', deleted);
+    return deleted;
+  }
+
+  private emit(event: string, map: Map) {
+    this.memberService.findAll(map.gameId).then(members => {
+      this.eventService.emit(`games.${map.gameId}.state.${event}`, map, members.map(m => m.userId));
+    });
   }
 }
