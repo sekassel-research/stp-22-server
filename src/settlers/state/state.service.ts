@@ -21,14 +21,13 @@ export class StateService {
 
   async createForGame(game: Game): Promise<State> {
     const members = await this.memberService.findAll(game._id);
-    const state: State = {
+    return this.model.create({
       gameId: game._id,
       expectedMoves: [{
         action: 'founding-roll',
         players: members.map(m => m.userId),
       }],
-    };
-    return this.model.create(state);
+    });
   }
 
   async update(gameId: string, dto: UpdateQuery<State>): Promise<State> {
