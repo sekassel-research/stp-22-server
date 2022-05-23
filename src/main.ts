@@ -9,11 +9,6 @@ import { environment } from './environment';
 import { ErrorResponse, ValidationErrorResponse } from './util/error-response';
 import { ThrottlerExceptionFilter } from './util/throttler-exception.filter';
 
-import './polyfills';
-
-// FIXME Most PATCH endpoints allow putting null as a property value,
-//       which kind of corrupts the data.
-
 const globalPrefix = `api/${environment.version}`;
 
 async function loadDescription(): Promise<string> {
