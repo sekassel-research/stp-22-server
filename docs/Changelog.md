@@ -132,3 +132,9 @@
 ## Bugfixes
 
 * Global messages no longer error with `403 Forbidden` due to "inaccessible parent". [STP22SRV-12](https://jira.uniks.de/browse/STP22SRV-12)
+
+# v1.2.2
+
+## Bugfixes
+
+* All `PATCH` endpoint no longer allow `null` values. [STP22SRV-11](https://jira.uniks.de/browse/STP22SRV-11)
