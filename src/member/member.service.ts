@@ -31,13 +31,14 @@ export class MemberService {
     if (game.started) {
       return 'started';
     }
-    if (actingUser._id === targetUser) {
-      if (actingUser._id === game.owner) {
+    const userId = actingUser._id.toString();
+    if (userId === targetUser) {
+      if (userId === game.owner) {
         return 'owner-target';
       }
       return 'target';
     }
-    if (actingUser._id === game.owner) {
+    if (userId === game.owner) {
       return 'owner';
     }
     return 'unauthorized';

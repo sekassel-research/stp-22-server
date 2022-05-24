@@ -86,7 +86,7 @@ export class UserController {
       }
     }
 
-    if (id !== user._id) {
+    if (id !== user._id.toString()) {
       throw new ForbiddenException('Cannot change someone else\'s user.');
     }
     return this.userService.update(id, dto);
@@ -101,7 +101,7 @@ export class UserController {
     @AuthUser() user: User,
     @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<User | undefined> {
-    if (id !== user._id) {
+    if (id !== user._id.toString()) {
       throw new ForbiddenException('Cannot delete someone else\'s user.');
     }
     return this.userService.delete(id);

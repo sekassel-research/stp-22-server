@@ -19,6 +19,6 @@ export class MemberAuthGuard implements CanActivate {
   }
 
   async checkAuth(id: string, user: User): Promise<boolean> {
-    return !!await this.memberService.findOne(id, user._id);
+    return !!await this.memberService.findOne(id, user._id.toString());
   }
 }

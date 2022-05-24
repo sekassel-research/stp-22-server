@@ -48,7 +48,7 @@ export class PlayerController {
   }
 
   private maskResourcesIfOpponent(user: User, player: PlayerDocument): Player {
-    if (player.userId === user._id) {
+    if (player.userId === user._id.toString()) {
       return player;
     }
 

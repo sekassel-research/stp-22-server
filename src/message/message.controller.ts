@@ -52,7 +52,7 @@ export class MessageController {
     if (users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
     }
-    if (!users.includes(user._id)) {
+    if (!users.includes(user._id.toString())) {
       throw new ForbiddenException('Cannot access messages within inaccessible parent.');
     }
     return users;
@@ -70,7 +70,7 @@ export class MessageController {
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
-    return this.messageService.create(namespace, parent, user._id, message, users);
+    return this.messageService.create(namespace, parent, user._id.toString(), message, users);
   }
 
   @Get()
@@ -127,7 +127,7 @@ export class MessageController {
     if (!existing) {
       return undefined;
     }
-    if (existing.sender !== user._id) {
+    if (existing.sender !== user._id.toString()) {
       throw new ForbiddenException('Only the sender can change the message.');
     }
     return this.messageService.update(namespace, parent, id, dto, users);
@@ -149,7 +149,7 @@ export class MessageController {
     if (!existing) {
       return undefined;
     }
-    if (existing.sender !== user._id) {
+    if (existing.sender !== user._id.toString()) {
       throw new ForbiddenException('Only the sender can delete the message.');
     }
     return this.messageService.delete(namespace, parent, id, users);

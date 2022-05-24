@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { Schema, Types } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { environment } from '../environment';
 import { User } from '../user/user.schema';
@@ -18,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: UserToken): Promise<User> {
     const date = new Date(payload.iat * 1000);
     return {
-      _id: payload.sub,
+      _id: new Types.ObjectId(payload.sub),
       name: payload.preferred_username,
       createdAt: date,
       updatedAt: date,
@@ -28,6 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async generate(user: User): Promise<Partial<UserToken>> {
-    return { sub: user._id, preferred_username: user.name };
+    return { sub: user._id.toString(), preferred_username: user.name };
   }
 }

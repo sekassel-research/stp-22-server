@@ -26,7 +26,7 @@ export class GameService {
   }
 
   async create(owner: User, game: CreateGameDto): Promise<Game> {
-    const created = await this.model.create(await this.hash({ ...game, owner: owner._id }));
+    const created = await this.model.create(await this.hash({ ...game, owner: owner._id.toString() }));
     created && this.emit('created', created);
     return created;
   }

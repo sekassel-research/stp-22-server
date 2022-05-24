@@ -14,12 +14,12 @@ export class MapHandler {
     if (game.started) {
       await this.settlersService.createForGame(game);
     } else {
-      await this.settlersService.deleteByGame(game._id);
+      await this.settlersService.deleteByGame(game._id.toString());
     }
   }
 
   @OnEvent('games.*.deleted')
   async onGameDeleted(game: Game): Promise<void> {
-    await this.settlersService.deleteByGame(game._id);
+    await this.settlersService.deleteByGame(game._id.toString());
   }
 }

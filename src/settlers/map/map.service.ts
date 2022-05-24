@@ -24,8 +24,10 @@ export class MapService {
 
   async createForGame(game: Game): Promise<Map> {
     const radius = 2;
-    const gameId = game._id;
-    const createdOrExisting = await this.model.findOneAndUpdate({ gameId }, {
+    const gameId = game._id.toString();
+    const createdOrExisting = await this.model.findOneAndUpdate({
+      gameId
+    }, {
       $setOnInsert: {
         gameId,
         tiles: this.generateTiles(radius),
