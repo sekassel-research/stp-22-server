@@ -46,6 +46,7 @@ export class PlayerService {
     return {
       ...rest,
       resources: { unknown },
+      victoryPoints: undefined,
     };
   }
 
@@ -80,7 +81,7 @@ export class PlayerService {
   }
 
   private emit(action: string, ...players: PlayerDocument[]) {
-    const maskedPlayers = players.map(p => this.maskResources(p));
+    const maskedPlayers = players.map(p => this.mask(p));
     this.memberService.findAll(players[0].gameId).then(members => {
       const users = members.map(m => m.userId);
       for (let i = 0; i < players.length; i++){
