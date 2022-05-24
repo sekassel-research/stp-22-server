@@ -23,14 +23,15 @@ export class StateService {
     const members = await this.memberService.findAll(game._id, {
       spectator: {$ne: true},
     });
-    const state: State = {
+    const created = await this.model.create({
       gameId: game._id,
       expectedMoves: [{
         action: 'founding-roll',
         players: members.map(m => m.userId),
       }],
-    };
-    return this.model.create(state);
+    });
+    this.emit('created', created);
+    return created;
   }
 
   async update(gameId: string, dto: UpdateQuery<State>): Promise<State> {
@@ -40,7 +41,9 @@ export class StateService {
   }
 
   async deleteByGame(gameId: string): Promise<State | undefined> {
-    return this.model.findOneAndDelete({ gameId }).exec();
+    const deleted = await this.model.findOneAndDelete({ gameId }).exec();
+    deleted && this.emit('deleted', deleted);
+    return deleted;
   }
 
   private emit(event: string, state: State) {
