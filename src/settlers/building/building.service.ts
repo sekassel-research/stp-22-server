@@ -46,6 +46,9 @@ export class BuildingService {
   }
 
   private emit(event: string, ...buildings: BuildingDocument[]) {
+    if (!buildings.length) {
+      return;
+    }
     this.memberService.findAll(buildings[0].gameId).then(members => {
       const users = members.map(m => m.userId);
       for (const building of buildings) {

@@ -79,6 +79,9 @@ export class PlayerService {
   }
 
   private emit(action: string, ...players: PlayerDocument[]) {
+    if (!players.length) {
+      return;
+    }
     const maskedPlayers = players.map(p => this.maskResources(p));
     this.memberService.findAll(players[0].gameId).then(members => {
       const users = members.map(m => m.userId);
