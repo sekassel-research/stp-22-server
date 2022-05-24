@@ -108,9 +108,9 @@ export class UserService {
     }
 
     const accessPayload = await this.jwtStrategy.generate(user);
-    const refreshPayload: RefreshToken = { sub: user._id, refreshKey };
+    const refreshPayload: RefreshToken = { sub: user._id.toString(), refreshKey };
     return {
-      ...(user as UserDocument).toObject(),
+      ...user.toObject(),
       accessToken: this.jwtService.sign(accessPayload),
       refreshToken: this.jwtService.sign(refreshPayload, {
         expiresIn: environment.auth.refreshExpiry,

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType } from '../shared/constants';
 import { CORNER_SIDES, EDGE_SIDES, Side, SIDES } from '../shared/hexagon';
@@ -40,7 +40,7 @@ ${EDGE_SIDES.map(s => `- ${s} = Road at ${s} o'clock`).join('\n')}
   owner: string;
 }
 
-export type BuildingDocument = Building & Document;
+export type BuildingDocument = Building & Document<Types.ObjectId>;
 
 export const BuildingSchema = SchemaFactory.createForClass(Building)
   .index({ gameId: 1, x: 1, y: 1, z: 1, side: 1 }, { unique: true })
