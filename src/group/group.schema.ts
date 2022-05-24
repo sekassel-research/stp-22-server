@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArrayMaxSize, ArrayMinSize, IsMongoId, IsOptional, IsString, Length } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_ARRAY_FORMAT } from '../util/schema';
 
 const MAX_MEMBERS = 100;
@@ -23,6 +23,6 @@ export class Group extends GlobalSchema {
   members: string[];
 }
 
-export type GroupDocument = Group & Document;
+export type GroupDocument = Group & Document<Types.ObjectId>;
 
 export const GroupSchema = SchemaFactory.createForClass(Group);

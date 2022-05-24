@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsByteLength, IsEnum, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { Namespace } from '../member-resolver/member-resolver.service';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
@@ -30,7 +30,7 @@ export class Message extends GlobalSchema {
   body: string;
 }
 
-export type MessageDocument = Message & Document;
+export type MessageDocument = Message & Document<Types.ObjectId>;
 
 export const MessageSchema = SchemaFactory.createForClass(Message)
   .index({ namespace: 1, parent: 1 });

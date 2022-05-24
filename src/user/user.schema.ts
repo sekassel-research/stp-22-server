@@ -10,7 +10,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_ARRAY_FORMAT } from '../util/schema';
 import { IsUrlOrUri } from '../util/url-or-uri.validator';
 
@@ -54,6 +54,6 @@ export class User extends GlobalSchema {
   refreshKey?: string | null;
 }
 
-export type UserDocument = User & Document;
+export type UserDocument = User & Document<Types.ObjectId>;
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMongoId, IsNotEmpty, IsNumber, MaxLength } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
@@ -28,6 +28,6 @@ export class Game extends GlobalSchema {
   passwordHash: string;
 }
 
-export type GameDocument = Game & Document;
+export type GameDocument = Game & Document<Types.ObjectId>;
 
 export const GameSchema = SchemaFactory.createForClass(Game);
