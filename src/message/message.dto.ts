@@ -1,6 +1,7 @@
-import { ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
+import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsDate, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { PartialType } from '../util/partial-type';
 import { Message } from './message.schema';
 
 export class CreateMessageDto extends PickType(Message, [

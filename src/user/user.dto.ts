@@ -1,7 +1,8 @@
-import { ApiProperty, ApiPropertyOptional, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsByteLength, IsIn, IsJWT, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { environment } from '../environment';
+import { PartialType } from '../util/partial-type';
 import { Status, STATUS, User } from './user.schema';
 
 class UserAndPassword extends PickType(User, [

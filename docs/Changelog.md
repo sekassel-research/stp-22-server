@@ -127,6 +127,18 @@
 
 * Documented when and why resources are deleted for cleanup.
 
+# v1.2.1
+
+## Bugfixes
+
+* Global messages no longer error with `403 Forbidden` due to "inaccessible parent". [STP22SRV-12](https://jira.uniks.de/browse/STP22SRV-12)
+
+# v1.2.2
+
+## Bugfixes
+
+* All `PATCH` endpoint no longer allow `null` values. [STP22SRV-11](https://jira.uniks.de/browse/STP22SRV-11)
+
 # v2.0.0 - Pioneers Base Game
 
 ## New Features

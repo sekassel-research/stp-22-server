@@ -1,9 +1,11 @@
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { PartialType } from '../util/partial-type';
 import { Member } from './member.schema';
 
 class MemberDto extends PickType(Member, [
   'ready',
+  'color',
   'spectator',
 ] as const) {
 }
