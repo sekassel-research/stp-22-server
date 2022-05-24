@@ -61,7 +61,7 @@ export class GameController {
     if (!existing) {
       throw new NotFoundException(id);
     }
-    if (existing.owner !== user._id) {
+    if (existing.owner !== user._id.toString()) {
       throw new ForbiddenException('Only the owner can change the game.');
     }
     // FIXME this allows changing the owner to someone who is not a member!
@@ -78,7 +78,7 @@ export class GameController {
     if (!existing) {
       throw new NotFoundException(id);
     }
-    if (existing.owner !== user._id) {
+    if (existing.owner !== user._id.toString()) {
       throw new ForbiddenException('Only the owner can delete the game.');
     }
     return this.gameService.delete(id);

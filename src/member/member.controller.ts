@@ -83,12 +83,12 @@ export class MemberController {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    const existing = await this.memberService.findOne(gameId, user._id);
+    const existing = await this.memberService.findOne(gameId, user._id.toString());
     if (existing) {
       throw new ConflictException('User already joined');
     }
 
-    return this.memberService.create(gameId, user._id, member);
+    return this.memberService.create(gameId, user._id.toString(), member);
   }
 
   @Patch(':userId')

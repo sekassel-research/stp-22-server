@@ -13,7 +13,7 @@ export class MemberHandler {
 
   @OnEvent('games.*.created')
   async onGameCreated(game: Game): Promise<void> {
-    await this.memberService.create(game._id, game.owner, {
+    await this.memberService.create(game._id.toString(), game.owner, {
       password: undefined,
       ready: false,
     });
@@ -21,11 +21,11 @@ export class MemberHandler {
 
   @OnEvent('games.*.deleted')
   async onGameDeleted(game: Game): Promise<void> {
-    await this.memberService.deleteGame(game._id);
+    await this.memberService.deleteGame(game._id.toString());
   }
 
   @OnEvent('users.*.deleted')
   async onUserDelete(user: User): Promise<void> {
-    await this.memberService.deleteUser(user._id);
+    await this.memberService.deleteUser(user._id.toString());
   }
 }

@@ -37,7 +37,7 @@ export class GroupController {
       this.checkMembership(memberList, user);
       return this.groupService.findByMembers(memberList);
     }
-    return this.groupService.findByMember(user._id);
+    return this.groupService.findByMember(user._id.toString());
   }
 
   @Get(':id')
@@ -92,7 +92,7 @@ export class GroupController {
   }
 
   private checkMembership(members: string[], user: User) {
-    if (!members.includes(user._id)) {
+    if (!members.includes(user._id.toString())) {
       throw new ForbiddenException('You are not a member of this group.');
     }
   }
