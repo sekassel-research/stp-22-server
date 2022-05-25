@@ -145,6 +145,12 @@
 
 * Fixed cascading deletes potentially failing to work for messages.
 
+# v1.2.4
+
+## Bugfixes
+
+* Fixed private WebSocket events not being delivered.
+
 # v2.0.0 - Pioneers Base Game
 
 ## New Features
