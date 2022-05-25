@@ -172,3 +172,21 @@
 ## Improvements
 
 * `POST /api/v1/games/{gameId}/members` now returns a `403 Forbidden` error when the password is wrong.
+
+# v2.0.1
+
+## Documentation
+
+* Documented the `CreateMoveDto` `building` property.
+
+## Improvements
+
+* The `Member` `color` can now be updated or set on creation. [STP22SRV-13](https://jira.uniks.de/browse/STP22SRV-13)
+
+## Bugfixes
+
+* Fixed server crash. [STP22SRV-14](https://jira.uniks.de/browse/STP22SRV-14)
+* Fixed maps, players and states being deleted when un-starting a game.  [STP22SRV-15](https://jira.uniks.de/browse/STP22SRV-15)
+* Fixed cascading deletes potentially failing to work for messages.
+* Fixed cascading deletes for buildings, maps, players and states.
+* Fixed building creation.
