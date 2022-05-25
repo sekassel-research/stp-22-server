@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
-import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
 import { State } from './state.schema';
 
@@ -19,10 +18,10 @@ export class StateService {
     return this.model.findOne({ gameId }).exec();
   }
 
-  async createForGame(game: Game): Promise<State> {
-    const members = await this.memberService.findAll(game._id.toString());
+  async createForGame(gameId: string): Promise<State> {
+    const members = await this.memberService.findAll(gameId);
     const created = await this.model.create({
-      gameId: game._id,
+      gameId,
       expectedMoves: [{
         action: 'founding-roll',
         players: members.map(m => m.userId),

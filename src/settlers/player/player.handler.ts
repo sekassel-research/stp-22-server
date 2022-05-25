@@ -14,8 +14,6 @@ export class PlayerHandler {
   async onGameUpdated(game: Game): Promise<void> {
     if (game.started) {
       await this.playerService.createForGame(game._id.toString());
-    } else {
-      await this.playerService.deleteByGame(game._id.toString());
     }
   }
 

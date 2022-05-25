@@ -13,9 +13,7 @@ export class StateHandler {
   @OnEvent('games.*.updated')
   async onGameUpdated(game: Game): Promise<void> {
     if (game.started) {
-      await this.stateService.createForGame(game);
-    } else {
-      await this.stateService.deleteByGame(game._id.toString());
+      await this.stateService.createForGame(game._id.toString());
     }
   }
 

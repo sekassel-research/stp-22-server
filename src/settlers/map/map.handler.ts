@@ -13,8 +13,6 @@ export class MapHandler {
   async onGameUpdated(game: Game): Promise<void> {
     if (game.started) {
       await this.settlersService.createForGame(game);
-    } else {
-      await this.settlersService.deleteByGame(game._id.toString());
     }
   }
 
