@@ -12,7 +12,7 @@ export class CreateMoveDto extends PickType(Move, [
   @ApiProperty({
     type: CreateBuildingDto,
     required: false,
-    description: 'Ignored if action is not `build`. ' +
+    description:
       'If set, the building will be placed and the player will stay in turn. ' +
       'If unset, the current player\'s turn ends.',
   })
