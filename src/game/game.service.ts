@@ -61,10 +61,6 @@ export class GameService {
     const filterDate = new Date(Date.now() - olderThanMs);
     const games = await this.model.find({
       updatedAt: { $lt: filterDate },
-      $or: [
-        {started: {$exists: false}},
-        {started: false},
-      ],
     }).exec();
     await this.model.deleteMany({ _id: { $in: games.map(g => g._id) } });
     for (const game of games) {

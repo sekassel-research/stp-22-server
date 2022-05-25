@@ -20,7 +20,7 @@ export const environment = {
   },
   passive: !!process.env.PASSIVE,
   cleanup: {
-    gameLifetimeHours: +process.env.GAME_LIFETIME_HOURS || 2,
+    gameLifetimeHours: +process.env.GAME_LIFETIME_HOURS || 4,
     emptyGroupLifetimeHours: +process.env.EMPTY_GROUP_LIFETIME_HOURS || 1,
     tempUserLifetimeHours: +process.env.TEMP_USER_LIFETIME_HOURS || 1,
     tempUserNamePattern: process.env.TEMP_USER_NAME_PATTERN
