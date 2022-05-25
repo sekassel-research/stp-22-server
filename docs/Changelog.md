@@ -139,6 +139,12 @@
 
 * All `PATCH` endpoint no longer allow `null` values. [STP22SRV-11](https://jira.uniks.de/browse/STP22SRV-11)
 
+# v1.2.3
+
+## Bugfixes
+
+* Fixed cascading deletes potentially failing to work for messages.
+
 # v2.0.0 - Pioneers Base Game
 
 ## New Features
