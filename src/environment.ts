@@ -25,7 +25,10 @@ export const environment = {
     tempUserLifetimeHours: +process.env.TEMP_USER_LIFETIME_HOURS || 1,
     tempUserNamePattern: process.env.TEMP_USER_NAME_PATTERN
       ? new RegExp(process.env.TEMP_USER_NAME_PATTERN)
-      : /t[e3]mp|t[e3][s5]t|^.$|^\d+$/i,
+      // 'temp'/'test' or variations, single letters, ending with a number,
+      // or repeating sequences of 1-3 characters at least 3 times,
+      // or not starting with a word character (ASCII sort cheating)
+      : /t[e3]mp|t[e3][s5]t|^.$|\d+$|^(.{1,3})\1{2,}$|^\W/i,
     globalMessageLifetimeHours: +process.env.GLOBAL_MESSAGE_LIFETIME_HOURS || 4,
     spamMessageLifetimeHours: +process.env.SPAM_MESSAGE_LIFETIME_HOURS || 1,
     spamMessagePattern: process.env.SPAM_MESSAGE_PATTERN

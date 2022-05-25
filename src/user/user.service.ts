@@ -67,11 +67,6 @@ export class UserService {
     const users = await this.model.find({
       createdAt: { $lt: new Date(Date.now() - maxAgeMs) },
       name: environment.cleanup.tempUserNamePattern,
-      $or: [
-        { avatar: { $exists: false } },
-        { avatar: null },
-        { avatar: 'data:image/png;base64,null' },
-      ],
     });
     await this.model.deleteMany({ _id: { $in: users.map(u => u._id) } });
     for (const user of users) {
