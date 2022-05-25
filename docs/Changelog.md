@@ -144,3 +144,9 @@
 ## Bugfixes
 
 * Fixed cascading deletes potentially failing to work for messages.
+
+# v1.2.4
+
+## Bugfixes
+
+* Fixed private WebSocket events not being delivered.
