@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       name: payload.preferred_username,
       createdAt: date,
       updatedAt: date,
+      passwordHash: '',
       status: 'online',
       friends: [],
     };

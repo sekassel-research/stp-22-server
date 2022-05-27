@@ -14,7 +14,7 @@ export class GroupService {
   ) {
   }
 
-  async find(id: string): Promise<Group | undefined> {
+  async find(id: string): Promise<Group | null> {
     return this.model.findById(id);
   }
 
@@ -34,7 +34,7 @@ export class GroupService {
     return created;
   }
 
-  async update(id: string, dto: UpdateGroupDto): Promise<Group | undefined> {
+  async update(id: string, dto: UpdateGroupDto): Promise<Group | null> {
     if (dto.members) {
       dto.members = this.normalizeMembers(dto.members);
     }
@@ -48,7 +48,7 @@ export class GroupService {
     return [...new Set(members)].sort();
   }
 
-  async delete(id: string): Promise<Group | undefined> {
+  async delete(id: string): Promise<Group | null> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;

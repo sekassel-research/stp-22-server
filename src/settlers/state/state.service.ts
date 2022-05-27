@@ -14,7 +14,7 @@ export class StateService {
   ) {
   }
 
-  async findByGame(gameId: string): Promise<State | undefined> {
+  async findByGame(gameId: string): Promise<State | null> {
     return this.model.findOne({ gameId }).exec();
   }
 
@@ -30,7 +30,7 @@ export class StateService {
       });
       this.emit('created', created);
       return created;
-    } catch (err) {
+    } catch (err: any) {
       if (err.code !== 11000) { // state already exists
         return undefined;
       }
@@ -38,13 +38,13 @@ export class StateService {
     }
   }
 
-  async update(gameId: string, dto: UpdateQuery<State>): Promise<State> {
+  async update(gameId: string, dto: UpdateQuery<State>): Promise<State | null> {
     const updated = await this.model.findOneAndUpdate({ gameId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async deleteByGame(gameId: string): Promise<State | undefined> {
+  async deleteByGame(gameId: string): Promise<State | null> {
     const deleted = await this.model.findOneAndDelete({ gameId }).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;

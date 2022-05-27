@@ -105,9 +105,9 @@ export class MessageController {
     @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
-  ): Promise<Message> {
+  ): Promise<Message | null> {
     await this.checkParentAndGetMembers(namespace, parent, user);
-    return await this.messageService.find(namespace, parent, id);
+    return this.messageService.find(namespace, parent, id);
   }
 
   @Patch(':id')
@@ -121,11 +121,11 @@ export class MessageController {
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateMessageDto,
-  ): Promise<Message> {
+  ): Promise<Message | null> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
-      return undefined;
+      return null;
     }
     if (existing.sender !== user._id.toString()) {
       throw new ForbiddenException('Only the sender can change the message.');
@@ -143,11 +143,11 @@ export class MessageController {
     @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
-  ): Promise<Message> {
+  ): Promise<Message | null> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
-      return undefined;
+      return null;
     }
     if (existing.sender !== user._id.toString()) {
       throw new ForbiddenException('Only the sender can delete the message.');

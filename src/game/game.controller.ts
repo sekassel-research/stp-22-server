@@ -55,7 +55,7 @@ export class GameController {
   @Get(':id')
   @ApiOkResponse({ type: Game })
   @NotFound()
-  async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<Game | undefined> {
+  async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<Game | null> {
     return this.gameService.findOne(id);
   }
 
@@ -65,7 +65,7 @@ export class GameController {
   @ApiOkResponse({ type: Game })
   @ApiConflictResponse({ description: 'Game is already running.' })
   @ApiForbiddenResponse({ description: 'Attempt to change a game that the current user does not own.' })
-  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateGameDto): Promise<Game | undefined> {
+  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateGameDto): Promise<Game | null> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {
       throw new NotFoundException(id);
@@ -85,7 +85,7 @@ export class GameController {
   @ApiOperation({ description: 'Delete a game as owner. All members will be automatically kicked.' })
   @ApiOkResponse({ type: Game })
   @ApiForbiddenResponse({ description: 'Attempt to delete a game that the current user does not own.' })
-  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Game | undefined> {
+  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Game | null> {
     const existing = await this.gameService.findOne(id);
     if (!existing) {
       throw new NotFoundException(id);

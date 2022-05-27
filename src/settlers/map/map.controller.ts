@@ -24,7 +24,7 @@ export class MapController {
   @NotFound()
   async find(
     @Param('gameId', ParseObjectIdPipe) gameId: string,
-  ): Promise<Map | undefined> {
+  ): Promise<Map | null> {
     return this.settlersService.findByGame(gameId);
   }
 }

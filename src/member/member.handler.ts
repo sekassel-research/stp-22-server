@@ -14,7 +14,7 @@ export class MemberHandler {
   @OnEvent('games.*.created')
   async onGameCreated(game: Game): Promise<void> {
     await this.memberService.create(game._id.toString(), game.owner, {
-      password: undefined,
+      password: '',
       ready: false,
     });
   }

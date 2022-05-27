@@ -17,7 +17,7 @@ export class MessageService {
   ) {
   }
 
-  async find(namespace: Namespace, parent: string, _id: string): Promise<MessageDocument | undefined> {
+  async find(namespace: Namespace, parent: string, _id: string): Promise<MessageDocument | null> {
     return this.model.findOne({ _id, namespace, parent }).exec();
   }
 
@@ -39,13 +39,13 @@ export class MessageService {
     return created;
   }
 
-  async update(namespace: Namespace, parent: string, _id: string, dto: UpdateMessageDto, users: UserFilter): Promise<MessageDocument | undefined> {
+  async update(namespace: Namespace, parent: string, _id: string, dto: UpdateMessageDto, users: UserFilter): Promise<MessageDocument | null> {
     const updated = await this.model.findOneAndUpdate({ namespace, parent, _id }, dto, { new: true }).exec();
     updated && this.sendEvent('updated', updated, users);
     return updated;
   }
 
-  async delete(namespace: Namespace, parent: string, _id: string, users: UserFilter): Promise<MessageDocument | undefined> {
+  async delete(namespace: Namespace, parent: string, _id: string, users: UserFilter): Promise<MessageDocument | null> {
     const deleted = await this.model.findOneAndDelete({ namespace, parent, _id }).exec();
     deleted && this.sendEvent('deleted', deleted, users);
     return deleted;

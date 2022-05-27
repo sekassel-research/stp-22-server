@@ -9,7 +9,6 @@ import {
   Param,
   Patch,
   Post,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -19,7 +18,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { GameService } from '../game/game.service';
@@ -54,7 +52,7 @@ export class MemberController {
     @AuthUser() user: User,
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Body() member: CreateMemberDto,
-  ): Promise<Member> {
+  ): Promise<Member | null> {
     const game = await this.gameService.findOne(gameId);
     if (!game) {
       throw new NotFoundException(gameId);
@@ -91,7 +89,7 @@ export class MemberController {
   async findOne(
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Param('userId', ParseObjectIdPipe) userId: string,
-  ): Promise<Member | undefined> {
+  ): Promise<Member | null> {
     return this.memberService.findOne(gameId, userId);
   }
 
@@ -106,7 +104,7 @@ export class MemberController {
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Param('userId', ParseObjectIdPipe) userId: string,
     @Body() dto: UpdateMemberDto,
-  ): Promise<Member | undefined> {
+  ): Promise<Member | null> {
     const access = await this.memberService.checkUserModification(gameId, user, userId);
     switch (access) {
       case 'notfound':
@@ -129,7 +127,7 @@ export class MemberController {
     @AuthUser() user: User,
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Param('userId', ParseObjectIdPipe) userId: string,
-  ): Promise<Member | undefined> {
+  ): Promise<Member | null> {
     const access = await this.memberService.checkUserModification(gameId, user, userId);
     switch (access) {
       case 'notfound':

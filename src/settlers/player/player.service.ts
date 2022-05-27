@@ -36,7 +36,7 @@ export class PlayerService {
     return query.exec();
   }
 
-  async findOne(gameId: string, userId: string): Promise<PlayerDocument | undefined> {
+  async findOne(gameId: string, userId: string): Promise<PlayerDocument | null> {
     return this.model.findOne({ gameId, userId }).exec();
   }
 
@@ -65,7 +65,7 @@ export class PlayerService {
       const playerDocs = await this.model.insertMany(players);
       this.emit('created', ...playerDocs);
       return playerDocs;
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === 11000) { // players already exist
         return [];
       }
@@ -73,7 +73,7 @@ export class PlayerService {
     }
   }
 
-  async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<PlayerDocument | undefined> {
+  async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<PlayerDocument | null> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;

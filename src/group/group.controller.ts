@@ -65,11 +65,11 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to change a group in which the current user is not or will not be a member.' })
   @NotFound()
-  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateGroupDto): Promise<Group | undefined> {
-    this.checkMembership(dto.members, user);
+  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateGroupDto): Promise<Group | null> {
+    dto.members && this.checkMembership(dto.members, user);
     const existing = await this.groupService.find(id);
     if (!existing) {
-      return undefined;
+      return null;
     }
     this.checkMembership(existing.members, user);
     return this.groupService.update(id, dto);
@@ -79,10 +79,10 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to delete a group in which the current user is not the last remaining member.' })
   @NotFound()
-  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
+  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | null> {
     const existing = await this.groupService.find(id);
     if (!existing) {
-      return undefined;
+      return null;
     }
     this.checkMembership(existing.members, user);
     if (existing.members.length !== 1) {

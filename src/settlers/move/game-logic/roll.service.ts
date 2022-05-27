@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { createContextId } from '@nestjs/core';
+import { UpdateQuery } from 'mongoose';
 import { BuildingService } from '../../building/building.service';
 import { Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
@@ -69,19 +71,23 @@ export class RollService {
       return;
     }
 
-    const keys = Object.keys(resources);
+    const keys = Object.keys(resources) as ResourceType[];
     const stealCount = Math.floor(total / 2);
 
     for (let i = 0; i < stealCount; i++) {
       let rand = randInt(total);
       for (const key of keys) {
         const amount = resources[key];
+        if (!amount) {
+          continue;
+        }
+
         if (rand >= amount) {
           rand -= amount;
           continue;
         }
 
-        resources[key]--;
+        resources[key] = amount - 1;
         total--;
         break;
       }
@@ -94,6 +100,10 @@ export class RollService {
 
   private async rollResources(gameId: string, roll: number): Promise<void> {
     const map = await this.mapService.findByGame(gameId);
+    if (!map) {
+      return;
+    }
+
     const tiles = map.tiles.filter(tile => tile.numberToken === roll);
     const players: Record<string, Partial<Record<ResourceType, number>>> = {};
 
@@ -126,7 +136,7 @@ export class RollService {
   }
 
   private async updateResources(gameId: string, userId: string, resources: Partial<Record<string, number>>): Promise<void> {
-    const $inc = {};
+    const $inc: any = {};
     for (const key of Object.keys(resources)) {
       $inc[`resources.${key}`] = resources[key];
     }

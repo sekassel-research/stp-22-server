@@ -55,8 +55,9 @@ export function PartialType<T>(classRef: Type<T>): Type<Partial<T>> {
     applyPartialDecorator(PartialTypeClass.prototype, key);
   }
 
-  if (PartialTypeClass[METADATA_FACTORY_NAME]) {
-    const pluginFields = Object.keys(PartialTypeClass[METADATA_FACTORY_NAME]());
+  const metadataFactory = (PartialTypeClass as any)[METADATA_FACTORY_NAME];
+  if (metadataFactory) {
+    const pluginFields = Object.keys(metadataFactory());
     // changed from applyIsOptionalDecorator(PartialTypeClass, key)
     for (const key of pluginFields) {
       applyPartialDecorator(PartialTypeClass.prototype, key);

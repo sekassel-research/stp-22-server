@@ -18,7 +18,7 @@ export class MapService {
   ) {
   }
 
-  async findByGame(gameId: string): Promise<Map | undefined> {
+  async findByGame(gameId: string): Promise<Map | null> {
     return this.model.findOne({ gameId }).exec();
   }
 
@@ -32,7 +32,7 @@ export class MapService {
       });
       this.emit('created', created);
       return created;
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === 11000) { // map already exists
         return;
       }
@@ -69,7 +69,7 @@ export class MapService {
     }));
   }
 
-  async deleteByGame(gameId: string): Promise<Map | undefined> {
+  async deleteByGame(gameId: string): Promise<Map | null> {
     const deleted = await this.model.findOneAndDelete({ gameId }).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;

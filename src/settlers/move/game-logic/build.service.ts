@@ -5,7 +5,7 @@ import { BuildingService } from '../../building/building.service';
 import { Map as GameMap } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
 import { PlayerService } from '../../player/player.service';
-import { BUILDING_COSTS, BuildingType, ResourceType, TILE_RESOURCES } from '../../shared/constants';
+import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
 import {
   cornerAdjacentCorners,
   cornerAdjacentCubes,
@@ -45,6 +45,10 @@ export class BuildService {
   }
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
+    if (!move.building) {
+      return;
+    }
+
     const existing = await this.checkAllowedPlacement(gameId, userId, move);
 
     const $inc: Partial<Record<`remainingBuildings.${BuildingType}` | `resources.${ResourceType}`, number>> = {
@@ -57,10 +61,10 @@ export class BuildService {
 
     if (move.action === 'build') {
       await this.checkCosts(gameId, userId, move.building);
-      this.deductCosts(move, $inc);
+      this.deductCosts(move.building, $inc);
     } else if (move.action === 'founding-settlement-2') {
       const map = await this.mapService.findByGame(gameId);
-      this.giveAdjacentResources(map, move.building, $inc);
+      map && this.giveAdjacentResources(map, move.building, $inc);
     }
 
     await this.playerService.update(gameId, userId, { $inc });
@@ -74,12 +78,12 @@ export class BuildService {
   }
 
   private checkExpectedType(move: CreateMoveDto) {
-    const expectedType = {
+    const expectedType = ({
       'founding-settlement-1': 'settlement',
       'founding-settlement-2': 'settlement',
       'founding-road-1': 'road',
       'founding-road-2': 'road',
-    }[move.action];
+    } as Partial<Record<Task, BuildingType>>)[move.action];
     if (!expectedType) {
       return;
     }
@@ -89,7 +93,7 @@ export class BuildService {
   }
 
   private async checkAllowedPlacement(gameId: string, userId: string, move: CreateMoveDto): Promise<Building | undefined> {
-    switch (move.building.type) {
+    switch (move.building?.type) {
       case 'road':
         return this.checkRoadPlacement(gameId, userId, move.building);
       case 'settlement':
@@ -151,6 +155,10 @@ export class BuildService {
 
   private async checkSettlementPlacement(gameId: string, userId: string, move: CreateMoveDto) {
     const building = move.building;
+    if (!building) {
+      return;
+    }
+
     const { x, y, z, side } = building;
     const adjacent = await this.buildingService.findAll({
       gameId,
@@ -177,23 +185,28 @@ export class BuildService {
 
   private async checkCosts(gameId: string, userId: string, building: CreateBuildingDto) {
     const player = await this.playerService.findOne(gameId, userId);
+    if (!player) {
+      return;
+    }
+
     if ((player.remainingBuildings[building.type] || 0) <= 0) {
       throw new ForbiddenException(`You can't build any more ${building.type}!`);
     }
 
     const costs = BUILDING_COSTS[building.type];
 
-    for (const key of Object.keys(costs)) {
-      if ((player.resources[key] || 0) < costs[key]) {
+    for (const key of Object.keys(costs) as ResourceType[]) {
+      if ((player.resources[key] || 0) < (costs[key] || 0)) {
         throw new ForbiddenException('You can\'t afford that!');
       }
     }
   }
 
-  private deductCosts(move: CreateMoveDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
-    const costs = BUILDING_COSTS[move.building.type];
-    for (const resource of Object.keys(costs)) {
-      $inc[`resources.${resource}`] = -costs[resource];
+  private deductCosts(building: CreateBuildingDto, $inc: Partial<Record<`resources.${ResourceType}`, number>>) {
+    const costs = BUILDING_COSTS[building.type];
+    for (const resource of Object.keys(costs) as ResourceType[]) {
+      const cost = costs[resource];
+      cost && ($inc[`resources.${resource}`] = -cost);
     }
   }
 

@@ -48,9 +48,9 @@ export class User extends GlobalSchema {
   friends: string[];
 
   @Prop({ transform: () => undefined })
-  passwordHash?: string;
+  passwordHash: string;
 
-  @Prop({ transform: () => undefined })
+  @Prop({ type: String, transform: () => undefined })
   refreshKey?: string | null;
 }
 

@@ -64,7 +64,7 @@ export class UserController {
   @ApiOperation({ description: 'Informs about the user with the given ID.' })
   @ApiOkResponse({ type: User })
   @NotFound()
-  async getUser(@Param('id', ParseObjectIdPipe) id: string): Promise<User> {
+  async getUser(@Param('id', ParseObjectIdPipe) id: string): Promise<User | null> {
     return this.userService.find(id);
   }
 
@@ -78,7 +78,7 @@ export class UserController {
     @AuthUser() user: User,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateUserDto,
-  ): Promise<User | undefined> {
+  ): Promise<User | null> {
     if (dto.name) {
       const existing = await this.userService.findByName(dto.name);
       if (existing && existing.id !== id) {
@@ -100,7 +100,7 @@ export class UserController {
   async delete(
     @AuthUser() user: User,
     @Param('id', ParseObjectIdPipe) id: string,
-  ): Promise<User | undefined> {
+  ): Promise<User | null> {
     if (id !== user._id.toString()) {
       throw new ForbiddenException('Cannot delete someone else\'s user.');
     }

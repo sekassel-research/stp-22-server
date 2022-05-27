@@ -15,11 +15,11 @@ export class BuildingService {
   ) {
   }
 
-  async findAll(filter?: FilterQuery<Building>): Promise<BuildingDocument[]> {
+  async findAll(filter: FilterQuery<Building> = {}): Promise<BuildingDocument[]> {
     return this.model.find(filter).exec();
   }
 
-  async findOne(id: string): Promise<BuildingDocument> {
+  async findOne(id: string): Promise<BuildingDocument | null> {
     return this.model.findById(id).exec();
   }
 
@@ -33,7 +33,7 @@ export class BuildingService {
     return created;
   }
 
-  async update(id: string, building: UpdateBuildingDto): Promise<BuildingDocument | undefined> {
+  async update(id: string, building: UpdateBuildingDto): Promise<BuildingDocument | null> {
     const updated = await this.model.findByIdAndUpdate(id, building, { new: true });
     updated && this.emit('updated', updated);
     return updated;

@@ -35,11 +35,11 @@ export class UserService {
       .exec();
   }
 
-  async find(id: string): Promise<UserDocument | undefined> {
+  async find(id: string): Promise<UserDocument | null> {
     return this.model.findById(id).exec();
   }
 
-  async findByName(name: string): Promise<UserDocument | undefined> {
+  async findByName(name: string): Promise<UserDocument | null> {
     return this.model.findOne({ name }).exec();
   }
 
@@ -51,13 +51,13 @@ export class UserService {
     return created;
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<UserDocument | undefined> {
+  async update(id: string, dto: UpdateUserDto): Promise<UserDocument | null> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async delete(id: string): Promise<UserDocument | undefined> {
+  async delete(id: string): Promise<UserDocument | null> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;
@@ -132,7 +132,7 @@ export class UserService {
     };
   }
 
-  async logout(user: User): Promise<UserDocument> {
+  async logout(user: User): Promise<UserDocument | null> {
     return this.model.findByIdAndUpdate(user._id, { refreshKey: null }).exec();
   }
 

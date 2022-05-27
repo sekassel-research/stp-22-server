@@ -31,27 +31,27 @@ export class GameService {
     return created;
   }
 
-  async findAll(filter?: FilterQuery<Game>): Promise<Game[]> {
+  async findAll(filter: FilterQuery<Game> = {}): Promise<Game[]> {
     return this.model.find(filter).sort({ name: 1 }).exec();
   }
 
-  async findOne(id: string): Promise<Game | undefined> {
+  async findOne(id: string): Promise<Game | null> {
     return this.model.findById(id).exec();
   }
 
-  async update(id: string, dto: UpdateGameDto): Promise<Game | undefined> {
+  async update(id: string, dto: UpdateGameDto): Promise<Game | null> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async changeMembers(id: string, delta: number): Promise<Game | undefined> {
+  async changeMembers(id: string, delta: number): Promise<Game | null> {
     const updated = await this.model.findByIdAndUpdate(id, { $inc: { members: delta } }, { new: true });
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async delete(id: string): Promise<Game | undefined> {
+  async delete(id: string): Promise<Game | null> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;

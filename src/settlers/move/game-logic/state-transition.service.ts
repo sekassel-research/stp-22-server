@@ -58,6 +58,10 @@ export class StateTransitionService {
     }
 
     const state = await this.stateService.findByGame(gameId);
+    if (!state) {
+      return;
+    }
+
     const players = state.expectedMoves[0].players;
     if (players.length > 1) {
       await this.stateService.update(gameId, {
