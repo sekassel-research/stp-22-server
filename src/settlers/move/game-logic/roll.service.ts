@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { createContextId } from '@nestjs/core';
-import { UpdateQuery } from 'mongoose';
 import { BuildingService } from '../../building/building.service';
 import { Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
@@ -8,7 +6,6 @@ import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { ResourceType, TILE_RESOURCES } from '../../shared/constants';
 import { cubeCorners } from '../../shared/hexagon';
-import { randInt } from '../../shared/random';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
@@ -24,7 +21,7 @@ export class RollService {
   }
 
   private d6(): number {
-    return randInt(6) + 1;
+    return Math.randInt(6) + 1;
   }
 
   async foundingRoll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
@@ -75,7 +72,7 @@ export class RollService {
     const stealCount = Math.floor(total / 2);
 
     for (let i = 0; i < stealCount; i++) {
-      let rand = randInt(total);
+      let rand = Math.randInt(total);
       for (const key of keys) {
         const amount = resources[key];
         if (!amount) {

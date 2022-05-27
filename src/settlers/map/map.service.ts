@@ -6,7 +6,6 @@ import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
 import { RESOURCE_TILE_TYPES, TileType, WEIGHTED_NUMBER_TOKENS } from '../shared/constants';
 import { cubeCircle } from '../shared/hexagon';
-import { randInt, shuffle } from '../shared/random';
 import { Map, Tile } from './map.schema';
 
 @Injectable()
@@ -48,16 +47,16 @@ export class MapService {
     while (tileTypes.length + desertTiles < totalTiles) {
       tileTypes.push(...RESOURCE_TILE_TYPES);
     }
-    shuffle(tileTypes);
+    tileTypes.shuffle();
 
     const numberTokens: number[] = [];
     while (numberTokens.length + desertTiles < totalTiles) {
       numberTokens.push(...WEIGHTED_NUMBER_TOKENS);
     }
-    shuffle(numberTokens);
+    numberTokens.shuffle();
 
     for (let i = 0; i < desertTiles; i++) {
-      const desertIndex = randInt(totalTiles);
+      const desertIndex = Math.randInt(totalTiles);
       tileTypes.splice(desertIndex, 0, 'desert');
       numberTokens.splice(desertIndex, 0, 7);
     }
