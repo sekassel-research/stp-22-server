@@ -190,3 +190,11 @@
 * Fixed cascading deletes potentially failing to work for messages.
 * Fixed cascading deletes for buildings, maps, players and states.
 * Fixed building creation.
+
+# v2.0.2
+
+## Improvements
+
+* Game cleanup also deletes started games, but the lifetime was increased to four hours.
+* Temporary user cleanup is now a little more aggressive.
+* Messages whose sender no longer exists are now deleted after an hour.
