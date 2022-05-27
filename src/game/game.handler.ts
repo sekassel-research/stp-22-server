@@ -12,6 +12,6 @@ export class GameHandler {
 
   @OnEvent('users.*.deleted')
   async onUserDeleted(user: User): Promise<void> {
-    await this.gameService.deleteUser(user._id.toString());
+    await this.gameService.deleteMany({ owner: user._id.toString() });
   }
 }

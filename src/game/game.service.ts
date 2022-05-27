@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { EventService } from '../event/event.service';
 import { User } from '../user/user.schema';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
@@ -31,8 +31,8 @@ export class GameService {
     return created;
   }
 
-  async findAll(): Promise<Game[]> {
-    return this.model.find().sort({ name: 1 }).exec();
+  async findAll(filter?: FilterQuery<Game>): Promise<Game[]> {
+    return this.model.find(filter).sort({ name: 1 }).exec();
   }
 
   async findOne(id: string): Promise<Game | undefined> {
@@ -57,24 +57,12 @@ export class GameService {
     return deleted;
   }
 
-  async deleteOldGames(olderThanMs: number): Promise<Game[]> {
-    const filterDate = new Date(Date.now() - olderThanMs);
-    const games = await this.model.find({
-      updatedAt: { $lt: filterDate },
-    }).exec();
+  async deleteMany(filter?: FilterQuery<Game>): Promise<Game[]> {
+    const games = await this.findAll(filter);
     await this.model.deleteMany({ _id: { $in: games.map(g => g._id) } });
     for (const game of games) {
       this.emit('deleted', game);
     }
-    return games;
-  }
-
-  async deleteUser(userId: string): Promise<Game[]> {
-    const games = await this.model.find({ userId }).exec();
-    for (const game of games) {
-      this.emit('deleted', game);
-    }
-    await this.model.deleteMany({ userId }).exec();
     return games;
   }
 
