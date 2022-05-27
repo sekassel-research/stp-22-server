@@ -53,6 +53,28 @@ export class MessageService {
 
   async deleteAll(namespace?: Namespace, parent?: string, users?: UserFilter, filter?: FilterQuery<Message>): Promise<MessageDocument[]> {
     const messages = await this.findAll(namespace, parent, filter);
+    return this._deleteAll(messages, users);
+  }
+
+  async deleteOrphaned(filter: FilterQuery<Message> = {}): Promise<MessageDocument[]> {
+    const messages = await this.model.aggregate([
+      { $match: filter },
+      { $addFields: { _sender: { $toObjectId: '$sender' } } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_sender',
+          foreignField: '_id',
+          as: 'sender',
+        },
+      },
+      { $match: { sender: { $size: 0 } } },
+      { $unset: '_sender' },
+    ]).exec();
+    return this._deleteAll(messages);
+  }
+
+  private async _deleteAll(messages: MessageDocument[], users?: UserFilter) {
     await this.model.deleteMany({ _id: { $in: messages.map(m => m._id) } }).exec();
 
     const resolve = memoizee((namespace, parent) => this.resolver.resolve(namespace, parent), {

@@ -30,6 +30,7 @@ export const environment = {
       // or not starting with a word character (ASCII sort cheating)
       : /t[e3]mp|t[e3][s5]t|^.$|\d+$|^(.{1,3})\1{2,}$|^\W/i,
     globalMessageLifetimeHours: +process.env.GLOBAL_MESSAGE_LIFETIME_HOURS || 4,
+    orphanMessageLifetimeHours: +process.env.ORPHAN_MESSAGE_LIFETIME_HOURS || 1,
     spamMessageLifetimeHours: +process.env.SPAM_MESSAGE_LIFETIME_HOURS || 1,
     spamMessagePattern: process.env.SPAM_MESSAGE_PATTERN
       ? new RegExp(process.env.SPAM_MESSAGE_PATTERN)
