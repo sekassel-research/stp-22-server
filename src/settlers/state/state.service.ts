@@ -18,17 +18,24 @@ export class StateService {
     return this.model.findOne({ gameId }).exec();
   }
 
-  async createForGame(gameId: string): Promise<State> {
+  async createForGame(gameId: string): Promise<State | undefined> {
     const members = await this.memberService.findAll(gameId);
-    const created = await this.model.create({
-      gameId,
-      expectedMoves: [{
-        action: 'founding-roll',
-        players: members.map(m => m.userId),
-      }],
-    });
-    this.emit('created', created);
-    return created;
+    try {
+      const created = await this.model.create({
+        gameId,
+        expectedMoves: [{
+          action: 'founding-roll',
+          players: members.map(m => m.userId),
+        }],
+      });
+      this.emit('created', created);
+      return created;
+    } catch (err) {
+      if (err.code !== 11000) { // state already exists
+        return undefined;
+      }
+      throw err;
+    }
   }
 
   async update(gameId: string, dto: UpdateQuery<State>): Promise<State> {

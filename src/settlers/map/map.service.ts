@@ -22,20 +22,22 @@ export class MapService {
     return this.model.findOne({ gameId }).exec();
   }
 
-  async createForGame(game: Game): Promise<Map> {
+  async createForGame(game: Game): Promise<Map | undefined> {
     const radius = 2;
     const gameId = game._id.toString();
-    const createdOrExisting = await this.model.findOneAndUpdate({
-      gameId
-    }, {
-      $setOnInsert: {
+    try {
+      const created = await this.model.create({
         gameId,
         tiles: this.generateTiles(radius),
-      },
-    }, { upsert: true, new: true });
-    // FIXME don't emit when the map already existed
-    this.emit('created', createdOrExisting);
-    return createdOrExisting;
+      });
+      this.emit('created', created);
+      return created;
+    } catch (err) {
+      if (err.code === 11000) { // map already exists
+        return;
+      }
+      throw err;
+    }
   }
 
   private generateTiles(radius: number): Tile[] {

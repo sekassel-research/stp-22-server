@@ -61,9 +61,16 @@ export class PlayerService {
       resources: {},
       remainingBuildings: INITIAL_BUILDINGS,
     }));
-    const playerDocs = await this.model.insertMany(players);
-    this.emit('created', ...playerDocs);
-    return playerDocs;
+    try {
+      const playerDocs = await this.model.insertMany(players);
+      this.emit('created', ...playerDocs);
+      return playerDocs;
+    } catch (err) {
+      if (err.code === 11000) { // players already exist
+        return [];
+      }
+      throw err;
+    }
   }
 
   async update(gameId: string, userId: string, dto: UpdateQuery<Player>): Promise<PlayerDocument | undefined> {
