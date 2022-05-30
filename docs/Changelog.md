@@ -198,3 +198,15 @@
 * Game cleanup also deletes started games, but the lifetime was increased to four hours.
 * Temporary user cleanup is now a little more aggressive.
 * Messages whose sender no longer exists are now deleted after an hour.
+
+# v2.0.3
+
+## Improvements
+
+* Group members may now update the group to remove themselves.
+
+## Bugfixes
+
+* Games are now actually deleted when the owner is deleted.
+* Fixed a problem that caused map, player and state creation on game start to crash.
+* Fixed a few potential problems by using stricter type checks.
