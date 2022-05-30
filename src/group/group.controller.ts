@@ -52,10 +52,10 @@ export class GroupController {
   @ApiOkResponse({ type: Group })
   @ApiForbiddenResponse({ description: 'Attempt to get a group in which the current user is not a member.' })
   @NotFound()
-  async findOne(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | undefined> {
+  async findOne(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<Group | null> {
     const group = await this.groupService.find(id);
     if (!group) {
-      return undefined;
+      return null;
     }
     this.checkMembership(group.members, user);
     return group;
