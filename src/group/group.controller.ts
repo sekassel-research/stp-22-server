@@ -66,7 +66,6 @@ export class GroupController {
   @ApiForbiddenResponse({ description: 'Attempt to change a group in which the current user is not or will not be a member.' })
   @NotFound()
   async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateGroupDto): Promise<Group | null> {
-    dto.members && this.checkMembership(dto.members, user);
     const existing = await this.groupService.find(id);
     if (!existing) {
       return null;
