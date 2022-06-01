@@ -31,7 +31,7 @@ export class StateService {
       this.emit('created', created);
       return created;
     } catch (err: any) {
-      if (err.code !== 11000) { // state already exists
+      if (err.code === 11000) { // state already exists
         return undefined;
       }
       throw err;
