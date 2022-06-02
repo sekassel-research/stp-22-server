@@ -210,3 +210,9 @@
 * Games are now actually deleted when the owner is deleted.
 * Fixed a problem that caused map, player and state creation on game start to crash.
 * Fixed a few potential problems by using stricter type checks.
+
+# v2.0.4
+
+## Bugfixes
+
+* Fixed a problem that caused state creation on game start to crash.
