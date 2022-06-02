@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { FilterQuery, UpdateQuery } from 'mongoose';
 import { BuildingDocument } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
@@ -94,6 +94,10 @@ export class TradeService {
 
   private async findBuildingsNearHarbors(gameId: string, userId: string, type: ResourceType | undefined): Promise<BuildingDocument[]> {
     const map = await this.mapService.findByGame(gameId);
+    if (!map) {
+      throw new NotFoundException(gameId);
+    }
+
     const harbors = map.harbors.filter(h => h.type === type);
     const $or: Point3DWithCornerSide[] = [];
     for (const harbor of harbors) {
@@ -107,11 +111,11 @@ export class TradeService {
   }
 
   private async startOffer(gameId: string, userId: string, move: CreateMoveDto) {
-    await this.createOffer(gameId, userId, move.trade);
+    await this.createOffer(gameId, userId, move.trade!);
   }
 
   async offer(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    await this.createOffer(gameId, userId, move.trade);
+    await this.createOffer(gameId, userId, move.trade!);
     return this.createMove(gameId, userId, move);
   }
 
@@ -137,15 +141,15 @@ export class TradeService {
     }
 
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
-      if (count < 0 && (otherPlayer.resources[resource] || 0) < -count) {
+      if (count < 0 && (otherPlayer.resources[resource as ResourceType] || 0) < -count) {
         throw new BadRequestException('The player can no longer afford the trade');
       }
     }
 
     // TODO transaction?
     const filter: FilterQuery<Player> = {};
-    const update: UpdateQuery<Player> = { $inc: {} };
-    const updateOther: UpdateQuery<Player> = { $inc: {} };
+    const update: UpdateQuery<Player> & { $inc: any; } = { $inc: {} };
+    const updateOther: UpdateQuery<Player> & { $inc: any; } = { $inc: {} };
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
       count > 0 && (filter['resources.' + resource] = { $gte: count });
       update.$inc['resources.' + resource] = -count;

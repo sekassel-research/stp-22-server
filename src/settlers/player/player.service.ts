@@ -36,7 +36,7 @@ export class PlayerService {
     return query.exec();
   }
 
-  async findOne(gameId: string, userId: string): Promise<PlayerDocument | undefined> {
+  async findOne(gameId: string, userId: string): Promise<PlayerDocument | null> {
     return this.model.findOne({ gameId, userId }).exec();
   }
 
@@ -63,12 +63,19 @@ export class PlayerService {
       remainingBuildings: INITIAL_BUILDINGS,
       victoryPoints: 0,
     }));
-    const playerDocs = await this.model.insertMany(players);
-    this.emit('created', ...playerDocs);
-    return playerDocs;
+    try {
+      const playerDocs = await this.model.insertMany(players);
+      this.emit('created', ...playerDocs);
+      return playerDocs;
+    } catch (err: any) {
+      if (err.code === 11000) { // players already exist
+        return [];
+      }
+      throw err;
+    }
   }
 
-  async update(gameId: string, userId: string, dto: UpdateQuery<Player>, filter?: FilterQuery<Player>): Promise<PlayerDocument | undefined> {
+  async update(gameId: string, userId: string, dto: UpdateQuery<Player>, filter?: FilterQuery<Player>): Promise<PlayerDocument | null> {
     const updated = await this.model.findOneAndUpdate({ ...filter, gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
@@ -81,6 +88,9 @@ export class PlayerService {
   }
 
   private emit(action: string, ...players: PlayerDocument[]) {
+    if (!players.length) {
+      return;
+    }
     const maskedPlayers = players.map(p => this.mask(p));
     this.memberService.findAll(players[0].gameId).then(members => {
       const users = members.map(m => m.userId);

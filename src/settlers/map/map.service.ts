@@ -12,7 +12,6 @@ import {
   WEIGHTED_NUMBER_TOKENS,
 } from '../shared/constants';
 import { Cube, cubeCircle, cubeRing } from '../shared/hexagon';
-import { randInt, shuffle } from '../shared/random';
 import { Harbor, Map, Tile } from './map.schema';
 
 @Injectable()
@@ -24,23 +23,27 @@ export class MapService {
   ) {
   }
 
-  async findByGame(gameId: string): Promise<Map | undefined> {
+  async findByGame(gameId: string): Promise<Map | null> {
     return this.model.findOne({ gameId }).exec();
   }
 
-  async createForGame(game: Game): Promise<Map> {
+  async createForGame(game: Game): Promise<Map | undefined> {
     const radius = game.settings?.mapRadius ?? 2;
-    const gameId = game._id;
-    const createdOrExisting = await this.model.findOneAndUpdate({ gameId }, {
-      $setOnInsert: {
+    const gameId = game._id.toString();
+    try {
+      const created = await this.model.create({
         gameId,
         tiles: this.generateTiles(radius),
         harbors: this.generateHarbors(radius),
-      },
-    }, { upsert: true, new: true });
-    // FIXME don't emit when the map already existed
-    this.emit('created', createdOrExisting);
-    return createdOrExisting;
+      });
+      this.emit('created', created);
+      return created;
+    } catch (err: any) {
+      if (err.code === 11000) { // map already exists
+        return;
+      }
+      throw err;
+    }
   }
 
   private generateTiles(radius: number): Tile[] {
@@ -51,16 +54,16 @@ export class MapService {
     while (tileTypes.length + desertTiles < totalTiles) {
       tileTypes.push(...RESOURCE_TILE_TYPES);
     }
-    shuffle(tileTypes);
+    tileTypes.shuffle();
 
     const numberTokens: number[] = [];
     while (numberTokens.length + desertTiles < totalTiles) {
       numberTokens.push(...WEIGHTED_NUMBER_TOKENS);
     }
-    shuffle(numberTokens);
+    numberTokens.shuffle();
 
     for (let i = 0; i < desertTiles; i++) {
-      const desertIndex = randInt(totalTiles);
+      const desertIndex = Math.randInt(totalTiles);
       tileTypes.splice(desertIndex, 0, 'desert');
       numberTokens.splice(desertIndex, 0, 7);
     }
@@ -78,7 +81,7 @@ export class MapService {
     while (resourcesPool.length < resourcesCount) {
       resourcesPool.push(...RESOURCE_TYPES);
     }
-    shuffle(resourcesPool);
+    resourcesPool.shuffle();
 
     return cubeRing(Cube(0, 0, 0), radius).map((pos, i) => {
       if (i % 2 !== 0) {
@@ -88,7 +91,7 @@ export class MapService {
     });
   }
 
-  async deleteByGame(gameId: string): Promise<Map | undefined> {
+  async deleteByGame(gameId: string): Promise<Map | null> {
     const deleted = await this.model.findOneAndDelete({ gameId }).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;

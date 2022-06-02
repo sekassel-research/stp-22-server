@@ -22,7 +22,7 @@ export class AuthService {
     try {
       const parsedToken = this.jwtService.verify(token);
       return await this.jwtStrategy.validate(parsedToken);
-    } catch (error) {
+    } catch (error: any) {
       throw new WsException(error);
     }
   }

@@ -1,5 +1,7 @@
 import { SchemaOptions } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
+import { Types } from 'mongoose';
+
 
 export const GLOBAL_SCHEMA_OPTIONS: SchemaOptions = {
   timestamps: true,
@@ -19,6 +21,7 @@ export const GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS: SchemaOptions = {
 };
 
 export const MONGO_ID_FORMAT: ApiPropertyOptions = {
+  type: String,
   format: 'objectid',
   example: '507f191e810c19729de860ea',
 };
@@ -39,5 +42,5 @@ export class GlobalSchemaWithoutID {
 
 export class GlobalSchema extends GlobalSchemaWithoutID {
   @ApiProperty(MONGO_ID_FORMAT)
-  _id!: string;
+  _id!: Types.ObjectId;
 }

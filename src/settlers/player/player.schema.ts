@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType, RESOURCE_TYPES, ResourceType } from '../shared/constants';
 
@@ -74,7 +74,7 @@ export class Player {
   previousTradeOffer?: ResourceCount;
 }
 
-export type PlayerDocument = Player & Document;
+export type PlayerDocument = Player & Document<Types.ObjectId>;
 
 export const PlayerSchema = SchemaFactory.createForClass(Player)
   .index({ gameId: 1, userId: 1 }, { unique: true })

@@ -139,6 +139,18 @@
 
 * All `PATCH` endpoint no longer allow `null` values. [STP22SRV-11](https://jira.uniks.de/browse/STP22SRV-11)
 
+# v1.2.3
+
+## Bugfixes
+
+* Fixed cascading deletes potentially failing to work for messages.
+
+# v1.2.4
+
+## Bugfixes
+
+* Fixed private WebSocket events not being delivered.
+
 # v2.0.0 - Pioneers Base Game
 
 ## New Features
@@ -160,3 +172,47 @@
 ## Improvements
 
 * `POST /api/v1/games/{gameId}/members` now returns a `403 Forbidden` error when the password is wrong.
+
+# v2.0.1
+
+## Documentation
+
+* Documented the `CreateMoveDto` `building` property.
+
+## Improvements
+
+* The `Member` `color` can now be updated or set on creation. [STP22SRV-13](https://jira.uniks.de/browse/STP22SRV-13)
+
+## Bugfixes
+
+* Fixed server crash. [STP22SRV-14](https://jira.uniks.de/browse/STP22SRV-14)
+* Fixed maps, players and states being deleted when un-starting a game.  [STP22SRV-15](https://jira.uniks.de/browse/STP22SRV-15)
+* Fixed cascading deletes potentially failing to work for messages.
+* Fixed cascading deletes for buildings, maps, players and states.
+* Fixed building creation.
+
+# v2.0.2
+
+## Improvements
+
+* Game cleanup also deletes started games, but the lifetime was increased to four hours.
+* Temporary user cleanup is now a little more aggressive.
+* Messages whose sender no longer exists are now deleted after an hour.
+
+# v2.0.3
+
+## Improvements
+
+* Group members may now update the group to remove themselves.
+
+## Bugfixes
+
+* Games are now actually deleted when the owner is deleted.
+* Fixed a problem that caused map, player and state creation on game start to crash.
+* Fixed a few potential problems by using stricter type checks.
+
+# v2.0.4
+
+## Bugfixes
+
+* Fixed a problem that caused state creation on game start to crash.

@@ -17,7 +17,7 @@ export class MessageService {
   ) {
   }
 
-  async find(namespace: Namespace, parent: string, _id: string): Promise<MessageDocument | undefined> {
+  async find(namespace: Namespace, parent: string, _id: string): Promise<MessageDocument | null> {
     return this.model.findOne({ _id, namespace, parent }).exec();
   }
 
@@ -39,13 +39,13 @@ export class MessageService {
     return created;
   }
 
-  async update(namespace: Namespace, parent: string, _id: string, dto: UpdateMessageDto, users: UserFilter): Promise<MessageDocument | undefined> {
+  async update(namespace: Namespace, parent: string, _id: string, dto: UpdateMessageDto, users: UserFilter): Promise<MessageDocument | null> {
     const updated = await this.model.findOneAndUpdate({ namespace, parent, _id }, dto, { new: true }).exec();
     updated && this.sendEvent('updated', updated, users);
     return updated;
   }
 
-  async delete(namespace: Namespace, parent: string, _id: string, users: UserFilter): Promise<MessageDocument | undefined> {
+  async delete(namespace: Namespace, parent: string, _id: string, users: UserFilter): Promise<MessageDocument | null> {
     const deleted = await this.model.findOneAndDelete({ namespace, parent, _id }).exec();
     deleted && this.sendEvent('deleted', deleted, users);
     return deleted;
@@ -53,6 +53,28 @@ export class MessageService {
 
   async deleteAll(namespace?: Namespace, parent?: string, users?: UserFilter, filter?: FilterQuery<Message>): Promise<MessageDocument[]> {
     const messages = await this.findAll(namespace, parent, filter);
+    return this._deleteAll(messages, users);
+  }
+
+  async deleteOrphaned(filter: FilterQuery<Message> = {}): Promise<MessageDocument[]> {
+    const messages = await this.model.aggregate([
+      { $match: filter },
+      { $addFields: { _sender: { $toObjectId: '$sender' } } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_sender',
+          foreignField: '_id',
+          as: 'sender',
+        },
+      },
+      { $match: { sender: { $size: 0 } } },
+      { $unset: '_sender' },
+    ]).exec();
+    return this._deleteAll(messages);
+  }
+
+  private async _deleteAll(messages: MessageDocument[], users?: UserFilter) {
     await this.model.deleteMany({ _id: { $in: messages.map(m => m._id) } }).exec();
 
     const resolve = memoizee((namespace, parent) => this.resolver.resolve(namespace, parent), {
