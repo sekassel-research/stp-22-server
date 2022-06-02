@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from '../../building/building.dto';
 import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
@@ -7,12 +7,16 @@ import { MapService } from '../../map/map.service';
 import { PlayerService } from '../../player/player.service';
 import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
 import {
+  CORNER_SIDES,
   cornerAdjacentCorners,
   cornerAdjacentCubes,
   cornerAdjacentEdges,
+  CornerSide,
+  EDGE_SIDES,
   edgeAdjacentCorners,
   edgeAdjacentCubes,
   edgeAdjacentEdges,
+  EdgeSide,
   Point3DWithCornerSide,
   Point3DWithEdgeSide,
 } from '../../shared/hexagon';
@@ -104,6 +108,9 @@ export class BuildService {
   }
 
   private async checkRoadPlacement(gameId: string, userId: string, building: CreateBuildingDto) {
+    if (!EDGE_SIDES.includes(building.side as EdgeSide)) {
+      throw new BadRequestException('Invalid edge side ' + building.side);
+    }
     const existing = await this.buildingAt(gameId, building, ['road']);
     if (existing) {
       throw new ForbiddenException('There is already a road here');
@@ -160,6 +167,10 @@ export class BuildService {
     }
 
     const { x, y, z, side } = building;
+    if (!CORNER_SIDES.includes(side as CornerSide)) {
+      throw new BadRequestException('Invalid corner side ' + side);
+    }
+
     const adjacent = await this.buildingService.findAll({
       gameId,
       type: { $in: ['settlement', 'city'] },
