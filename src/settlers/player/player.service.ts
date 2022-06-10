@@ -59,6 +59,7 @@ export class PlayerService {
       gameId,
       userId: m.userId,
       color: m.color ?? COLOR_PALETTE[index % COLOR_PALETTE.length],
+      active: true,
       resources: {},
       remainingBuildings: INITIAL_BUILDINGS,
       victoryPoints: 0,
