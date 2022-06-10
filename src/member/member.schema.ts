@@ -22,7 +22,7 @@ export class Member extends GlobalSchemaWithoutID {
   ready: boolean;
 
   @Prop()
-  @ApiPropertyOptional({ type: 'color', example: '#0075ff' })
+  @ApiPropertyOptional({ format: 'color', example: '#0075ff' })
   @IsOptional()
   @IsHexColor()
   color?: string;

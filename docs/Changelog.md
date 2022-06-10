@@ -216,3 +216,14 @@
 ## Bugfixes
 
 * Fixed a problem that caused state creation on game start to crash.
+
+# v2.0.5
+
+## Documentation
+
+* Documented the proper type for the `Member` `color` property.
+
+## Bugfixes
+
+* Fixed a `500 Internal Server Error` when attempting to build on an invalid side.
+* The `CreateMoveDto` `building` property is now properly validated.
