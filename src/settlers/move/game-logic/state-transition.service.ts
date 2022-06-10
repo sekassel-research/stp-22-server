@@ -25,7 +25,7 @@ export class StateTransitionService {
         return;
       }
 
-      const players = await this.playerService.findAll(gameId, { foundingRoll: -1 });
+      const players = await this.playerService.findAll(gameId, { foundingRoll: -1, active: { $ne: false } });
       const currentIndex = players.findIndex(p => p.userId === userId);
       const nextPlayer = players[(currentIndex + 1) % players.length];
       await this.stateService.update(gameId, {
@@ -37,7 +37,7 @@ export class StateTransitionService {
 
     if (move.action === 'roll') {
       if (move.roll === 7) {
-        const allPlayers = await this.playerService.findAll(gameId);
+        const allPlayers = await this.playerService.findAll(gameId, { active: { $ne: false } });
         const players = allPlayers.filter(p => Object.values(p.resources).sum() > 7);
         const expectedMoves: ExpectedMove[] = [
           { action: 'rob', players: [userId] },
@@ -58,7 +58,7 @@ export class StateTransitionService {
     }
 
     if (move.action === 'founding-roll') {
-      const players = await this.playerService.findAll(gameId, { foundingRoll: -1 });
+      const players = await this.playerService.findAll(gameId, { foundingRoll: -1, active: { $ne: false } });
 
       if (!players.find(p => !p.foundingRoll)) {
         const ids = players.map(m => m.userId);
@@ -83,7 +83,7 @@ export class StateTransitionService {
   }
 
   private async addOfferAndAccept(gameId: string, userId: string): Promise<void> {
-    const players = await this.playerService.findAll(gameId);
+    const players = await this.playerService.findAll(gameId, { active: { $ne: false } });
     const others = players.filter(p => p.userId !== userId);
     const othersOffer: ExpectedMove = {
       action: 'offer',
