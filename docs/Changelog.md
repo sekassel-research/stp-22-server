@@ -227,3 +227,35 @@
 
 * Fixed a `500 Internal Server Error` when attempting to build on an invalid side.
 * The `CreateMoveDto` `building` property is now properly validated.
+
+# v3.0.0
+
+## New Features
+
+### General Game Logic
+
++ Added the `Game` `settings` property including `mapRadius` and `victoryPoints`.
++ Added the `Member` `spectator` property.
++ Added the `Player` `active` property. [STP22SRV-19](https://jira.uniks.de/browse/STP22SRV-19)
+
+### Trade
+
++ Added the `Map` `harbors` property.
++ Added the `Player` `previousTradeOffer` property.
++ Added the `trade` and `offer` actions and the `Move` `trade` property.
++ Added the `accept` action and the `Move` `partner` property.
+
+### Robber
+
++ Added the `State` `robber` property.
++ Added the `drop` action and the `Move` `resources` property.
++ Added the `rob` action and the `Move` `rob` property.
+
+### Victory Points
+
++ Added the `Player` `victoryPoints` property.
++ Added the `Player` `longestRoad` property.
+
+## Removals
+
+- Removed the automatic resource reduction when rolling a 7.
