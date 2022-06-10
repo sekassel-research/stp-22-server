@@ -59,19 +59,16 @@ export class Move {
   @Type(() => RobDto)
   rob?: RobDto;
 
-  @Prop({ type: Object })
   @ApiPropertyOptional(RESOURCE_COUNT_OPTIONS)
   @IsOptional()
   @IsObject()
   resources?: ResourceCount;
 
-  @Prop({ type: Object })
   @ApiPropertyOptional()
   @IsOptional()
   @IsObject()
   trade?: ResourceCount;
 
-  @Prop()
   @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
   @IsOptional()
   @IsMongoId()
