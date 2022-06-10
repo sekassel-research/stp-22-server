@@ -52,6 +52,22 @@ export class StateService {
     return deleted;
   }
 
+  async removePlayer(gameId: string, userId: string) {
+    const state = await this.findByGame(gameId);
+    if (!state) {
+      return;
+    }
+
+    // TODO maybe this can be done as a MongoDB update
+    let expectedMoves = state.expectedMoves;
+    for (const expected of expectedMoves) {
+      expected.players = expected.players.filter(p => p !== userId);
+    }
+    expectedMoves = expectedMoves.filter(m => m.players.length > 0);
+
+    await this.update(gameId, { expectedMoves });
+  }
+
   private emit(event: string, state: State) {
     this.memberService.findAll(state.gameId).then(members => {
       this.eventService.emit(`games.${state.gameId}.state.${event}`, state, members.map(m => m.userId));
