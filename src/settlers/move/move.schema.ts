@@ -53,23 +53,37 @@ export class Move {
   @IsMongoId()
   building?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'Required if action is "rob".',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => RobDto)
   rob?: RobDto;
 
-  @ApiPropertyOptional(RESOURCE_COUNT_OPTIONS)
+  @ApiPropertyOptional({
+    ...RESOURCE_COUNT_OPTIONS,
+    description: 'Required if action is "drop".',
+  })
   @IsOptional()
   @IsObject()
   resources?: ResourceCount;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    ...RESOURCE_COUNT_OPTIONS,
+    description: 'Required if action is "trade" or "offer". ' +
+      'Positive values are given to the player, ' +
+      'negative values are taken from the player.',
+  })
   @IsOptional()
   @IsObject()
   trade?: ResourceCount;
 
-  @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
+  @ApiPropertyOptional({
+    ...MONGO_ID_FORMAT,
+    description: 'To trade with the bank, use action "trade" and set this to ' + BANK_TRADE_ID + '. ' +
+      'Otherwise required if action is "accept".',
+  })
   @IsOptional()
   @IsMongoId()
   partner?: string;
