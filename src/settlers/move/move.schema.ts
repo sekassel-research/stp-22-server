@@ -63,25 +63,18 @@ export class Move {
 
   @ApiPropertyOptional({
     ...RESOURCE_COUNT_OPTIONS,
-    description: 'Required if action is "drop".',
+    description: 'Required if action is "drop" or "offer". ' +
+      'Can be used with "build" action to initiate a trade. ' +
+      'Positive values are given to the player, ' +
+      'negative values are taken from the player.',
   })
   @IsOptional()
   @IsObject()
   resources?: ResourceCount;
 
   @ApiPropertyOptional({
-    ...RESOURCE_COUNT_OPTIONS,
-    description: 'Required if action is "trade" or "offer". ' +
-      'Positive values are given to the player, ' +
-      'negative values are taken from the player.',
-  })
-  @IsOptional()
-  @IsObject()
-  trade?: ResourceCount;
-
-  @ApiPropertyOptional({
     ...MONGO_ID_FORMAT,
-    description: 'To trade with the bank, use action "trade" and set this to ' + BANK_TRADE_ID + '. ' +
+    description: 'To trade with the bank, use action "build" and set this to ' + BANK_TRADE_ID + '. ' +
       'Otherwise required if action is "accept".',
   })
   @IsOptional()

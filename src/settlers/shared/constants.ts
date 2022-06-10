@@ -42,18 +42,18 @@ export const INITIAL_BUILDINGS: Record<BuildingType, number> = {
 
 export const BUILDING_COSTS: Record<BuildingType, Partial<Record<ResourceType, number>>> = {
   road: {
-    lumber: 1,
-    brick: 1,
+    lumber: -1,
+    brick: -1,
   },
   settlement: {
-    grain: 1,
-    lumber: 1,
-    brick: 1,
-    wool: 1,
+    grain: -1,
+    lumber: -1,
+    brick: -1,
+    wool: -1,
   },
   city: {
-    grain: 2,
-    ore: 3,
+    grain: -2,
+    ore: -3,
   },
 }
 

@@ -242,7 +242,8 @@
 
 + Added the `Map` `harbors` property.
 + Added the `Player` `previousTradeOffer` property.
-+ Added the `trade` and `offer` actions and the `Move` `trade` property.
++ Added the `Move` `resources` which triggers a trade when used with the `build` action.
++ Added the `trade` and `offer` actions property.
 + Added the `accept` action and the `Move` `partner` property.
 
 ### Robber

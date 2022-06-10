@@ -63,7 +63,7 @@ export class BuildService {
     this.checkResourceCosts(move.resources, player);
 
     const total = Object.values(player.resources).sum();
-    const dropped = Object.values(move.resources).sum();
+    const dropped = -Object.values(move.resources).sum();
     if (dropped !== ((total / 2) | 0)) {
       throw new ForbiddenException('You must drop exactly half of your resources (rounded down)');
     }
@@ -275,7 +275,7 @@ export class BuildService {
   private deductCosts(costs: ResourceCount, $inc: Record<string, number>) {
     for (const resource of Object.keys(costs) as ResourceType[]) {
       const count = costs[resource];
-      count && ($inc[`resources.${resource}`] = -count);
+      count && ($inc[`resources.${resource}`] = count);
     }
   }
 

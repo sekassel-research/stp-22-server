@@ -40,11 +40,11 @@ export class TradeService {
   }
 
   async bankTrade(gameId: string, userId: string, move: CreateMoveDto) {
-    if (!move.trade) {
-      throw new BadRequestException('Missing trade property');
+    if (!move.resources) {
+      throw new BadRequestException('Missing resources property');
     }
 
-    const requests = Object.entries(move.trade).filter(([, count]) => count > 0);
+    const requests = Object.entries(move.resources).filter(([, count]) => count > 0);
     if (requests.length !== 1) {
       throw new ForbiddenException('Bank trades need to request exactly one type of resource');
     }
@@ -53,7 +53,7 @@ export class TradeService {
       throw new ForbiddenException('Bank trades need to request exactly one resource');
     }
 
-    const offers = Object.entries(move.trade).filter(([, count]) => count < 0);
+    const offers = Object.entries(move.resources).filter(([, count]) => count < 0);
     if (offers.length !== 1) {
       throw new ForbiddenException('Bank trades need to offer exactly one type of resource');
     }
@@ -111,11 +111,11 @@ export class TradeService {
   }
 
   private async startOffer(gameId: string, userId: string, move: CreateMoveDto) {
-    await this.createOffer(gameId, userId, move.trade!);
+    await this.createOffer(gameId, userId, move.resources!);
   }
 
   async offer(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    await this.createOffer(gameId, userId, move.trade!);
+    await this.createOffer(gameId, userId, move.resources!);
     return this.createMove(gameId, userId, move);
   }
 

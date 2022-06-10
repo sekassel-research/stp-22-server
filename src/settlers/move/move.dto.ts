@@ -9,7 +9,6 @@ export class CreateMoveDto extends PickType(Move, [
   'action',
   'resources',
   'rob',
-  'trade',
   'partner',
 ] as const) {
   @Prop()

@@ -13,12 +13,12 @@ export class StateTransitionService {
   }
 
   async transition(gameId: string, userId: string, move: Move): Promise<void> {
-    if (move.action === 'build' && move.trade && move.partner !== BANK_TRADE_ID) {
+    if (move.action === 'build' && move.resources && move.partner !== BANK_TRADE_ID) {
       return this.addOfferAndAccept(gameId, userId);
     }
 
     if (move.action === 'build') {
-      if (move.trade) {
+      if (move.resources) {
         return;
       }
       if (move.building) {
