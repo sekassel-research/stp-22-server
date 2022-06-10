@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { MemberService } from '../../member/member.service';
+import { PlayerService } from '../player/player.service';
 import { State } from './state.schema';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class StateService {
     @InjectModel('states') private model: Model<State>,
     private memberService: MemberService,
     private eventService: EventService,
+    private playerService: PlayerService,
   ) {
   }
 
@@ -64,6 +66,22 @@ export class StateService {
       expected.players = expected.players.filter(p => p !== userId);
     }
     expectedMoves = expectedMoves.filter(m => m.players.length > 0);
+
+    if (expectedMoves.length === 0) {
+      const players = await this.playerService.findAll(gameId);
+      const userIndex = players.findIndex(p => p.userId === userId);
+      const next = players.find((p, i) => i > userIndex && p.active)
+        || players.find((p, i) => i < userIndex && p.active);
+      if (next) {
+        expectedMoves.push({
+          action: 'roll',
+          players: [next.userId],
+        });
+      } else {
+        // if nobody is active any more, just give up
+        // let them end up with an empty state
+      }
+    }
 
     await this.update(gameId, { expectedMoves });
   }
