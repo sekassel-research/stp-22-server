@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional, IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsInt, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
 import { Harbor, Tile } from '../map/map.schema';
 import { Point3D } from '../shared/schema';
@@ -25,6 +25,11 @@ export class MapTemplate extends GlobalSchema {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   createdBy: string;
+
+  @Prop()
+  @ApiProperty()
+  @IsInt()
+  votes: number;
 
   @Prop()
   @ApiPropertyOptional({ type: [TileTemplate] })
