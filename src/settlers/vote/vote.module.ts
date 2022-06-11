@@ -4,6 +4,7 @@ import { EventModule } from '../../event/event.module';
 import { MapModule } from '../map/map.module';
 
 import { VoteController } from './vote.controller';
+import { VoteHandler } from './vote.handler';
 import { VoteSchema } from './vote.schema';
 import { VoteService } from './vote.service';
 
@@ -19,7 +20,7 @@ import { VoteService } from './vote.service';
     EventModule,
   ],
   controllers: [VoteController],
-  providers: [VoteService],
+  providers: [VoteService, VoteHandler],
   exports: [VoteService],
 })
 export class VoteModule {

@@ -49,6 +49,15 @@ export class VoteService {
     return deleted;
   }
 
+  async deleteMany(mapId: string): Promise<Vote[]> {
+    const votes = await this.findAll(mapId);
+    await this.model.deleteMany({ mapId }).exec();
+    for (const vote of votes) {
+      this.emit('deleted', vote);
+    }
+    return votes;
+  }
+
   private emit(event: string, vote: Vote): void {
     this.eventEmitter.emit(`maps.${vote.mapId}.votes.${vote.userId}.${event}`, vote);
   }
