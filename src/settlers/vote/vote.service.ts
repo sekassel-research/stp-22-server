@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 
 import { EventService } from '../../event/event.service';
+import { MapTemplate } from '../map-template/map-template.schema';
 import { MapTemplateService } from '../map-template/map-template.service';
 import { CreateVoteDto, UpdateVoteDto } from './vote.dto';
 import { Vote } from './vote.schema';
@@ -17,11 +18,10 @@ export class VoteService {
   }
 
   async find(mapId: string, userId: string): Promise<Vote | null> {
-    return this.model.findOne({  mapId, userId }).exec();
+    return this.model.findOne({ mapId, userId }).exec();
   }
 
-  async findAll(mapId: string, filter: FilterQuery<Vote> = {}): Promise<Vote[]> {
-    filter.mapId = mapId;
+  async findAll(filter: FilterQuery<Vote> = {}): Promise<Vote[]> {
     return this.model.find(filter).exec();
   }
 
@@ -49,9 +49,9 @@ export class VoteService {
     return deleted;
   }
 
-  async deleteMany(mapId: string): Promise<Vote[]> {
-    const votes = await this.findAll(mapId);
-    await this.model.deleteMany({ mapId }).exec();
+  async deleteMany(filter: FilterQuery<MapTemplate>): Promise<Vote[]> {
+    const votes = await this.findAll(filter);
+    await this.model.deleteMany(filter).exec();
     for (const vote of votes) {
       this.emit('deleted', vote);
     }

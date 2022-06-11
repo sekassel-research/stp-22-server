@@ -44,7 +44,7 @@ export class VoteController {
   async findAll(
     @Param('mapId', ParseObjectIdPipe) mapId: string,
   ): Promise<Vote[]> {
-    return this.voteService.findAll(mapId);
+    return this.voteService.findAll({ mapId });
   }
 
   @Get(':userId')
