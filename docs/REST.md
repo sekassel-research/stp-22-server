@@ -47,6 +47,7 @@ All delete operations, whether manual, cleanup or cascading, trigger the same ev
 | Group         | All Messages sent within the Group    |
 | Game          | All Members of the Game               |
 | Game          | All Messages sent within the Game     |
+| Map           | All Votes cast for the Map            |
 
 Cascading deletes do not apply to some resources:
 
