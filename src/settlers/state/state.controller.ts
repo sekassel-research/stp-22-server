@@ -24,7 +24,7 @@ export class StateController {
   @NotFound()
   async find(
     @Param('gameId', ParseObjectIdPipe) gameId: string,
-  ): Promise<State | undefined> {
+  ): Promise<State | null> {
     return this.stateService.findByGame(gameId);
   }
 }

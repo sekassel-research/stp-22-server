@@ -33,7 +33,7 @@ export class MoveController {
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Body() dto: CreateMoveDto,
   ): Promise<Move> {
-    return this.gameLogicService.handle(gameId, user._id, dto);
+    return this.gameLogicService.handle(gameId, user._id.toString(), dto);
   }
 
   @Get()

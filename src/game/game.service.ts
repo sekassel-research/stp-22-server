@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { EventService } from '../event/event.service';
 import { User } from '../user/user.schema';
 import { CreateGameDto, UpdateGameDto } from './game.dto';
@@ -26,59 +26,43 @@ export class GameService {
   }
 
   async create(owner: User, game: CreateGameDto): Promise<Game> {
-    const created = await this.model.create(await this.hash({ ...game, owner: owner._id }));
+    const created = await this.model.create(await this.hash({ ...game, owner: owner._id.toString() }));
     created && this.emit('created', created);
     return created;
   }
 
-  async findAll(): Promise<Game[]> {
-    return this.model.find().sort({ name: 1 }).exec();
+  async findAll(filter: FilterQuery<Game> = {}): Promise<Game[]> {
+    return this.model.find(filter).sort({ name: 1 }).exec();
   }
 
-  async findOne(id: string): Promise<Game | undefined> {
+  async findOne(id: string): Promise<Game | null> {
     return this.model.findById(id).exec();
   }
 
-  async update(id: string, dto: UpdateGameDto): Promise<Game | undefined> {
+  async update(id: string, dto: UpdateGameDto): Promise<Game | null> {
     const updated = await this.model.findByIdAndUpdate(id, await this.hash(dto), { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async changeMembers(id: string, delta: number): Promise<Game | undefined> {
+  async changeMembers(id: string, delta: number): Promise<Game | null> {
     const updated = await this.model.findByIdAndUpdate(id, { $inc: { members: delta } }, { new: true });
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async delete(id: string): Promise<Game | undefined> {
+  async delete(id: string): Promise<Game | null> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;
   }
 
-  async deleteOldGames(olderThanMs: number): Promise<Game[]> {
-    const filterDate = new Date(Date.now() - olderThanMs);
-    const games = await this.model.find({
-      updatedAt: { $lt: filterDate },
-      $or: [
-        {started: {$exists: false}},
-        {started: false},
-      ],
-    }).exec();
+  async deleteMany(filter?: FilterQuery<Game>): Promise<Game[]> {
+    const games = await this.findAll(filter);
     await this.model.deleteMany({ _id: { $in: games.map(g => g._id) } });
     for (const game of games) {
       this.emit('deleted', game);
     }
-    return games;
-  }
-
-  async deleteUser(userId: string): Promise<Game[]> {
-    const games = await this.model.find({ userId }).exec();
-    for (const game of games) {
-      this.emit('deleted', game);
-    }
-    await this.model.deleteMany({ userId }).exec();
     return games;
   }
 

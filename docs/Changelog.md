@@ -139,6 +139,18 @@
 
 * All `PATCH` endpoint no longer allow `null` values. [STP22SRV-11](https://jira.uniks.de/browse/STP22SRV-11)
 
+# v1.2.3
+
+## Bugfixes
+
+* Fixed cascading deletes potentially failing to work for messages.
+
+# v1.2.4
+
+## Bugfixes
+
+* Fixed private WebSocket events not being delivered.
+
 # v2.0.0 - Pioneers Base Game
 
 ## New Features
@@ -160,3 +172,91 @@
 ## Improvements
 
 * `POST /api/v1/games/{gameId}/members` now returns a `403 Forbidden` error when the password is wrong.
+
+# v2.0.1
+
+## Documentation
+
+* Documented the `CreateMoveDto` `building` property.
+
+## Improvements
+
+* The `Member` `color` can now be updated or set on creation. [STP22SRV-13](https://jira.uniks.de/browse/STP22SRV-13)
+
+## Bugfixes
+
+* Fixed server crash. [STP22SRV-14](https://jira.uniks.de/browse/STP22SRV-14)
+* Fixed maps, players and states being deleted when un-starting a game.  [STP22SRV-15](https://jira.uniks.de/browse/STP22SRV-15)
+* Fixed cascading deletes potentially failing to work for messages.
+* Fixed cascading deletes for buildings, maps, players and states.
+* Fixed building creation.
+
+# v2.0.2
+
+## Improvements
+
+* Game cleanup also deletes started games, but the lifetime was increased to four hours.
+* Temporary user cleanup is now a little more aggressive.
+* Messages whose sender no longer exists are now deleted after an hour.
+
+# v2.0.3
+
+## Improvements
+
+* Group members may now update the group to remove themselves.
+
+## Bugfixes
+
+* Games are now actually deleted when the owner is deleted.
+* Fixed a problem that caused map, player and state creation on game start to crash.
+* Fixed a few potential problems by using stricter type checks.
+
+# v2.0.4
+
+## Bugfixes
+
+* Fixed a problem that caused state creation on game start to crash.
+
+# v2.0.5
+
+## Documentation
+
+* Documented the proper type for the `Member` `color` property.
+
+## Bugfixes
+
+* Fixed a `500 Internal Server Error` when attempting to build on an invalid side.
+* The `CreateMoveDto` `building` property is now properly validated.
+
+# v3.0.0
+
+## New Features
+
+### General Game Logic
+
++ Added the `Game` `settings` property including `mapRadius` and `victoryPoints`.
++ Added the `Member` `spectator` property.
++ Added the `Player` `active` property. [STP22SRV-19](https://jira.uniks.de/browse/STP22SRV-19)
+
+### Trade
+
++ Added the `Map` `harbors` property.
++ Added the `Player` `previousTradeOffer` property.
++ Added the `Move` `resources` which triggers a trade when used with the `build` action.
++ Added the `trade` and `offer` actions property.
++ Added the `accept` action and the `Move` `partner` property.
+
+### Robber
+
++ Added the `State` `robber` property.
++ Added the `drop` action and the `Move` `resources` property.
++ Added the `rob` action and the `Move` `rob` property.
+
+### Victory Points
+
++ Added the `Player` `victoryPoints` property.
++ Added the `Player` `longestRoad` property.
+
+## Removals
+
+- Removed the automatic resource reduction when rolling a 7.

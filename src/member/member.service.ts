@@ -31,19 +31,20 @@ export class MemberService {
     if (game.started) {
       return 'started';
     }
-    if (actingUser._id === targetUser) {
-      if (actingUser._id === game.owner) {
+    const userId = actingUser._id.toString();
+    if (userId === targetUser) {
+      if (userId === game.owner) {
         return 'owner-target';
       }
       return 'target';
     }
-    if (actingUser._id === game.owner) {
+    if (userId === game.owner) {
       return 'owner';
     }
     return 'unauthorized';
   }
 
-  async create(gameId: string, userId: string, member: CreateMemberDto): Promise<Member | undefined> {
+  async create(gameId: string, userId: string, member: CreateMemberDto): Promise<Member> {
     const created = await this.model.create({ ...member, password: undefined, userId, gameId });
     if (created) {
       await this.gameService.changeMembers(gameId, +1);
@@ -56,11 +57,11 @@ export class MemberService {
     return this.model.find({ ...filter, gameId }).exec();
   }
 
-  async findOne(gameId: string, userId: string): Promise<Member | undefined> {
+  async findOne(gameId: string, userId: string): Promise<Member | null> {
     return this.model.findOne({ gameId, userId }).exec();
   }
 
-  async update(gameId: string, userId: string, dto: UpdateMemberDto): Promise<Member | undefined> {
+  async update(gameId: string, userId: string, dto: UpdateMemberDto): Promise<Member | null> {
     const updated = await this.model.findOneAndUpdate({ gameId, userId }, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
@@ -85,7 +86,7 @@ export class MemberService {
     return members;
   }
 
-  async delete(gameId: string, userId: string): Promise<Member | undefined> {
+  async delete(gameId: string, userId: string): Promise<Member | null> {
     const deleted = await this.model.findOneAndDelete({ gameId, userId }).exec();
     if (deleted) {
       await this.gameService.changeMembers(gameId, -1);

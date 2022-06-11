@@ -35,4 +35,15 @@ export class MessageScheduler {
       this.logger.warn(`Deleted ${messages.length} spam messages.`);
     }
   }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async deleteOrphanMessages(): Promise<void> {
+    const maxAgeMs = environment.cleanup.orphanMessageLifetimeHours * 60 * 60 * 1000;
+    const messages = await this.messageService.deleteOrphaned({
+      createdAt: { $lt: new Date(Date.now() - maxAgeMs) },
+    });
+    if (messages.length) {
+      this.logger.warn(`Deleted ${messages.length} orphan messages.`);
+    }
+  }
 }

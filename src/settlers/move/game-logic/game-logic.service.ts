@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { StateService } from '../../state/state.service';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
@@ -21,7 +21,7 @@ export class GameLogicService {
   async handle(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     const state = await this.stateService.findByGame(gameId);
     if (!state) {
-      return undefined;
+      throw new NotFoundException(gameId);
     }
     if (!state.expectedMoves[0].players.includes(userId)) {
       throw new ForbiddenException('Not your turn!');
@@ -44,7 +44,7 @@ export class GameLogicService {
       case 'founding-road-1':
       case 'founding-road-2':
       case 'build':
-        if (move.trade) {
+        if (move.resources) {
           return this.tradeService.buildTrade(gameId, userId, move);
         }
         return this.buildService.build(gameId, userId, move);

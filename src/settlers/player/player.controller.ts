@@ -1,5 +1,5 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, ForbiddenException, Get, Param, Patch } from '@nestjs/common';
+import { ApiForbiddenResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from '../../auth/auth.decorator';
 import { MemberAuth } from '../../member/member-auth.decorator';
 import { User } from '../../user/user.schema';
@@ -7,6 +7,7 @@ import { NotFound } from '../../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
+import { UpdatePlayerDto } from './player.dto';
 import { Player, PlayerDocument } from './player.schema';
 import { PlayerService } from './player.service';
 
@@ -47,8 +48,24 @@ export class PlayerController {
     return this.maskResourcesIfOpponent(user, player);
   }
 
+  @Patch(':userId')
+  @ApiOkResponse({ type: Player })
+  @ApiForbiddenResponse({ description: 'Attempting to update someone else\'s player.' })
+  @NotFound()
+  async update(
+    @AuthUser() user: User,
+    @Param('gameId', ParseObjectIdPipe) gameId: string,
+    @Param('userId', ParseObjectIdPipe) userId: string,
+    @Body() dto: UpdatePlayerDto,
+  ): Promise<Player | null> {
+    if (userId !== user._id.toString()) {
+      throw new ForbiddenException('You may only update your own player');
+    }
+    return this.playerService.update(gameId, userId, dto);
+  }
+
   private maskResourcesIfOpponent(user: User, player: PlayerDocument): Player {
-    if (player.userId === user._id) {
+    if (player.userId === user._id.toString()) {
       return player;
     }
 

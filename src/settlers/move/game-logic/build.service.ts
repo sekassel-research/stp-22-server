@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 import { CreateBuildingDto } from '../../building/building.dto';
 import { Building } from '../../building/building.schema';
@@ -7,14 +7,18 @@ import { Map as GameMap } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
 import { Player, PlayerDocument, ResourceCount } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
-import { BUILDING_COSTS, BuildingType, ResourceType, TILE_RESOURCES } from '../../shared/constants';
+import { BUILDING_COSTS, BuildingType, ResourceType, Task, TILE_RESOURCES } from '../../shared/constants';
 import {
+  CORNER_SIDES,
   cornerAdjacentCorners,
   cornerAdjacentCubes,
   cornerAdjacentEdges,
+  CornerSide,
+  EDGE_SIDES,
   edgeAdjacentCorners,
   edgeAdjacentCubes,
   edgeAdjacentEdges,
+  EdgeSide,
   Point3DWithCornerSide,
   Point3DWithEdgeSide,
 } from '../../shared/hexagon';
@@ -52,10 +56,14 @@ export class BuildService {
     }
 
     const player = await this.playerService.findOne(gameId, userId);
+    if (!player) {
+      throw new NotFoundException(userId);
+    }
+
     this.checkResourceCosts(move.resources, player);
 
     const total = Object.values(player.resources).sum();
-    const dropped = Object.values(move.resources).sum();
+    const dropped = -Object.values(move.resources).sum();
     if (dropped !== ((total / 2) | 0)) {
       throw new ForbiddenException('You must drop exactly half of your resources (rounded down)');
     }
@@ -73,9 +81,13 @@ export class BuildService {
   }
 
   private async doBuild(gameId: string, userId: string, move: CreateMoveDto) {
+    if (!move.building) {
+      return;
+    }
+
     const existing = await this.checkAllowedPlacement(gameId, userId, move);
 
-    const update: UpdateQuery<Player> = {
+    const update: UpdateQuery<Player> & {$inc: any} = {
       $inc: {
         [`remainingBuildings.${move.building.type}`]: -1,
       }
@@ -89,11 +101,11 @@ export class BuildService {
       if (longestRoad >= 5) {
         const players = await this.playerService.findAll(gameId, userId);
         const bestPlayer = players.find(p => p.longestRoad);
-        if (!bestPlayer || longestRoad > bestPlayer.longestRoad) {
+        if (!bestPlayer || longestRoad > bestPlayer.longestRoad!) {
           update.$inc.victoryPoints = +2;
           update.$set = {longestRoad};
         }
-        if (bestPlayer && longestRoad >= bestPlayer.longestRoad) {
+        if (bestPlayer && longestRoad >= bestPlayer.longestRoad!) {
           await this.playerService.update(gameId, bestPlayer.userId, {
             $inc: { victoryPoints: -2 },
             $unset: { longestRoad: 1 },
@@ -106,13 +118,17 @@ export class BuildService {
 
     if (move.action === 'build') {
       const player = await this.playerService.findOne(gameId, userId);
+      if (!player) {
+        throw new NotFoundException(userId);
+      }
+
       const costs = BUILDING_COSTS[move.building.type];
       this.checkAvailableBuildings(player, move.building.type);
       this.checkResourceCosts(costs, player);
       this.deductCosts(costs, update.$inc);
     } else if (move.action === 'founding-settlement-2') {
       const map = await this.mapService.findByGame(gameId);
-      this.giveAdjacentResources(map, move.building, update.$inc);
+      map && this.giveAdjacentResources(map, move.building, update.$inc);
     }
 
     await this.playerService.update(gameId, userId, update);
@@ -126,12 +142,12 @@ export class BuildService {
   }
 
   private checkExpectedType(move: CreateMoveDto) {
-    const expectedType = {
+    const expectedType = ({
       'founding-settlement-1': 'settlement',
       'founding-settlement-2': 'settlement',
       'founding-road-1': 'road',
       'founding-road-2': 'road',
-    }[move.action];
+    } as Partial<Record<Task, BuildingType>>)[move.action];
     if (!expectedType) {
       return;
     }
@@ -141,7 +157,7 @@ export class BuildService {
   }
 
   private async checkAllowedPlacement(gameId: string, userId: string, move: CreateMoveDto): Promise<Building | undefined> {
-    switch (move.building.type) {
+    switch (move.building?.type) {
       case 'road':
         return this.checkRoadPlacement(gameId, userId, move.building);
       case 'settlement':
@@ -152,6 +168,9 @@ export class BuildService {
   }
 
   private async checkRoadPlacement(gameId: string, userId: string, building: CreateBuildingDto) {
+    if (!EDGE_SIDES.includes(building.side as EdgeSide)) {
+      throw new BadRequestException('Invalid edge side ' + building.side);
+    }
     const existing = await this.buildingAt(gameId, building, ['road']);
     if (existing) {
       throw new ForbiddenException('There is already a road here');
@@ -203,7 +222,15 @@ export class BuildService {
 
   private async checkSettlementPlacement(gameId: string, userId: string, move: CreateMoveDto) {
     const building = move.building;
+    if (!building) {
+      return;
+    }
+
     const { x, y, z, side } = building;
+    if (!CORNER_SIDES.includes(side as CornerSide)) {
+      throw new BadRequestException('Invalid corner side ' + side);
+    }
+
     const adjacent = await this.buildingService.findAll({
       gameId,
       type: { $in: ['settlement', 'city'] },
@@ -228,22 +255,27 @@ export class BuildService {
   }
 
   private checkAvailableBuildings(player: PlayerDocument, type: BuildingType) {
+    if (!player) {
+      return;
+    }
+
     if ((player.remainingBuildings[type] || 0) <= 0) {
       throw new ForbiddenException(`You can't build any more ${type}!`);
     }
   }
 
   private checkResourceCosts(costs: ResourceCount, player: PlayerDocument) {
-    for (const key of Object.keys(costs)) {
-      if ((player.resources[key] || 0) < costs[key]) {
+    for (const key of Object.keys(costs) as ResourceType[]) {
+      if ((player.resources[key] || 0) < (costs[key] || 0)) {
         throw new ForbiddenException('You can\'t afford that!');
       }
     }
   }
 
   private deductCosts(costs: ResourceCount, $inc: Record<string, number>) {
-    for (const resource of Object.keys(costs)) {
-      $inc[`resources.${resource}`] = -costs[resource];
+    for (const resource of Object.keys(costs) as ResourceType[]) {
+      const count = costs[resource];
+      count && ($inc[`resources.${resource}`] = count);
     }
   }
 
@@ -286,7 +318,7 @@ export class BuildService {
     return longestPath.length;
   }
 
-  private *dfs(roads: Point3DWithEdgeSide[], current: Point3DWithEdgeSide, seen: Set<Point3DWithEdgeSide>, path: Point3DWithEdgeSide[]) {
+  private *dfs(roads: Point3DWithEdgeSide[], current: Point3DWithEdgeSide, seen: Set<Point3DWithEdgeSide>, path: Point3DWithEdgeSide[]): Generator<Point3DWithEdgeSide[]> {
     seen.add(current);
     for (const a of edgeAdjacentEdges(current)) {
       const road = roads.find(r => r.x === a.x && r.y === a.y && r.z === a.z && r.side === a.side);

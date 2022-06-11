@@ -13,7 +13,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
 
 export class GameSettings {
@@ -90,6 +90,6 @@ export class Game extends GlobalSchema {
   passwordHash: string;
 }
 
-export type GameDocument = Game & Document;
+export type GameDocument = Game & Document<Types.ObjectId>;
 
 export const GameSchema = SchemaFactory.createForClass(Game);

@@ -58,7 +58,7 @@ export class EventGateway implements OnGatewayInit, OnGatewayConnection {
             return;
           }
           const { data: { data, users } } = parsed;
-          if (users && (!client.user || !users.includes(client.user._id))) {
+          if (users && (!client.user || !users.includes(client.user._id.toString()))) {
             return;
           }
           observer.next({

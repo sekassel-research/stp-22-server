@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
-import { Document } from 'mongoose';
+import { IsBoolean, IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min } from 'class-validator';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { BUILDING_TYPES, BuildingType, RESOURCE_TYPES, ResourceType } from '../shared/constants';
 
@@ -25,6 +24,11 @@ export class Player {
   @ApiProperty({ format: 'hex-color', example: '#0075ff' })
   @IsHexColor()
   color: string;
+
+  @Prop({ default: true })
+  @ApiProperty()
+  @IsBoolean()
+  active: boolean;
 
   @Prop()
   @ApiProperty({ type: 'integer', required: false, minimum: 1, maximum: 6 })
@@ -74,7 +78,7 @@ export class Player {
   previousTradeOffer?: ResourceCount;
 }
 
-export type PlayerDocument = Player & Document;
+export type PlayerDocument = Player & Document<Types.ObjectId>;
 
 export const PlayerSchema = SchemaFactory.createForClass(Player)
   .index({ gameId: 1, userId: 1 }, { unique: true })

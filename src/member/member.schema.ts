@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsHexColor, IsMongoId, IsOptional } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../util/schema';
 
 @Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
@@ -22,7 +22,7 @@ export class Member extends GlobalSchemaWithoutID {
   ready: boolean;
 
   @Prop()
-  @ApiPropertyOptional({ type: 'color', example: '#0075ff' })
+  @ApiPropertyOptional({ format: 'color', example: '#0075ff' })
   @IsOptional()
   @IsHexColor()
   color?: string;
@@ -34,7 +34,7 @@ export class Member extends GlobalSchemaWithoutID {
   spectator?: boolean;
 }
 
-export type MemberDocument = Member & Document;
+export type MemberDocument = Member & Document<Types.ObjectId>;
 
 export const MemberSchema = SchemaFactory.createForClass(Member)
   .index({ gameId: 1, userId: 1 }, { unique: true })

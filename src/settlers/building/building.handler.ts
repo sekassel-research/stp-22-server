@@ -12,6 +12,6 @@ export class BuildingHandler {
 
   @OnEvent('games.*.deleted')
   async onGameDeleted(game: Game): Promise<void> {
-    await this.buildingService.deleteByGame(game._id);
+    await this.buildingService.deleteByGame(game._id.toString());
   }
 }

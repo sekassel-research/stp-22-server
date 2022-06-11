@@ -46,26 +46,30 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @IsMongoId()
   building?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'Required if action is "rob".',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => RobDto)
   rob?: RobDto;
 
-  @Prop({ type: Object })
-  @ApiPropertyOptional(RESOURCE_COUNT_OPTIONS)
+  @ApiPropertyOptional({
+    ...RESOURCE_COUNT_OPTIONS,
+    description: 'Required if action is "drop" or "offer". ' +
+      'Can be used with "build" action to initiate a trade. ' +
+      'Positive values are given to the player, ' +
+      'negative values are taken from the player.',
+  })
   @IsOptional()
   @IsObject()
   resources?: ResourceCount;
 
-  @Prop({ type: Object })
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsObject()
-  trade?: ResourceCount;
-
-  @Prop()
-  @ApiPropertyOptional({ ...MONGO_ID_FORMAT, description: `Player User ID or ${BANK_TRADE_ID} for bank trade` })
+  @ApiPropertyOptional({
+    ...MONGO_ID_FORMAT,
+    description: 'To trade with the bank, use action "build" and set this to ' + BANK_TRADE_ID + '. ' +
+      'Otherwise required if action is "accept".',
+  })
   @IsOptional()
   @IsMongoId()
   partner?: string;

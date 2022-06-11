@@ -52,7 +52,7 @@ export class MessageController {
     if (users.length === 0) {
       throw new NotFoundException(`${namespace}/${parent}`);
     }
-    if (!users.includes(user._id)) {
+    if (!users.includes(user._id.toString())) {
       throw new ForbiddenException('Cannot access messages within inaccessible parent.');
     }
     return users;
@@ -70,7 +70,7 @@ export class MessageController {
     @Body() message: CreateMessageDto,
   ): Promise<Message> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
-    return this.messageService.create(namespace, parent, user._id, message, users);
+    return this.messageService.create(namespace, parent, user._id.toString(), message, users);
   }
 
   @Get()
@@ -105,9 +105,9 @@ export class MessageController {
     @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
-  ): Promise<Message> {
+  ): Promise<Message | null> {
     await this.checkParentAndGetMembers(namespace, parent, user);
-    return await this.messageService.find(namespace, parent, id);
+    return this.messageService.find(namespace, parent, id);
   }
 
   @Patch(':id')
@@ -121,13 +121,13 @@ export class MessageController {
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateMessageDto,
-  ): Promise<Message> {
+  ): Promise<Message | null> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
-      return undefined;
+      return null;
     }
-    if (existing.sender !== user._id) {
+    if (existing.sender !== user._id.toString()) {
       throw new ForbiddenException('Only the sender can change the message.');
     }
     return this.messageService.update(namespace, parent, id, dto, users);
@@ -143,13 +143,13 @@ export class MessageController {
     @Param('namespace', new ParseEnumPipe(Namespace)) namespace: Namespace,
     @Param('parent', ParseObjectIdPipe) parent: string,
     @Param('id', ParseObjectIdPipe) id: string,
-  ): Promise<Message> {
+  ): Promise<Message | null> {
     const users = await this.checkParentAndGetMembers(namespace, parent, user);
     const existing = await this.messageService.find(namespace, parent, id);
     if (!existing) {
-      return undefined;
+      return null;
     }
-    if (existing.sender !== user._id) {
+    if (existing.sender !== user._id.toString()) {
       throw new ForbiddenException('Only the sender can delete the message.');
     }
     return this.messageService.delete(namespace, parent, id, users);

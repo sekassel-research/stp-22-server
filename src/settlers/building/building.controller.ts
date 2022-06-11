@@ -34,7 +34,7 @@ export class BuildingController {
   async findOne(
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Param('buildingId', ParseObjectIdPipe) buildingId: string,
-  ): Promise<Building> {
+  ): Promise<Building | null> {
     return this.buildingService.findOne(buildingId);
   }
 }

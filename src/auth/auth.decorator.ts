@@ -15,7 +15,7 @@ export function Auth() {
   );
 }
 
-export const AuthUser = createParamDecorator<unknown, unknown, User>(
+export const AuthUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return request.user;
