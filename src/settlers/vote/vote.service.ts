@@ -4,7 +4,6 @@ import { FilterQuery, Model } from 'mongoose';
 
 import { EventService } from '../../event/event.service';
 import { MapTemplate } from '../map-template/map-template.schema';
-import { MapTemplateService } from '../map-template/map-template.service';
 import { CreateVoteDto, UpdateVoteDto } from './vote.dto';
 import { Vote } from './vote.schema';
 
@@ -12,7 +11,6 @@ import { Vote } from './vote.schema';
 export class VoteService {
   constructor(
     @InjectModel('votes') private model: Model<Vote>,
-    private mapTemplateService: MapTemplateService,
     private eventEmitter: EventService,
   ) {
   }
@@ -28,9 +26,6 @@ export class VoteService {
   async create(mapId: string, userId: string, dto: CreateVoteDto): Promise<Vote> {
     const created = await this.model.create({ ...dto, mapId, userId });
     created && this.emit('created', created);
-    await this.mapTemplateService.update(mapId, {
-      $inc: { votes: 1 },
-    });
     return created;
   }
 
@@ -43,9 +38,6 @@ export class VoteService {
   async delete(mapId: string, userId: string): Promise<Vote | null> {
     const deleted = await this.model.findOneAndDelete({ mapId, userId }).exec();
     deleted && this.emit('deleted', deleted);
-    await this.mapTemplateService.update(mapId, {
-      $inc: { votes: -1 },
-    });
     return deleted;
   }
 
