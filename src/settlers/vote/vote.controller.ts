@@ -57,7 +57,7 @@ export class VoteController {
     return this.voteService.find(mapId, userId);
   }
 
-  @Delete(':id')
+  @Delete(':userId')
   @ApiOkResponse({ type: Vote })
   @ApiForbiddenResponse({ description: 'Attempt to delete a vote that was not cast by the current user.' })
   @NotFound()

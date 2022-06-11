@@ -6,10 +6,12 @@ import { MoveModule } from './move/move.module';
 import { PlayerModule } from './player/player.module';
 import { SharedModule } from './shared/shared.module';
 import { StateModule } from './state/state.module';
+import { VoteModule } from './vote/vote.module';
 
 @Module({
   imports: [
     MapTemplateModule,
+    VoteModule,
     MapModule,
     SharedModule,
     PlayerModule,
