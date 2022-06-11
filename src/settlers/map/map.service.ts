@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
-import { TileTemplate } from '../map-template/map-template.schema';
+import { MapTemplate, TileTemplate } from '../map-template/map-template.schema';
 import { MapTemplateService } from '../map-template/map-template.service';
 import {
   RESOURCE_TILE_TYPES,
@@ -36,19 +36,16 @@ export class MapService {
     let harbors: Harbor[];
 
     const mapTemplate = game.settings?.mapTemplate;
-    if (mapTemplate) {
-      const template = await this.mapTemplateService.find(mapTemplate);
-      if (template && template.harbors) {
-        harbors = template.harbors;
-      }
-      if (template && template.tiles) {
-        tiles = this.completeTiles(template.tiles);
-      }
+    let template: MapTemplate | null;
+    if (mapTemplate && (template = await this.mapTemplateService.find(mapTemplate))) {
+      tiles = this.completeTiles(template.tiles);
+      harbors = template.harbors;
+    } else {
+      const radius = game.settings?.mapRadius ?? 2;
+      tiles = this.generateTiles(radius);
+      harbors = this.generateHarbors(radius);
     }
 
-    const radius = game.settings?.mapRadius ?? 2;
-    tiles ||= this.generateTiles(radius);
-    harbors ||= this.generateHarbors(radius);
     try {
       const created = await this.model.create({
         gameId,

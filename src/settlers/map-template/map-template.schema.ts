@@ -32,18 +32,16 @@ export class MapTemplate extends GlobalSchema {
   votes: number;
 
   @Prop()
-  @ApiPropertyOptional({ type: [TileTemplate] })
-  @IsOptional()
+  @ApiProperty({ type: [TileTemplate] })
   @Type(() => TileTemplate)
   @ValidateNested({ each: true })
-  tiles?: TileTemplate[];
+  tiles: TileTemplate[];
 
   @Prop()
-  @ApiPropertyOptional({ type: [HarborTemplate] })
-  @IsOptional()
+  @ApiProperty({ type: [HarborTemplate] })
   @Type(() => HarborTemplate)
   @ValidateNested({ each: true })
-  harbors?: HarborTemplate[];
+  harbors: HarborTemplate[];
 }
 
 export const MapTemplateSchema = SchemaFactory.createForClass(MapTemplate);
