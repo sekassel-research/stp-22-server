@@ -24,7 +24,7 @@ export class MapTemplateController {
   @Post()
   @ApiCreatedResponse({ type: MapTemplate })
   async create(@AuthUser() user: User, @Body() dto: CreateMapTemplateDto): Promise<MapTemplate> {
-    return this.mapTemplateService.create(user._id, dto);
+    return this.mapTemplateService.create(user._id.toString(), dto);
   }
 
   @Get()
@@ -37,7 +37,7 @@ export class MapTemplateController {
   @Get(':id')
   @ApiOkResponse({ type: MapTemplate })
   @NotFound()
-  async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<MapTemplate | undefined> {
+  async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<MapTemplate | null> {
     return this.mapTemplateService.find(id);
   }
 
@@ -45,10 +45,10 @@ export class MapTemplateController {
   @ApiOkResponse({ type: MapTemplate })
   @ApiForbiddenResponse({ description: 'Attempt to change a map that was not created by the current user.' })
   @NotFound()
-  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateMapTemplateDto): Promise<MapTemplate | undefined> {
+  async update(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string, @Body() dto: UpdateMapTemplateDto): Promise<MapTemplate | null> {
     const existing = await this.mapTemplateService.find(id);
     if (!existing) {
-      return undefined;
+      return null;
     }
     this.checkOwner(existing, user);
     return this.mapTemplateService.update(id, dto);
@@ -58,17 +58,17 @@ export class MapTemplateController {
   @ApiOkResponse({ type: MapTemplate })
   @ApiForbiddenResponse({ description: 'Attempt to delete a map that was not created by the current user.' })
   @NotFound()
-  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<MapTemplate | undefined> {
+  async delete(@AuthUser() user: User, @Param('id', ParseObjectIdPipe) id: string): Promise<MapTemplate | null> {
     const existing = await this.mapTemplateService.find(id);
     if (!existing) {
-      return undefined;
+      return null;
     }
     this.checkOwner(existing, user);
     return this.mapTemplateService.delete(id);
   }
 
   private checkOwner(template: MapTemplate, user: User) {
-    if (template.createdBy !== user._id) {
+    if (template.createdBy !== user._id.toString()) {
       throw new ForbiddenException('You are not the creator of this map.');
     }
   }

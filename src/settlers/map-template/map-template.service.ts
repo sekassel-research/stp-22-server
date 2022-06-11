@@ -14,11 +14,11 @@ export class MapTemplateService {
   ) {
   }
 
-  async find(id: string): Promise<MapTemplate | undefined> {
-    return this.model.findById(id);
+  async find(id: string): Promise<MapTemplate | null> {
+    return this.model.findById(id).exec();
   }
 
-  async findAll(filter?: FilterQuery<MapTemplate>): Promise<MapTemplate[]> {
+  async findAll(filter: FilterQuery<MapTemplate> = {}): Promise<MapTemplate[]> {
     return this.model.find(filter).exec();
   }
 
@@ -28,13 +28,13 @@ export class MapTemplateService {
     return created;
   }
 
-  async update(id: string, dto: UpdateMapTemplateDto): Promise<MapTemplate | undefined> {
+  async update(id: string, dto: UpdateMapTemplateDto): Promise<MapTemplate | null> {
     const updated = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec();
     updated && this.emit('updated', updated);
     return updated;
   }
 
-  async delete(id: string): Promise<MapTemplate | undefined> {
+  async delete(id: string): Promise<MapTemplate | null> {
     const deleted = await this.model.findByIdAndDelete(id).exec();
     deleted && this.emit('deleted', deleted);
     return deleted;

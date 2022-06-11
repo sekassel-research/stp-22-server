@@ -12,6 +12,6 @@ export class MoveHandler {
 
   @OnEvent('games.*.deleted')
   async onGameDeleted(game: Game): Promise<void> {
-    await this.moveService.deleteAll(game._id);
+    await this.moveService.deleteAll(game._id.toString());
   }
 }
