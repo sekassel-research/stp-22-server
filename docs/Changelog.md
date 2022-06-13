@@ -237,6 +237,7 @@
 + Added the `Game` `settings` property including `mapRadius` and `victoryPoints`.
 + Added the `Member` `spectator` property.
 + Added the `Player` `active` property. [STP22SRV-19](https://jira.uniks.de/browse/STP22SRV-19)
++ Added new endpoints for getting a history of `Move`s.
 
 ### Trade
 
