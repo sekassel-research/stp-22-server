@@ -25,7 +25,7 @@ export class StateTransitionService {
         return;
       }
 
-      const players = await this.playerService.findAll(gameId, { foundingRoll: -1, active: { $ne: false } });
+      const players = await this.playerService.findAll(gameId, { active: { $ne: false } }, { foundingRoll: -1 });
       const currentIndex = players.findIndex(p => p.userId === userId);
       const nextPlayer = players[(currentIndex + 1) % players.length];
       await this.stateService.update(gameId, {
@@ -58,7 +58,7 @@ export class StateTransitionService {
     }
 
     if (move.action === 'founding-roll') {
-      const players = await this.playerService.findAll(gameId, { foundingRoll: -1, active: { $ne: false } });
+      const players = await this.playerService.findAll(gameId, { active: { $ne: false } }, { foundingRoll: -1 });
 
       if (!players.find(p => !p.foundingRoll)) {
         const ids = players.map(m => m.userId);

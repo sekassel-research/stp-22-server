@@ -99,7 +99,7 @@ export class BuildService {
     if (move.building.type === 'road') {
       const longestRoad = await this.findLongestRoad(gameId, userId, move.building as Point3DWithEdgeSide);
       if (longestRoad >= 5) {
-        const players = await this.playerService.findAll(gameId, userId);
+        const players = await this.playerService.findAll(gameId);
         const bestPlayer = players.find(p => p.longestRoad);
         if (!bestPlayer || longestRoad > bestPlayer.longestRoad!) {
           update.$inc.victoryPoints = +2;

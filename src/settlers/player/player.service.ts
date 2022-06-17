@@ -28,8 +28,8 @@ export class PlayerService {
   ) {
   }
 
-  async findAll(gameId: string, sort?: any): Promise<PlayerDocument[]> {
-    let query = this.model.find({ gameId });
+  async findAll(gameId: string, filter: FilterQuery<Player> = {}, sort?: any): Promise<PlayerDocument[]> {
+    let query = this.model.find({ ...filter, gameId });
     if (sort) {
       query = query.sort(sort);
     }
