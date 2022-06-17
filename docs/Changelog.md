@@ -257,7 +257,3 @@
 
 + Added the `Player` `victoryPoints` property.
 + Added the `Player` `longestRoad` property.
-
-## Removals
-
-- Removed the automatic resource reduction when rolling a 7.
