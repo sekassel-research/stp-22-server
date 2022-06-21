@@ -14,6 +14,7 @@ export class CreateGameDto extends PickType(GameWithPassword, [
   'name',
   'password',
   'started',
+  'settings',
 ] as const) {
 }
 
@@ -22,5 +23,6 @@ export class UpdateGameDto extends PartialType(PickType(GameWithPassword, [
   'owner',
   'password',
   'started',
+  'settings',
 ] as const)) {
 }
