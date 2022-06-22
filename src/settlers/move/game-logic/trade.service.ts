@@ -103,8 +103,7 @@ export class TradeService {
     for (const harbor of harbors) {
       $or.push(...edgeAdjacentCorners(normalizeEdge(harbor, harbor.side)));
     }
-    return this.buildingService.findAll({
-      gameId,
+    return this.buildingService.findAll(gameId, {
       owner: userId,
       $or,
     });

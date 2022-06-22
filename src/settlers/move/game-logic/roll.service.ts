@@ -109,8 +109,7 @@ export class RollService {
       throw new BadRequestException('Target player does not exist');
     }
 
-    const buildings = await this.buildingService.findAll({
-      gameId,
+    const buildings = await this.buildingService.findAll(gameId, {
       owner: targetId,
       $or: cubeCorners(move.rob),
     });
@@ -162,8 +161,7 @@ export class RollService {
       return;
     }
 
-    const adjacentBuildings = await this.buildingService.findAll({
-      gameId,
+    const adjacentBuildings = await this.buildingService.findAll(gameId, {
       $or: cubeCorners(tile),
     });
     for (const building of adjacentBuildings) {

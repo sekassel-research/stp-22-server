@@ -15,8 +15,8 @@ export class BuildingService {
   ) {
   }
 
-  async findAll(filter: FilterQuery<Building> = {}): Promise<BuildingDocument[]> {
-    return this.model.find(filter).exec();
+  async findAll(gameId: string, filter: FilterQuery<Building> = {}): Promise<BuildingDocument[]> {
+    return this.model.find({ ...filter, gameId }).exec();
   }
 
   async findOne(id: string): Promise<BuildingDocument | null> {
@@ -40,7 +40,7 @@ export class BuildingService {
   }
 
   async deleteByGame(gameId: string): Promise<void> {
-    const buildings = await this.findAll({ gameId });
+    const buildings = await this.findAll(gameId);
     await this.model.deleteMany({ gameId }).exec();
     this.emit('deleted', ...buildings);
   }
