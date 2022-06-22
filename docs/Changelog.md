@@ -257,3 +257,11 @@
 
 + Added the `Player` `victoryPoints` property.
 + Added the `Player` `longestRoad` property.
+
+# v3.0.1
+
+## Bugfixes
+
+* Added the `Game` `settings` to `CreateGameDto` and `UpdateGameDto`.
+* Added an additional check for `founding-road-2` to be placed next to the second settlement. [STP22SRV-22](https://jira.uniks.de/browse/STP22SRV-22)
+* Fixed an issue that would check positions of buildings across games.
