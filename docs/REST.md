@@ -44,6 +44,7 @@ All delete operations, whether manual, cleanup or cascading, trigger the same ev
 |---------------|---------------------------------------|
 | User          | Games they are the owner of           |
 | User          | Their Membership in Games they joined |
+| User          | Their Achievements                    |
 | Group         | All Messages sent within the Group    |
 | Game          | All Members of the Game               |
 | Game          | All Messages sent within the Game     |
