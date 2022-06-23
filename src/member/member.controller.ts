@@ -135,6 +135,10 @@ export class MemberController {
     }
 
     const actorId = user._id.toString();
+    if (actorId === game.owner && (await this.memberService.findOne(gameId, userId))?.spectator) {
+      // Owner can kick spectators
+      return this.memberService.delete(gameId, userId);
+    }
     if (game.started) {
       throw new ConflictException('Cannot leave running game.');
     }
