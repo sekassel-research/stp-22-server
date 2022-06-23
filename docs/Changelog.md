@@ -262,6 +262,18 @@
 
 ## Bugfixes
 
-* Added the `Game` `settings` to `CreateGameDto` and `UpdateGameDto`.
+* Added the `Game` `settings` to `CreateGameDto` and `UpdateGameDto`. [STP22SRV-23](https://jira.uniks.de/browse/STP22SRV-23)
 * Added an additional check for `founding-road-2` to be placed next to the second settlement. [STP22SRV-22](https://jira.uniks.de/browse/STP22SRV-22)
 * Fixed an issue that would check positions of buildings across games.
+
+# v3.1.0
+
+## New Features
+
++ Added `Achievement`s and corresponding endpoints. [STP22SRV-24](https://jira.uniks.de/browse/STP22SRV-24)
++ Added `Achievement` summary endpoints.
+
+## Improvements
+
+* Game owners may now remove spectators while the game is running. [STP22SRV-26](https://jira.uniks.de/browse/STP22SRV-26)
+* The `RobDto` `target` may now be optional when robbing a tile without an adjacent player building. [STP22SRV-27](https://jira.uniks.de/browse/STP22SRV-27)
