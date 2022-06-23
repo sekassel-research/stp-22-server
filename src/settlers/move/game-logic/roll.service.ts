@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { BuildingService } from '../../building/building.service';
 import { Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
@@ -104,31 +104,42 @@ export class RollService {
     }
 
     const { target: targetId, ...robber } = move.rob;
-    const target = await this.playerService.findOne(gameId, targetId);
-    if (!target) {
-      throw new BadRequestException('Target player does not exist');
+
+    if (targetId) {
+      const target = await this.playerService.findOne(gameId, targetId);
+      if (!target) {
+        throw new NotFoundException(targetId);
+      }
+
+      const buildings = await this.buildingService.findAll(gameId, {
+        owner: targetId,
+        $or: cubeCorners(move.rob),
+      });
+      if (!buildings.length) {
+        throw new ForbiddenException('The target player has no buildings adjacent to the tile');
+      }
+
+      const resources = Object.keys(target.resources).filter(k => target.resources[k as ResourceType]! > 0);
+      if (!resources.length) {
+        throw new BadRequestException('The target player has no resources');
+      }
+
+      const randomResource = resources[Math.randInt(resources.length)];
+      await Promise.all([
+        this.updateResources(gameId, targetId, { [randomResource]: -1 }),
+        this.updateResources(gameId, userId, { [randomResource]: +1 }),
+      ]);
+    } else {
+      const buildings = await this.buildingService.findAll(gameId, {
+        owner: {$ne: userId},
+        $or: cubeCorners(move.rob),
+      });
+      if (buildings.length) {
+        throw new ForbiddenException('There are buildings adjacent to the tile - you must specify a target player');
+      }
     }
 
-    const buildings = await this.buildingService.findAll(gameId, {
-      owner: targetId,
-      $or: cubeCorners(move.rob),
-    });
-    if (!buildings.length) {
-      throw new ForbiddenException('The target player has no buildings adjacent to the tile');
-    }
-
-    const resources = Object.keys(target.resources).filter(k => target.resources[k as ResourceType]! > 0);
-    if (!resources.length) {
-      throw new BadRequestException('The target player has no resources');
-    }
-
-    const randomResource = resources[Math.randInt(resources.length)];
-    await Promise.all([
-      this.updateResources(gameId, targetId, { [randomResource]: -1 }),
-      this.updateResources(gameId, userId, { [randomResource]: +1 }),
-      this.stateService.update(gameId, { robber }),
-    ]);
-
+    await this.stateService.update(gameId, { robber });
     return this.moveService.create({
       ...move,
       building: undefined,

@@ -16,9 +16,10 @@ export const BANK_TRADE_ID = '684072366f72202b72406465';
 
 export class RobDto extends Point3D {
   @Prop()
-  @ApiProperty(MONGO_ID_FORMAT)
+  @ApiPropertyOptional(MONGO_ID_FORMAT)
+  @IsOptional()
   @IsMongoId()
-  target: string;
+  target?: string;
 }
 
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, timestamps: { createdAt: true, updatedAt: false } })
