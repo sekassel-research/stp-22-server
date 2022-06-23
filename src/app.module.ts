@@ -15,6 +15,7 @@ import { MemberModule } from './member/member.module';
 import { MessageModule } from './message/message.module';
 import { SettlersModule } from './settlers/settlers.module';
 import { UserModule } from './user/user.module';
+import { AchievementSummaryModule } from './achievement-summary/achievement-summary.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     EventModule,
     UserModule,
+    AchievementSummaryModule,
     AchievementModule,
     GroupModule,
     MessageModule,
