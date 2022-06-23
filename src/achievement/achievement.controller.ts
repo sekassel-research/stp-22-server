@@ -40,7 +40,7 @@ export class AchievementController {
   }
 
   @Put(':id')
-  @ApiCreatedResponse({ type: Achievement })
+  @ApiOkResponse({ type: Achievement })
   @ApiForbiddenResponse({ description: 'Adding an achievement to another user.' })
   async create(
     @AuthUser() user: User,
