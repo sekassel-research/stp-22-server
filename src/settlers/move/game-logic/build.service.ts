@@ -286,7 +286,7 @@ export class BuildService {
 
   private checkResourceCosts(costs: ResourceCount, player: PlayerDocument) {
     for (const key of Object.keys(costs) as ResourceType[]) {
-      if ((player.resources[key] || 0) < (costs[key] || 0)) {
+      if ((player.resources[key] || 0) < -(costs[key] || 0)) {
         throw new ForbiddenException('You can\'t afford that!');
       }
     }
