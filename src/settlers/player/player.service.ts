@@ -41,12 +41,11 @@ export class PlayerService {
   }
 
   mask(player: PlayerDocument): Player {
-    const { _id, resources, victoryPoints, ...rest } = player.toObject();
+    const { resources, ...rest } = player.toObject();
     const unknown = Object.values(resources).sum();
     return {
       ...rest,
       resources: { unknown },
-      victoryPoints: undefined,
     };
   }
 
