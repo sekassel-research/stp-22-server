@@ -277,3 +277,13 @@
 
 * Game owners may now remove spectators while the game is running. [STP22SRV-26](https://jira.uniks.de/browse/STP22SRV-26)
 * The `RobDto` `target` may now be optional when robbing a tile without an adjacent player building. [STP22SRV-27](https://jira.uniks.de/browse/STP22SRV-27)
+
+# v3.1.1
+
+## Improvements
+
+* The `Player` `victoryPoints` property is no longer hidden/`0` for other players.
+
+## Bugfixes
+
+* It is no longer possible to build things without sufficient resources.
