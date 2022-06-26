@@ -43,6 +43,20 @@ export const DEVELOPMENT_TYPES = [
 ] as const;
 export type DevelopmentType = (typeof DEVELOPMENT_TYPES)[number];
 
+export const DEVELOPMENT_COST: Partial<Record<ResourceType, number>> = {
+  grain: 1,
+  ore: 1,
+  wool: 1,
+};
+
+export const DEVELOPMENT_WEIGHT: Record<DevelopmentType, number> = {
+  knight: 14,
+  'victory-point': 5,
+  'road-building': 2,
+  monopoly: 2,
+  'year-of-plenty': 2,
+};
+
 export const INITIAL_BUILDINGS: Record<BuildingType, number> = {
   city: 4,
   settlement: 5,
