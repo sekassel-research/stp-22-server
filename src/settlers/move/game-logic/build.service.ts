@@ -284,7 +284,7 @@ export class BuildService {
     }
   }
 
-  private checkResourceCosts(costs: ResourceCount, player: PlayerDocument) {
+  checkResourceCosts(costs: ResourceCount, player: PlayerDocument) {
     for (const key of Object.keys(costs) as ResourceType[]) {
       if ((player.resources[key] || 0) < -(costs[key] || 0)) {
         throw new ForbiddenException('You can\'t afford that!');
@@ -292,7 +292,7 @@ export class BuildService {
     }
   }
 
-  private deductCosts(costs: ResourceCount, $inc: Record<string, number>) {
+  deductCosts(costs: ResourceCount, $inc: Record<string, number>) {
     for (const resource of Object.keys(costs) as ResourceType[]) {
       const count = costs[resource];
       count && ($inc[`resources.${resource}`] = count);

@@ -2,16 +2,18 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { UpdateQuery } from 'mongoose';
 import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
-import { DEVELOPMENT_WEIGHT, DevelopmentType } from '../../shared/constants';
+import { DEVELOPMENT_COST, DEVELOPMENT_WEIGHT, DevelopmentType } from '../../shared/constants';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
+import { BuildService } from './build.service';
 
 @Injectable()
 export class DevelopmentService {
   constructor(
     private moveService: MoveService,
     private playerService: PlayerService,
+    private buildService: BuildService,
   ) {
   }
 
@@ -39,7 +41,15 @@ export class DevelopmentService {
   }
 
   private async buy(gameId: string, userId: string) {
-    const type = await this.randomDevelopmentType(gameId);
+    const players = await this.playerService.findAll(gameId);
+    const currentPlayer = players.find(p => p.userId === userId);
+    if (!currentPlayer) {
+      throw new NotFoundException(userId);
+    }
+
+    await this.buildService.checkResourceCosts(DEVELOPMENT_COST, currentPlayer);
+
+    const type = await this.randomDevelopmentType(players);
     const update: UpdateQuery<Player> = {
       $push: {
         developmentCards: {
@@ -47,15 +57,16 @@ export class DevelopmentService {
           revealed: false,
         },
       },
+      $inc: {},
     };
     if (type === 'victory-point') {
-      update.$inc = { victoryPoints: 1 };
+      update.$inc!.victoryPoints = 1;
     }
+    this.buildService.deductCosts(DEVELOPMENT_COST, update.$inc!);
     await this.playerService.update(gameId, userId, update);
   }
 
-  private async randomDevelopmentType(gameId: string): Promise<DevelopmentType> {
-    const players = await this.playerService.findAll(gameId);
+  private async randomDevelopmentType(players: Player[]): Promise<DevelopmentType> {
     const weights = { ...DEVELOPMENT_WEIGHT };
     for (const player of players) {
       for (const card of player.developmentCards ?? []) {
