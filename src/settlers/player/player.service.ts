@@ -41,11 +41,12 @@ export class PlayerService {
   }
 
   mask(player: PlayerDocument): Player {
-    const { resources, developmentCards, ...rest } = player.toObject();
+    const { resources, developmentCards, victoryPoints, ...rest } = player.toObject();
     const unknown = Object.values(resources).sum();
     return {
       ...rest,
       resources: { unknown },
+      victoryPoints: victoryPoints ? victoryPoints - (developmentCards?.filter(c => c.type === 'victory-point')?.length ?? 0) : 0,
       developmentCards: developmentCards?.map(d => d.revealed ? d : ({
         type: 'unknown',
         revealed: false,

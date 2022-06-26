@@ -1,4 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { UpdateQuery } from 'mongoose';
+import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { DEVELOPMENT_WEIGHT, DevelopmentType } from '../../shared/constants';
 import { CreateMoveDto } from '../move.dto';
@@ -15,8 +17,12 @@ export class DevelopmentService {
 
   async develop(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     const { action, developmentCard } = move;
-    if (developmentCard === 'new') {
-      await this.buy(gameId, userId);
+    switch (developmentCard) {
+      case 'new':
+        await this.buy(gameId, userId);
+        break;
+      case 'victory-point':
+        throw new ConflictException('You can\'t reveal your victory points!');
     }
 
     return this.moveService.create({
@@ -29,14 +35,18 @@ export class DevelopmentService {
 
   private async buy(gameId: string, userId: string) {
     const type = await this.randomDevelopmentType(gameId);
-    await this.playerService.update(gameId, userId, {
+    const update: UpdateQuery<Player> = {
       $push: {
         developmentCards: {
           type,
           revealed: false,
         },
       },
-    });
+    };
+    if (type === 'victory-point') {
+      update.$inc = { victoryPoints: 1 };
+    }
+    await this.playerService.update(gameId, userId, update);
   }
 
   private async randomDevelopmentType(gameId: string): Promise<DevelopmentType> {
