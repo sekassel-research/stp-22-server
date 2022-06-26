@@ -3,6 +3,7 @@ import { StateService } from '../../state/state.service';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { BuildService } from './build.service';
+import { DevelopmentService } from './development.service';
 import { RollService } from './roll.service';
 import { StateTransitionService } from './state-transition.service';
 import { TradeService } from './trade.service';
@@ -15,6 +16,7 @@ export class GameLogicService {
     private rollService: RollService,
     private buildService: BuildService,
     private tradeService: TradeService,
+    private developmentService: DevelopmentService,
   ) {
   }
 
@@ -46,6 +48,9 @@ export class GameLogicService {
       case 'build':
         if (move.resources) {
           return this.tradeService.buildTrade(gameId, userId, move);
+        }
+        if (move.developmentCard) {
+          return this.developmentService.develop(gameId, userId, move);
         }
         return this.buildService.build(gameId, userId, move);
       case 'roll':

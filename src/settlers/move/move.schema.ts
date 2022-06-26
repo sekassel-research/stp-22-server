@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
 import { ResourceCount } from '../player/player.schema';
-import { RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
+import { DEVELOPMENT_TYPES, DevelopmentType, RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
 const RESOURCE_COUNT_OPTIONS: ApiPropertyOptions = {
@@ -82,6 +82,15 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @IsOptional()
   @IsMongoId()
   partner?: string;
+
+  @Prop()
+  @ApiPropertyOptional({
+    description: 'Buy or play a development card.',
+    enum: ['new', ...DEVELOPMENT_TYPES],
+  })
+  @IsOptional()
+  @IsIn(['new', ...DEVELOPMENT_TYPES])
+  developmentCard?: 'new' | DevelopmentType;
 }
 
 

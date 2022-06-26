@@ -10,6 +10,7 @@ export class CreateMoveDto extends PickType(Move, [
   'resources',
   'rob',
   'partner',
+  'developmentCard',
 ] as const) {
   @Prop()
   @ApiProperty({

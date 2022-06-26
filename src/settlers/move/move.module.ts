@@ -15,6 +15,7 @@ import { MoveController } from './move.controller';
 import { MoveHandler } from './move.handler';
 import { MoveSchema } from './move.schema';
 import { MoveService } from './move.service';
+import { DevelopmentService } from './game-logic/development.service';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { MoveService } from './move.service';
     RollService,
     BuildService,
     TradeService,
+    DevelopmentService,
   ],
 })
 export class MoveModule {
