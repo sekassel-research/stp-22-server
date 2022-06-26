@@ -105,14 +105,15 @@ export class MemberController {
     @Param('userId', ParseObjectIdPipe) userId: string,
     @Body() dto: UpdateMemberDto,
   ): Promise<Member | null> {
-    const access = await this.memberService.checkUserModification(gameId, user, userId);
-    switch (access) {
-      case 'notfound':
-        throw new NotFoundException(gameId);
-      case 'started':
-        throw new ConflictException('Game already started');
-      case 'unauthorized':
-        throw new ForbiddenException('Cannot change membership of another user.');
+    const game = await this.gameService.findOne(gameId);
+    if (!game) {
+      throw new NotFoundException(gameId);
+    }
+    if (game.started) {
+      throw new ConflictException('Game already started');
+    }
+    if (user._id.toString() !== userId) {
+      throw new ForbiddenException('Cannot change membership of another user.');
     }
     return this.memberService.update(gameId, userId, dto);
   }
@@ -128,16 +129,24 @@ export class MemberController {
     @Param('gameId', ParseObjectIdPipe) gameId: string,
     @Param('userId', ParseObjectIdPipe) userId: string,
   ): Promise<Member | null> {
-    const access = await this.memberService.checkUserModification(gameId, user, userId);
-    switch (access) {
-      case 'notfound':
-        throw new NotFoundException(gameId);
-      case 'started':
-        throw new ConflictException('Cannot leave running game.');
-      case 'unauthorized':
-        throw new ForbiddenException('Cannot kick another user.');
-      case 'owner-target':
-        throw new ConflictException('Cannot leave game as owner.');
+    const game = await this.gameService.findOne(gameId);
+    if (!game) {
+      throw new NotFoundException(gameId);
+    }
+
+    const actorId = user._id.toString();
+    if (actorId === game.owner && (await this.memberService.findOne(gameId, userId))?.spectator) {
+      // Owner can kick spectators
+      return this.memberService.delete(gameId, userId);
+    }
+    if (game.started) {
+      throw new ConflictException('Cannot leave running game.');
+    }
+    if (actorId !== userId) {
+      throw new ForbiddenException('Cannot kick another user.');
+    }
+    if (actorId === game.owner) {
+      throw new ConflictException('Cannot leave game as owner.');
     }
     return this.memberService.delete(gameId, userId);
   }

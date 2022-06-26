@@ -237,6 +237,7 @@
 + Added the `Game` `settings` property including `mapRadius` and `victoryPoints`.
 + Added the `Member` `spectator` property.
 + Added the `Player` `active` property. [STP22SRV-19](https://jira.uniks.de/browse/STP22SRV-19)
++ Added new endpoints for getting a history of `Move`s.
 
 ### Trade
 
@@ -257,6 +258,32 @@
 + Added the `Player` `victoryPoints` property.
 + Added the `Player` `longestRoad` property.
 
-## Removals
+# v3.0.1
 
-- Removed the automatic resource reduction when rolling a 7.
+## Bugfixes
+
+* Added the `Game` `settings` to `CreateGameDto` and `UpdateGameDto`. [STP22SRV-23](https://jira.uniks.de/browse/STP22SRV-23)
+* Added an additional check for `founding-road-2` to be placed next to the second settlement. [STP22SRV-22](https://jira.uniks.de/browse/STP22SRV-22)
+* Fixed an issue that would check positions of buildings across games.
+
+# v3.1.0
+
+## New Features
+
++ Added `Achievement`s and corresponding endpoints. [STP22SRV-24](https://jira.uniks.de/browse/STP22SRV-24)
++ Added `Achievement` summary endpoints.
+
+## Improvements
+
+* Game owners may now remove spectators while the game is running. [STP22SRV-26](https://jira.uniks.de/browse/STP22SRV-26)
+* The `RobDto` `target` may now be optional when robbing a tile without an adjacent player building. [STP22SRV-27](https://jira.uniks.de/browse/STP22SRV-27)
+
+# v3.1.1
+
+## Improvements
+
+* The `Player` `victoryPoints` property is no longer hidden/`0` for other players.
+
+## Bugfixes
+
+* It is no longer possible to build things without sufficient resources.

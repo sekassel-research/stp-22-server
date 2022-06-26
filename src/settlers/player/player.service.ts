@@ -28,8 +28,8 @@ export class PlayerService {
   ) {
   }
 
-  async findAll(gameId: string, sort?: any): Promise<PlayerDocument[]> {
-    let query = this.model.find({ gameId });
+  async findAll(gameId: string, filter: FilterQuery<Player> = {}, sort?: any): Promise<PlayerDocument[]> {
+    let query = this.model.find({ ...filter, gameId });
     if (sort) {
       query = query.sort(sort);
     }
@@ -41,12 +41,11 @@ export class PlayerService {
   }
 
   mask(player: PlayerDocument): Player {
-    const { _id, resources, victoryPoints, ...rest } = player.toObject();
+    const { resources, ...rest } = player.toObject();
     const unknown = Object.values(resources).sum();
     return {
       ...rest,
       resources: { unknown },
-      victoryPoints: undefined,
     };
   }
 

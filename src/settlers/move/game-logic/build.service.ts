@@ -99,7 +99,7 @@ export class BuildService {
     if (move.building.type === 'road') {
       const longestRoad = await this.findLongestRoad(gameId, userId, move.building as Point3DWithEdgeSide);
       if (longestRoad >= 5) {
-        const players = await this.playerService.findAll(gameId, userId);
+        const players = await this.playerService.findAll(gameId);
         const bestPlayer = players.find(p => p.longestRoad);
         if (!bestPlayer || longestRoad > bestPlayer.longestRoad!) {
           update.$inc.victoryPoints = +2;
@@ -159,7 +159,7 @@ export class BuildService {
   private async checkAllowedPlacement(gameId: string, userId: string, move: CreateMoveDto): Promise<Building | undefined> {
     switch (move.building?.type) {
       case 'road':
-        return this.checkRoadPlacement(gameId, userId, move.building);
+        return this.checkRoadPlacement(gameId, userId, move.action, move.building);
       case 'settlement':
         return this.checkSettlementPlacement(gameId, userId, move);
       case 'city':
@@ -167,7 +167,7 @@ export class BuildService {
     }
   }
 
-  private async checkRoadPlacement(gameId: string, userId: string, building: CreateBuildingDto) {
+  private async checkRoadPlacement(gameId: string, userId: string, action: Task, building: CreateBuildingDto) {
     if (!EDGE_SIDES.includes(building.side as EdgeSide)) {
       throw new BadRequestException('Invalid edge side ' + building.side);
     }
@@ -175,15 +175,34 @@ export class BuildService {
     if (existing) {
       throw new ForbiddenException('There is already a road here');
     }
-    const adjacentBuildings = await this.findRoadAdjacentBuildings(userId, building);
+
+    if (action === 'founding-road-2') {
+      const adjacentSettlements = await this.buildingService.findAll(gameId, {
+        owner: userId,
+        type: 'settlement',
+        $or: edgeAdjacentCorners(building as Point3DWithEdgeSide),
+      });
+      if (!adjacentSettlements.length) {
+        throw new ForbiddenException('There is no settlement adjacent to this road');
+      }
+
+      const adjacentRoads = await this.findAdjacentRoads(gameId, userId, adjacentSettlements[0] as Point3DWithCornerSide);
+      if (adjacentRoads.length) {
+        throw new ForbiddenException('The settlement is already connected to a road');
+      }
+
+      return undefined;
+    }
+
+    const adjacentBuildings = await this.findRoadAdjacentBuildings(gameId, userId, building);
     if (adjacentBuildings.length <= 0) {
       throw new ForbiddenException('Needs to be connected to one of your buildings');
     }
     return undefined;
   }
 
-  private async findRoadAdjacentBuildings(userId: string, building: CreateBuildingDto) {
-    return this.buildingService.findAll({
+  private async findRoadAdjacentBuildings(gameId: string, userId: string, building: CreateBuildingDto) {
+    return this.buildingService.findAll(gameId, {
       owner: userId,
       $or: [
         {
@@ -212,8 +231,7 @@ export class BuildService {
 
   private async buildingAt(gameId: string, building: CreateBuildingDto, types: BuildingType[]): Promise<Building | undefined> {
     const { x, y, z, side } = building;
-    const existing = await this.buildingService.findAll({
-      gameId,
+    const existing = await this.buildingService.findAll(gameId, {
       type: { $in: types },
       x, y, z, side,
     });
@@ -231,8 +249,7 @@ export class BuildService {
       throw new BadRequestException('Invalid corner side ' + side);
     }
 
-    const adjacent = await this.buildingService.findAll({
-      gameId,
+    const adjacent = await this.buildingService.findAll(gameId, {
       type: { $in: ['settlement', 'city'] },
       $or: [...cornerAdjacentCorners(building as Point3DWithCornerSide), { x, y, z, side }],
     });
@@ -241,17 +258,20 @@ export class BuildService {
     }
 
     if (move.action === 'build') {
-      const adjacentRoads = await this.buildingService.findAll({
-        gameId,
-        owner: userId,
-        type: 'road',
-        $or: cornerAdjacentEdges(building as Point3DWithCornerSide),
-      });
+      const adjacentRoads = await this.findAdjacentRoads(gameId, userId, building as Point3DWithCornerSide);
       if (adjacentRoads.length === 0) {
         throw new ForbiddenException('Needs to be connected to one of your roads');
       }
     }
     return undefined;
+  }
+
+  private findAdjacentRoads(gameId: string, userId: string, building: Point3DWithCornerSide): Promise<Building[]> {
+    return this.buildingService.findAll(gameId, {
+      owner: userId,
+      type: 'road',
+      $or: cornerAdjacentEdges(building),
+    });
   }
 
   private checkAvailableBuildings(player: PlayerDocument, type: BuildingType) {
@@ -266,7 +286,7 @@ export class BuildService {
 
   private checkResourceCosts(costs: ResourceCount, player: PlayerDocument) {
     for (const key of Object.keys(costs) as ResourceType[]) {
-      if ((player.resources[key] || 0) < (costs[key] || 0)) {
+      if ((player.resources[key] || 0) < -(costs[key] || 0)) {
         throw new ForbiddenException('You can\'t afford that!');
       }
     }
@@ -305,7 +325,7 @@ export class BuildService {
   }
 
   private async findLongestRoad(gameId: string, userId: string, start: Point3DWithEdgeSide): Promise<number> {
-    const allRoads: Point3DWithEdgeSide[] = await this.buildingService.findAll({ gameId, owner: userId, type: 'road' }) as Point3DWithEdgeSide[];
+    const allRoads: Point3DWithEdgeSide[] = await this.buildingService.findAll(gameId, { owner: userId, type: 'road' }) as Point3DWithEdgeSide[];
     allRoads.push(start);
 
     let longestPath: Point3DWithEdgeSide[] = [];

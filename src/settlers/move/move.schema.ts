@@ -16,36 +16,43 @@ export const BANK_TRADE_ID = '684072366f72202b72406465';
 
 export class RobDto extends Point3D {
   @Prop()
-  @ApiProperty(MONGO_ID_FORMAT)
+  @ApiPropertyOptional(MONGO_ID_FORMAT)
+  @IsOptional()
   @IsMongoId()
-  target: string;
+  target?: string;
 }
 
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, timestamps: { createdAt: true, updatedAt: false } })
 export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
+  @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   gameId: string;
 
+  @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   userId: string;
 
+  @Prop()
   @ApiProperty({ enum: TASKS })
   @IsIn(TASKS)
   action: Task;
 
+  @Prop()
   @ApiProperty({ type: 'integer', minimum: 1, maximum: 12, required: false })
   @IsOptional()
   @Min(1)
   @Max(12)
   roll?: number;
 
+  @Prop()
   @ApiProperty({ ...MONGO_ID_FORMAT, required: false })
   @IsOptional()
   @IsMongoId()
   building?: string;
 
+  @Prop()
   @ApiPropertyOptional({
     description: 'Required if action is "rob".',
   })
@@ -54,6 +61,7 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @Type(() => RobDto)
   rob?: RobDto;
 
+  @Prop({ type: Object })
   @ApiPropertyOptional({
     ...RESOURCE_COUNT_OPTIONS,
     description: 'Required if action is "drop" or "offer". ' +
@@ -65,6 +73,7 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @IsObject()
   resources?: ResourceCount;
 
+  @Prop()
   @ApiPropertyOptional({
     ...MONGO_ID_FORMAT,
     description: 'To trade with the bank, use action "build" and set this to ' + BANK_TRADE_ID + '. ' +

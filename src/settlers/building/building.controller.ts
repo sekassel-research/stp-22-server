@@ -25,7 +25,7 @@ export class BuildingController {
   async find(
     @Param('gameId', ParseObjectIdPipe) gameId: string,
   ): Promise<Building[]> {
-    return this.buildingService.findAll({ gameId });
+    return this.buildingService.findAll(gameId);
   }
 
   @Get(':buildingId')

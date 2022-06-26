@@ -65,6 +65,7 @@ Some events are only visible to certain users for privacy reasons.
 | Event Name                                                        | Payload                             | Visible to                                     |
 |-------------------------------------------------------------------|-------------------------------------|------------------------------------------------|
 | `users.<userId>.{created,updated,deleted}`<sup>1, 2</sup>         | [`User`](#model-User)               | Everyone                                       |
+| `users.<userId>.achievements.<id>.{created,updated,deleted}`      | [`Achievement`](#model-Achievement) | Everyone                                       |
 | `groups.<groupId>.{created,updated,deleted}`                      | [`Group`](#model-Group)             | Anyone in the `members` array                  |
 | `groups.<groupId>.messages.<messageId>.{created,updated,deleted}` | [`Message`](#model-Message)         | Anyone in the group's `members` array          |
 | `games.<gameId>.{created,updated,deleted}`                        | [`Game`](#model-Game)               | Everyone                                       |
