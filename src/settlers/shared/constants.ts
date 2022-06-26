@@ -34,6 +34,15 @@ export const BUILDING_TYPES = [
 ] as const;
 export type BuildingType = (typeof BUILDING_TYPES)[number];
 
+export const DEVELOPMENT_TYPES = [
+  'knight',
+  'victory-point',
+  'road-building',
+  'monopoly',
+  'year-of-plenty',
+] as const;
+export type DevelopmentType = (typeof DEVELOPMENT_TYPES)[number];
+
 export const INITIAL_BUILDINGS: Record<BuildingType, number> = {
   city: 4,
   settlement: 5,

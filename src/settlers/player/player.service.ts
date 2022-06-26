@@ -41,11 +41,15 @@ export class PlayerService {
   }
 
   mask(player: PlayerDocument): Player {
-    const { resources, ...rest } = player.toObject();
+    const { resources, developmentCards, ...rest } = player.toObject();
     const unknown = Object.values(resources).sum();
     return {
       ...rest,
       resources: { unknown },
+      developmentCards: developmentCards?.map(d => d.revealed ? d : ({
+        type: 'unknown',
+        revealed: false,
+      })),
     };
   }
 
@@ -62,6 +66,7 @@ export class PlayerService {
       resources: {},
       remainingBuildings: INITIAL_BUILDINGS,
       victoryPoints: 0,
+      developmentCards: [],
     }));
     try {
       const playerDocs = await this.model.insertMany(players);

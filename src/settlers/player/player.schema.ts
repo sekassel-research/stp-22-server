@@ -1,12 +1,43 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsHexColor, IsInt, IsMongoId, IsObject, IsOptional, Max, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsHexColor,
+  IsIn,
+  IsInt,
+  IsMongoId,
+  IsObject,
+  IsOptional,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Document, Types } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
-import { BUILDING_TYPES, BuildingType, RESOURCE_TYPES, ResourceType } from '../shared/constants';
+import {
+  BUILDING_TYPES,
+  BuildingType,
+  DEVELOPMENT_TYPES,
+  DevelopmentType,
+  RESOURCE_TYPES,
+  ResourceType,
+} from '../shared/constants';
 
 export type ResourceCount = Partial<Record<'unknown' | ResourceType, number>>;
 export type BuildingCount = Partial<Record<BuildingType, number>>;
+
+export class DevelopmentCard {
+  @Prop()
+  @ApiProperty({ type: String, enum: ['unknown', ...DEVELOPMENT_TYPES] })
+  @IsIn(DEVELOPMENT_TYPES)
+  type: DevelopmentType | 'unknown';
+
+  @Prop()
+  @ApiProperty()
+  @IsBoolean()
+  revealed: boolean;
+}
 
 @Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false, minimize: false })
 export class Player {
@@ -76,6 +107,13 @@ export class Player {
   @IsOptional()
   @IsObject()
   previousTradeOffer?: ResourceCount;
+
+  @Prop()
+  @ApiPropertyOptional({ type: [DevelopmentCard] })
+  @IsOptional()
+  @ValidateNested({ each: true})
+  @Type(() => DevelopmentCard)
+  developmentCards?: DevelopmentCard[];
 }
 
 export type PlayerDocument = Player & Document<Types.ObjectId>;
