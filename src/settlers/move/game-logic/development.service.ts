@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
@@ -18,11 +18,16 @@ export class DevelopmentService {
   async develop(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
     const { action, developmentCard } = move;
     switch (developmentCard) {
+      case undefined:
+        throw new BadRequestException();
       case 'new':
         await this.buy(gameId, userId);
         break;
       case 'victory-point':
         throw new ConflictException('You can\'t reveal your victory points!');
+      default:
+        await this.reveal(gameId, userId, developmentCard);
+        break;
     }
 
     return this.moveService.create({
@@ -71,5 +76,26 @@ export class DevelopmentService {
       rand -= weight;
     }
     throw new ConflictException('No development cards available');
+  }
+
+  private async reveal(gameId: string, userId: string, developmentCard: DevelopmentType) {
+    const player = await this.playerService.findOne(gameId, userId);
+    if (!player) {
+      throw new NotFoundException(userId);
+    }
+
+    const developmentCards = player.developmentCards ?? [];
+    const index = developmentCards.findIndex(c => c.type === developmentCard && !c.revealed);
+    if (index < 0) {
+      throw new NotFoundException(`You do not own an unrevealed ${developmentCard}!`);
+    }
+
+    const update: UpdateQuery<Player> = {
+      [`developmentCards.${index}.revealed`]: true,
+    };
+    if (developmentCard === 'knight') {
+      // TODO 2 victory points for player with most knights
+    }
+    await this.playerService.update(gameId, userId, update);
   }
 }

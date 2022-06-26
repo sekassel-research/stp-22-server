@@ -57,6 +57,14 @@ export const DEVELOPMENT_WEIGHT: Record<DevelopmentType, number> = {
   'year-of-plenty': 2,
 };
 
+export const DEVELOPMENT_ACTION: Record<DevelopmentType, Task[]> = {
+  knight: ['rob'],
+  'victory-point': [],
+  'road-building': [], // ['build-road', 'build-road'],
+  monopoly: [], // ['monopoly'],
+  'year-of-plenty': [], // ['year-of-plenty'],
+};
+
 export const INITIAL_BUILDINGS: Record<BuildingType, number> = {
   city: 4,
   settlement: 5,

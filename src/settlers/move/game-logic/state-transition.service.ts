@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from 'src/settlers/state/state.service';
 import { PlayerService } from '../../player/player.service';
+import { DEVELOPMENT_ACTION } from '../../shared/constants';
 import { ExpectedMove } from '../../state/state.schema';
 import { BANK_TRADE_ID, Move } from '../move.schema';
 
@@ -22,6 +23,24 @@ export class StateTransitionService {
         return;
       }
       if (move.building) {
+        return;
+      }
+      if (move.developmentCard) {
+        if (move.developmentCard === 'new') {
+          return;
+        }
+        const nextMoves: ExpectedMove[] = DEVELOPMENT_ACTION[move.developmentCard].map(action => ({
+          action,
+          players: [userId],
+        }));
+        nextMoves.length && await this.stateService.update(gameId, {
+          $push: {
+            expectedMoves: {
+              $position: 0,
+              $each: nextMoves,
+            },
+          },
+        });
         return;
       }
 
