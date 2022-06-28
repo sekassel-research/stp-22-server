@@ -131,17 +131,17 @@ export class TradeService {
 
     const otherPlayer = await this.playerService.findOne(gameId, move.partner);
     if (!otherPlayer) {
-      throw new BadRequestException('The player does not exist!');
+      throw new NotFoundException(move.partner);
     }
 
     const { previousTradeOffer } = otherPlayer;
     if (!previousTradeOffer) {
-      throw new BadRequestException('The player did not offer trade!');
+      throw new ForbiddenException('The player did not offer trade!');
     }
 
     for (const [resource, count] of Object.entries(previousTradeOffer)) {
       if (count < 0 && (otherPlayer.resources[resource as ResourceType] || 0) < -count) {
-        throw new BadRequestException('The player can no longer afford the trade');
+        throw new ForbiddenException('The player can no longer afford the trade');
       }
     }
 
@@ -157,7 +157,7 @@ export class TradeService {
 
     const currentPlayer = await this.playerService.update(gameId, userId, update, filter);
     if (!currentPlayer) {
-      throw new BadRequestException('You cannot afford that!');
+      throw new ForbiddenException('You cannot afford that!');
     }
 
     // the other player definitely has the resources - it was checked above

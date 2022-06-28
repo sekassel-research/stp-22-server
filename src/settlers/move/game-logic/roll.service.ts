@@ -121,7 +121,7 @@ export class RollService {
 
       const resources = Object.keys(target.resources).filter(k => target.resources[k as ResourceType]! > 0);
       if (!resources.length) {
-        throw new BadRequestException('The target player has no resources');
+        throw new ForbiddenException('The target player has no resources');
       }
 
       const randomResource = resources[Math.randInt(resources.length)];
