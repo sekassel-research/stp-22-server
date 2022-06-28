@@ -55,11 +55,11 @@ export function cubeCircle(radius: number): Point3D[] {
 export function normalizeEdge(point: Point3D, side: AnyEdgeSide): Point3DWithEdgeSide {
   switch (side) {
     case 1:
-      return { ...cubeAdd(point, cubeDirection(0)), side: 7 };
+      return { ...cubeAdd(point, cubeDirection(1)), side: 7 };
     case 5:
-      return { ...cubeAdd(point, cubeDirection(2)), side: 11 };
+      return { ...cubeAdd(point, cubeDirection(5)), side: 11 };
     case 9:
-      return { ...cubeAdd(point, cubeDirection(4)), side: 3 };
+      return { ...cubeAdd(point, cubeDirection(3)), side: 3 };
     default:
       return {...point, side};
   }
