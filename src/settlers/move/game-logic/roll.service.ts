@@ -105,6 +105,10 @@ export class RollService {
 
     const { target: targetId, ...robber } = move.rob;
 
+    if (targetId === userId) {
+      throw new ForbiddenException('You cannot rob yourself');
+    }
+
     if (targetId) {
       const target = await this.playerService.findOne(gameId, targetId);
       if (!target) {
