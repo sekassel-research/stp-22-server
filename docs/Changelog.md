@@ -287,3 +287,11 @@
 ## Bugfixes
 
 * It is no longer possible to build things without sufficient resources.
+
+# v3.1.2
+
+## Bugfixes
+
+* Harbors at sides `1`, `5` and `9` now properly check for adjacent buildings. [STP22SRV-28](https://jira.uniks.de/browse/STP22SRV-28)
+* The `trade` and `rob` actions now use `403 Forbidden` and `404 Not Found` instead of `400 Bad Request` for most error cases.
+* It is now forbidden to rob yourself by setting `target` to your own ID.
