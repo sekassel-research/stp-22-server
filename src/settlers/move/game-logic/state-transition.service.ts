@@ -13,12 +13,11 @@ export class StateTransitionService {
   }
 
   async transition(gameId: string, userId: string, move: Move): Promise<void> {
-    if (move.action === 'build' && move.resources && move.partner !== BANK_TRADE_ID) {
-      return this.addOfferAndAccept(gameId, userId);
-    }
-
     if (move.action === 'build') {
       if (move.resources) {
+        if (move.partner !== BANK_TRADE_ID) {
+          return this.addOfferAndAccept(gameId, userId, move.partner);
+        }
         return;
       }
       if (move.building) {
@@ -82,12 +81,13 @@ export class StateTransitionService {
     await this.advanceSimple(gameId, userId);
   }
 
-  private async addOfferAndAccept(gameId: string, userId: string): Promise<void> {
-    const players = await this.playerService.findAll(gameId, { active: { $ne: false } });
-    const others = players.filter(p => p.userId !== userId);
+  private async addOfferAndAccept(gameId: string, userId: string, partner?: string): Promise<void> {
     const othersOffer: ExpectedMove = {
       action: 'offer',
-      players: others.map(o => o.userId),
+      players: partner ? [partner] : (await this.playerService.findAll(gameId, {
+        active: { $ne: false },
+        userId: { $ne: userId },
+      })).map(o => o.userId),
     };
     const playerAccepts: ExpectedMove = {
       action: 'accept',
