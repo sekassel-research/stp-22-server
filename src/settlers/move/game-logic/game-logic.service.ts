@@ -23,10 +23,14 @@ export class GameLogicService {
     if (!state) {
       throw new NotFoundException(gameId);
     }
-    if (!state.expectedMoves[0].players.includes(userId)) {
+    const expectedMove = state.expectedMoves[0];
+    if (!expectedMove) {
+      throw new ForbiddenException('Nobody\'s turn :\'(');
+    }
+    if (!expectedMove.players.includes(userId)) {
       throw new ForbiddenException('Not your turn!');
     }
-    if (state.expectedMoves[0].action !== move.action) {
+    if (expectedMove.action !== move.action) {
       throw new ForbiddenException('You\'re not supposed to do that!');
     }
 
