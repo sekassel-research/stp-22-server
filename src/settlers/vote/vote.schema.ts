@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId } from 'class-validator';
+import { IsIn, IsMongoId } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../../util/schema';
 
 @Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
@@ -14,6 +14,11 @@ export class Vote extends GlobalSchemaWithoutID {
   @ApiProperty(MONGO_ID_FORMAT)
   @IsMongoId()
   userId: string;
+
+  @Prop()
+  @ApiProperty()
+  @IsIn([+1, -1])
+  score: 1 | -1;
 }
 
 export const VoteSchema = SchemaFactory.createForClass(Vote)

@@ -13,14 +13,14 @@ export class MapTemplateHandler {
   @OnEvent('maps.*.votes.*.created')
   async onVoteCreated(vote: Vote) {
     await this.mapTemplateService.update(vote.mapId, {
-      $inc: { votes: 1 },
+      $inc: { votes: vote.score },
     });
   }
 
   @OnEvent('maps.*.votes.*.deleted')
   async onVoteDelete(vote: Vote) {
     await this.mapTemplateService.update(vote.mapId, {
-      $inc: { votes: -1 },
+      $inc: { votes: -vote.score },
     });
   }
 }
