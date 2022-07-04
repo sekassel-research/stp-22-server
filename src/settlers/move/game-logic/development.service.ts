@@ -1,8 +1,14 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
 import { Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
-import { DEVELOPMENT_COST, DEVELOPMENT_WEIGHT, DevelopmentType } from '../../shared/constants';
+import { DEVELOPMENT_COST, DEVELOPMENT_WEIGHT, DevelopmentType, ResourceType } from '../../shared/constants';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
@@ -108,5 +114,41 @@ export class DevelopmentService {
       // TODO 2 victory points for player with most knights
     }
     await this.playerService.update(gameId, userId, update);
+  }
+
+  async monopoly(gameId: string, userId: string, move: CreateMoveDto) {
+    if (!move.resources) {
+      throw new BadRequestException('Missing resource property');
+    }
+
+    const resources = Object.keys(move.resources);
+    if (resources.length !== 1) {
+      throw new ForbiddenException('Only one resource can be selected for monopoly');
+    }
+
+    const resource = resources[0] as ResourceType;
+    const players = await this.playerService.findAll(gameId, {
+      [`resources.${resource}`]: { $gt: 0 },
+      userId: { $ne: userId },
+    });
+    const totalGained = players.map(p => p.resources[resource] ?? 0).sum();
+
+    await Promise.all([
+      this.playerService.update(gameId, userId, {
+        $inc: {
+          [`resources.${resource}`]: totalGained,
+        },
+      }),
+      ...players.map(p => this.playerService.update(gameId, p.userId, {
+        ['resources.' + resource]: 0,
+      })),
+    ]);
+
+    return this.moveService.create({
+      gameId,
+      userId,
+      action: 'monopoly',
+      resources: move.resources,
+    });
   }
 }

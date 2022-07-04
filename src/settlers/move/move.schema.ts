@@ -65,8 +65,7 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @Prop({ type: Object })
   @ApiPropertyOptional({
     ...RESOURCE_COUNT_OPTIONS,
-    description: 'Required if action is "drop" or "offer", ' +
-      'or "build" with developmentCard "year-of-plenty" or "monopoly". ' +
+    description: 'Required if action is "drop" or "offer" or "monopoly". ' +
       'Can be used with "build" action to initiate a trade. ' +
       'Positive values are given to the player, ' +
       'negative values are taken from the player.',
