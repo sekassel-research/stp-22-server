@@ -62,7 +62,7 @@ export const DEVELOPMENT_ACTION: Record<DevelopmentType, Task[]> = {
   'victory-point': [],
   'road-building': ['build-road', 'build-road'],
   monopoly: ['monopoly'],
-  'year-of-plenty': [], // ['year-of-plenty'],
+  'year-of-plenty': ['year-of-plenty'],
 };
 
 export const INITIAL_BUILDINGS: Record<BuildingType, number> = {
@@ -107,5 +107,6 @@ export const TASKS = [
   'offer',
   'accept',
   'monopoly',
+  'year-of-plenty',
 ] as const;
 export type Task = (typeof TASKS)[number];

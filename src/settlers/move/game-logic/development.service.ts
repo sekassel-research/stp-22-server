@@ -151,4 +151,26 @@ export class DevelopmentService {
       resources: move.resources,
     });
   }
+
+  async yearOfPlenty(gameId: string, userId: string, move: CreateMoveDto) {
+    if (!move.resources) {
+      throw new BadRequestException('Missing resources property');
+    }
+
+    const sum = Object.values(move.resources).sum();
+    if (sum !== 2) {
+      throw new ForbiddenException('A total of two resources must be selected for year of plenty');
+    }
+
+    await this.playerService.update(gameId, userId, {
+      $inc: move.resources,
+    });
+
+    return this.moveService.create({
+      gameId,
+      userId,
+      action: 'year-of-plenty',
+      resources: move.resources,
+    });
+  }
 }

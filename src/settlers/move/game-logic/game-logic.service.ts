@@ -70,6 +70,8 @@ export class GameLogicService {
         return this.tradeService.accept(gameId, userId, move);
       case 'monopoly':
         return this.developmentService.monopoly(gameId, userId, move);
+      case 'year-of-plenty':
+        return this.developmentService.yearOfPlenty(gameId, userId, move);
     }
   }
 }
