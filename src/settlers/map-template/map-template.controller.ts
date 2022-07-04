@@ -31,7 +31,7 @@ export class MapTemplateController {
   @ApiQuery({ name: 'createdBy', description: 'Filter by creator user ID.', required: false })
   @ApiOkResponse({ type: [MapTemplate] })
   async findAll(@Query('createdBy', ParseObjectIdPipe) createdBy?: string): Promise<MapTemplate[]> {
-    return this.mapTemplateService.findAll({ createdBy });
+    return this.mapTemplateService.findAll(createdBy ? { createdBy } : {});
   }
 
   @Get(':id')
