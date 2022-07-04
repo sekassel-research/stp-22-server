@@ -65,7 +65,7 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @Prop({ type: Object })
   @ApiPropertyOptional({
     ...RESOURCE_COUNT_OPTIONS,
-    description: 'Required if action is "drop" or "offer" or "monopoly". ' +
+    description: 'Required if action is "drop" or "offer" or "monopoly" or "year-of-plenty". ' +
       'Can be used with "build" action to initiate a trade. ' +
       'Positive values are given to the player, ' +
       'negative values are taken from the player.',
@@ -86,7 +86,7 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
 
   @Prop()
   @ApiPropertyOptional({
-    description: 'Buy or play a development card.',
+    description: 'Can be used with the "build" action to buy or play a development card.',
     enum: ['new', ...DEVELOPMENT_TYPES],
   })
   @IsOptional()
