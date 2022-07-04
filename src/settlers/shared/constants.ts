@@ -44,9 +44,9 @@ export const DEVELOPMENT_TYPES = [
 export type DevelopmentType = (typeof DEVELOPMENT_TYPES)[number];
 
 export const DEVELOPMENT_COST: Partial<Record<ResourceType, number>> = {
-  grain: 1,
-  ore: 1,
-  wool: 1,
+  grain: -1,
+  ore: -1,
+  wool: -1,
 };
 
 export const DEVELOPMENT_WEIGHT: Record<DevelopmentType, number> = {

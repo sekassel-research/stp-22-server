@@ -86,7 +86,7 @@ export class DevelopmentService {
 
     const remaining = Object.values(weights).sum();
     let rand = Math.randInt(remaining);
-    for (const [type, weight] of Object.entries(DEVELOPMENT_WEIGHT)) {
+    for (const [type, weight] of Object.entries(weights)) {
       if (rand < weight) {
         return type as DevelopmentType;
       }
