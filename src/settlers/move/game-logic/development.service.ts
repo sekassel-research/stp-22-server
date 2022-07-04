@@ -163,7 +163,7 @@ export class DevelopmentService {
     }
 
     await this.playerService.update(gameId, userId, {
-      $inc: move.resources,
+      $inc: Object.fromEntries(Object.entries(move.resources).map(([resource, amount]) => [`resources.${resource}`, amount])),
     });
 
     return this.moveService.create({
