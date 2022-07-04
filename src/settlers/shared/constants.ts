@@ -60,7 +60,7 @@ export const DEVELOPMENT_WEIGHT: Record<DevelopmentType, number> = {
 export const DEVELOPMENT_ACTION: Record<DevelopmentType, Task[]> = {
   knight: ['rob'],
   'victory-point': [],
-  'road-building': [], // ['build-road', 'build-road'],
+  'road-building': ['build-road', 'build-road'],
   monopoly: [], // ['monopoly'],
   'year-of-plenty': [], // ['year-of-plenty'],
 };
@@ -101,6 +101,7 @@ export const TASKS = [
   'founding-road-2',
   'roll',
   'build',
+  'build-road',
   'drop',
   'rob',
   'offer',
