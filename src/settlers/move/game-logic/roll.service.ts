@@ -105,6 +105,10 @@ export class RollService {
 
     const { target: targetId, ...robber } = move.rob;
 
+    if (targetId === userId) {
+      throw new ForbiddenException('You cannot rob yourself');
+    }
+
     if (targetId) {
       const target = await this.playerService.findOne(gameId, targetId);
       if (!target) {
@@ -121,7 +125,7 @@ export class RollService {
 
       const resources = Object.keys(target.resources).filter(k => target.resources[k as ResourceType]! > 0);
       if (!resources.length) {
-        throw new BadRequestException('The target player has no resources');
+        throw new ForbiddenException('The target player has no resources');
       }
 
       const randomResource = resources[Math.randInt(resources.length)];

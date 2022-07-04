@@ -95,14 +95,18 @@ export class MapService {
   }
 
   private generateHarbors(radius: number): Harbor[] {
-    const resourcesCount = 3 * radius;
+    const tiles = 6 * radius; // (12)
+    const harbors = tiles * 3/4; // (9)
+    const resourcesCount = Math.ceil(harbors / 2); // (5)
     const resourcesPool: ResourceType[] = [];
     while (resourcesPool.length < resourcesCount) {
       resourcesPool.push(...RESOURCE_TYPES);
     }
     resourcesPool.shuffle();
 
-    return cubeRing(Cube(0, 0, 0), radius).map((pos, i) => {
+    return cubeRing(Cube(0, 0, 0), radius)
+      .filter((p, i) => i % 4 !== 0)
+      .map((pos, i) => {
       if (i % 2 !== 0) {
         return pos;
       }
