@@ -116,7 +116,7 @@ export class DevelopmentService {
         const otherPlayers = await this.playerService.findAll(gameId, {
           userId: { $ne: userId },
         });
-        const bestOtherPlayer = otherPlayers.minBy(p => this.countKnights(p.developmentCards));
+        const bestOtherPlayer = otherPlayers.maxBy(p => this.countKnights(p.developmentCards));
         const otherKnights = this.countKnights(bestOtherPlayer?.developmentCards);
         if (!bestOtherPlayer || knights > otherKnights) {
           update.$inc = {victoryPoints: +2};

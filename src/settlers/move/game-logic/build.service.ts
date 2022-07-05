@@ -103,7 +103,7 @@ export class BuildService {
         const otherPlayers = await this.playerService.findAll(gameId, {
           userId: { $ne: userId },
         });
-        const bestPlayer = otherPlayers.minBy(p => p.longestRoad ?? 0);
+        const bestPlayer = otherPlayers.maxBy(p => p.longestRoad ?? 0);
         if (!bestPlayer || longestRoad > bestPlayer.longestRoad!) {
           update.$inc.victoryPoints = +2;
         }
