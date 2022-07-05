@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UpdateQuery } from 'mongoose';
-import { Player } from '../../player/player.schema';
+import { DevelopmentCard, Player } from '../../player/player.schema';
 import { PlayerService } from '../../player/player.service';
 import { DEVELOPMENT_COST, DEVELOPMENT_WEIGHT, DevelopmentType, ResourceType } from '../../shared/constants';
 import { CreateMoveDto } from '../move.dto';
@@ -111,9 +111,28 @@ export class DevelopmentService {
       [`developmentCards.${index}.revealed`]: true,
     };
     if (developmentCard === 'knight') {
-      // TODO 2 victory points for player with most knights
+      const knights = this.countKnights(developmentCards) + 1;
+      if (knights >= 3) {
+        const otherPlayers = await this.playerService.findAll(gameId, {
+          userId: { $ne: userId },
+        });
+        const bestOtherPlayer = otherPlayers.minBy(p => this.countKnights(p.developmentCards));
+        const otherKnights = this.countKnights(bestOtherPlayer?.developmentCards);
+        if (!bestOtherPlayer || knights > otherKnights) {
+          update.$inc = {victoryPoints: +2};
+        }
+        if (bestOtherPlayer && knights >= otherKnights) {
+          await this.playerService.update(gameId, bestOtherPlayer.userId, {
+            $inc: { victoryPoints: -2 },
+          });
+        }
+      }
     }
     await this.playerService.update(gameId, userId, update);
+  }
+
+  private countKnights(developmentCards?: DevelopmentCard[]) {
+    return developmentCards ? developmentCards.filter(c => c.type === 'knight' && c.revealed).length : 0;
   }
 
   async monopoly(gameId: string, userId: string, move: CreateMoveDto) {

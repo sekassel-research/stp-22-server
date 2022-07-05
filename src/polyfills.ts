@@ -2,6 +2,7 @@ declare global {
   interface Array<T> {
     sum(): number;
     shuffle(): T[];
+    minBy(selector: (item: T) => number): T;
   }
 
   interface Math {
@@ -19,6 +20,10 @@ Array.prototype.shuffle = function() {
     [this[i], this[j]] = [this[j], this[i]];
   }
   return this;
+}
+
+Array.prototype.minBy = function(selector: (item: any) => number) {
+  return this.reduce((a, c) => (selector(a) <= selector(c) ? a : c));
 }
 
 Math.randInt = function(maxExclusive: number) {
