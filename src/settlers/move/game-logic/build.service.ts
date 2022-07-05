@@ -98,17 +98,18 @@ export class BuildService {
     }
     if (move.building.type === 'road') {
       const longestRoad = await this.findLongestRoad(gameId, userId, move.building as Point3DWithEdgeSide);
+      update.$set = {longestRoad};
       if (longestRoad >= 5) {
-        const players = await this.playerService.findAll(gameId);
-        const bestPlayer = players.find(p => p.longestRoad);
+        const otherPlayers = await this.playerService.findAll(gameId, {
+          userId: { $ne: userId },
+        });
+        const bestPlayer = otherPlayers.minBy(p => p.longestRoad ?? 0);
         if (!bestPlayer || longestRoad > bestPlayer.longestRoad!) {
           update.$inc.victoryPoints = +2;
-          update.$set = {longestRoad};
         }
         if (bestPlayer && longestRoad >= bestPlayer.longestRoad!) {
           await this.playerService.update(gameId, bestPlayer.userId, {
             $inc: { victoryPoints: -2 },
-            $unset: { longestRoad: 1 },
           });
         }
       }
