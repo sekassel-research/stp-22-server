@@ -42,6 +42,14 @@ export class BuildService {
 
     const building = move.building ? await this.doBuild(gameId, userId, move) : undefined;
 
+    if (!move.building) {
+      // end of turn
+      // unlock all development cards
+      await this.playerService.update(gameId, userId, {
+        $set: { 'developmentCards.$[].locked': false },
+      });
+    }
+
     return this.moveService.create({
       ...move,
       gameId,

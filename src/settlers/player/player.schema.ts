@@ -37,6 +37,11 @@ export class DevelopmentCard {
   @ApiProperty()
   @IsBoolean()
   revealed: boolean;
+
+  @Prop()
+  @ApiProperty()
+  @IsBoolean()
+  locked: boolean;
 }
 
 @Schema({ ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, timestamps: false, minimize: false })

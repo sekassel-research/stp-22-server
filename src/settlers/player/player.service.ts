@@ -48,8 +48,8 @@ export class PlayerService {
       resources: { unknown },
       victoryPoints: victoryPoints ? victoryPoints - (developmentCards?.filter(c => c.type === 'victory-point')?.length ?? 0) : 0,
       developmentCards: developmentCards?.map(d => d.revealed ? d : ({
+        ...d,
         type: 'unknown',
-        revealed: false,
       })),
     };
   }

@@ -61,6 +61,7 @@ export class DevelopmentService {
         developmentCards: {
           type,
           revealed: false,
+          locked: true,
         },
       },
       $inc: {},
@@ -102,9 +103,9 @@ export class DevelopmentService {
     }
 
     const developmentCards = player.developmentCards ?? [];
-    const index = developmentCards.findIndex(c => c.type === developmentCard && !c.revealed);
+    const index = developmentCards.findIndex(c => c.type === developmentCard && !c.revealed && !c.locked);
     if (index < 0) {
-      throw new NotFoundException(`You do not own an unrevealed ${developmentCard}!`);
+      throw new NotFoundException(`You do not own an unrevealed unlocked ${developmentCard}!`);
     }
 
     const update: UpdateQuery<Player> = {
