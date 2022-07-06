@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsByteLength,
   IsIn,
   IsInt,
@@ -39,6 +40,7 @@ export class HarborTemplate extends Harbor {
 }
 
 const MAX_ICON_LENGTH = 64 * 1024;
+const MAX_TILES = 100;
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class MapTemplate extends GlobalSchema {
@@ -67,15 +69,17 @@ export class MapTemplate extends GlobalSchema {
   votes: number;
 
   @Prop()
-  @ApiProperty({ type: [TileTemplate] })
+  @ApiProperty({ type: [TileTemplate], maxItems: MAX_TILES })
   @Type(() => TileTemplate)
   @ValidateNested({ each: true })
+  @ArrayMaxSize(MAX_TILES)
   tiles: TileTemplate[];
 
   @Prop()
-  @ApiProperty({ type: [HarborTemplate] })
+  @ApiProperty({ type: [HarborTemplate], maxItems: MAX_TILES })
   @Type(() => HarborTemplate)
   @ValidateNested({ each: true })
+  @ArrayMaxSize(MAX_TILES)
   harbors: HarborTemplate[];
 }
 
