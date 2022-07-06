@@ -305,3 +305,10 @@
 ## Bugfixes
 
 * Fixed a `500 Internal Server Error` when attempting to move when `expectedMoves` is empty.
+
+# v3.2.1
+
+## Bugfixes
+
+* The Achievement endpoints now properly include the `id` property. [STP22SRV-30](https://jira.uniks.de/browse/STP22SRV-30)
+* Reduced the number of generated harbors to omit one at every fourth outer hexagon (the default map now has 9 harbors as usual).

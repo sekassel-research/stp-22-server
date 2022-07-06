@@ -5,7 +5,15 @@ import { IsDate, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'c
 import { Document } from 'mongoose';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../util/schema';
 
-@Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
+@Schema({
+  ...GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS,
+  toJSON: {
+    virtuals: true,
+    transform: (doc, ret) => {
+      delete ret._id;
+    },
+  },
+})
 export class Achievement extends GlobalSchemaWithoutID {
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
