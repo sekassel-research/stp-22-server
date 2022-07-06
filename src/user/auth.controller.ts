@@ -2,7 +2,6 @@ import { Body, Controller, HttpCode, HttpStatus, Post, UnauthorizedException } f
 import {
   ApiCreatedResponse,
   ApiNoContentResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 
 import { EventService } from '../../event/event.service';
-import { CreateMapTemplateDto, UpdateMapTemplateDto } from './map-template.dto';
+import { CreateMapTemplateDto } from './map-template.dto';
 import { MapTemplate } from './map-template.schema';
 
 @Injectable()

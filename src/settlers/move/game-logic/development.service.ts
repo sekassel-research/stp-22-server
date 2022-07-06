@@ -56,6 +56,7 @@ export class DevelopmentService {
     await this.buildService.checkResourceCosts(DEVELOPMENT_COST, currentPlayer);
 
     const type = await this.randomDevelopmentType(players);
+    const $inc: Record<string, number> = {};
     const update: UpdateQuery<Player> = {
       $push: {
         developmentCards: {
@@ -64,12 +65,12 @@ export class DevelopmentService {
           locked: true,
         },
       },
-      $inc: {},
+      $inc,
     };
     if (type === 'victory-point') {
-      update.$inc!.victoryPoints = 1;
+      $inc.victoryPoints = 1;
     }
-    this.buildService.deductCosts(DEVELOPMENT_COST, update.$inc!);
+    this.buildService.deductCosts(DEVELOPMENT_COST, $inc);
     await this.playerService.update(gameId, userId, update);
   }
 
@@ -120,7 +121,7 @@ export class DevelopmentService {
         const bestOtherPlayer = otherPlayers.maxBy(p => this.countKnights(p.developmentCards));
         const otherKnights = this.countKnights(bestOtherPlayer?.developmentCards);
         if (!bestOtherPlayer || knights > otherKnights) {
-          update.$inc = {victoryPoints: +2};
+          update.$inc = { victoryPoints: +2 };
         }
         if (bestOtherPlayer && knights >= otherKnights) {
           await this.playerService.update(gameId, bestOtherPlayer.userId, {

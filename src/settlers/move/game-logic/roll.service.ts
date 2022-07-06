@@ -123,7 +123,7 @@ export class RollService {
         throw new ForbiddenException('The target player has no buildings adjacent to the tile');
       }
 
-      const resources = Object.keys(target.resources).filter(k => target.resources[k as ResourceType]! > 0);
+      const resources = Object.keys(target.resources).filter(k => (target.resources[k as ResourceType] || 0) > 0);
       if (!resources.length) {
         throw new ForbiddenException('The target player has no resources');
       }

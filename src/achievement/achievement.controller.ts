@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Put } from '@nestjs/common';
-import { ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiForbiddenResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../auth/auth.decorator';
 import { User } from '../user/user.schema';
 import { NotFound } from '../util/not-found.decorator';

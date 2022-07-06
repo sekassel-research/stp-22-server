@@ -25,7 +25,7 @@ export class TradeService {
     if (move.partner === BANK_TRADE_ID) {
       await this.bankTrade(gameId, userId, move);
     } else {
-      await this.startOffer(gameId, userId, move);
+      await this.createOffer(gameId, userId, move.resources);
     }
     return this.createMove(gameId, userId, move);
   }
@@ -109,16 +109,12 @@ export class TradeService {
     });
   }
 
-  private async startOffer(gameId: string, userId: string, move: CreateMoveDto) {
-    await this.createOffer(gameId, userId, move.resources!);
-  }
-
   async offer(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    await this.createOffer(gameId, userId, move.resources!);
+    await this.createOffer(gameId, userId, move.resources);
     return this.createMove(gameId, userId, move);
   }
 
-  private async createOffer(gameId: string, userId: string, trade: ResourceCount) {
+  private async createOffer(gameId: string, userId: string, trade?: ResourceCount) {
     await this.playerService.update(gameId, userId, {
       previousTradeOffer: trade,
     });

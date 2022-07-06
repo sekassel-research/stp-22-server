@@ -1,7 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AchievementService } from '../achievement/achievement.service';
-import { Auth } from '../auth/auth.decorator';
 import { Throttled } from '../util/throttled.decorator';
 import { Validated } from '../util/validated.decorator';
 import { AchievementSummary } from './achievement-summary.dto';

@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsMongoId, IsOptional, Max, Min, ValidateNested } from 'class-validator';
-import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../../util/schema';
+import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, MONGO_ID_FORMAT } from '../../util/schema';
 import { RESOURCE_TYPES, ResourceType, TILE_TYPES, TileType } from '../shared/constants';
-import { ALL_EDGE_SIDES, AnyEdgeSide, EDGE_SIDES, EdgeSide } from '../shared/hexagon';
+import { ALL_EDGE_SIDES, AnyEdgeSide } from '../shared/hexagon';
 import { Point3D } from '../shared/schema';
 
 @Schema()

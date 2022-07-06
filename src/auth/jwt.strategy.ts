@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Schema, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { environment } from '../environment';
 import { User } from '../user/user.schema';
