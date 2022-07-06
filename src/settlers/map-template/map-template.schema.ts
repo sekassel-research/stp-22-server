@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsByteLength,
   IsIn,
   IsInt,
   IsMongoId,
@@ -14,6 +15,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
+import { IsUrlOrUri } from '../../util/url-or-uri.validator';
 import { Harbor } from '../map/map.schema';
 import { TILE_TYPES, TileType } from '../shared/constants';
 import { Point3D } from '../shared/schema';
@@ -36,6 +38,8 @@ export class TileTemplate extends Point3D {
 export class HarborTemplate extends Harbor {
 }
 
+const MAX_ICON_LENGTH = 64 * 1024;
+
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class MapTemplate extends GlobalSchema {
   @Prop()
@@ -44,6 +48,13 @@ export class MapTemplate extends GlobalSchema {
   @IsNotEmpty()
   @MaxLength(32)
   name: string;
+
+  @Prop()
+  @ApiPropertyOptional({ format: 'url', maxLength: MAX_ICON_LENGTH })
+  @IsOptional()
+  @IsUrlOrUri()
+  @IsByteLength(0, MAX_ICON_LENGTH)
+  icon?: string;
 
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
