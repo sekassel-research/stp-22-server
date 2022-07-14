@@ -84,7 +84,7 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
   @IsMongoId()
   partner?: string;
 
-  @Prop()
+  @Prop({ type: String })
   @ApiPropertyOptional({
     description: 'Can be used with the "build" action to buy or play a development card.',
     enum: ['new', ...DEVELOPMENT_TYPES],

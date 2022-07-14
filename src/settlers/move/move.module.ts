@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventModule } from '../../event/event.module';
+import { GameModule } from '../../game/game.module';
 import { MemberModule } from '../../member/member.module';
 import { BuildingModule } from '../building/building.module';
 import { MapModule } from '../map/map.module';
@@ -25,6 +26,7 @@ import { DevelopmentService } from './game-logic/development.service';
         schema: MoveSchema,
       },
     ]),
+    GameModule,
     PlayerModule,
     StateModule,
     BuildingModule,
