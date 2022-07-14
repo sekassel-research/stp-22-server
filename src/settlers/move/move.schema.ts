@@ -90,8 +90,8 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
     enum: ['new', ...DEVELOPMENT_TYPES],
   })
   @IsOptional()
-  @IsIn(['new', ...DEVELOPMENT_TYPES])
-  developmentCard?: 'new' | DevelopmentType;
+  @IsIn(['new', ...DEVELOPMENT_TYPES.filter(s => s !== 'victory-point')])
+  developmentCard?: 'new' | Exclude<DevelopmentType, 'victory-point'>;
 }
 
 

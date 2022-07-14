@@ -31,8 +31,6 @@ export class DevelopmentService {
       case 'new':
         await this.buy(gameId, userId);
         break;
-      case 'victory-point':
-        throw new ConflictException('You can\'t reveal your victory points!');
       default:
         await this.reveal(gameId, userId, developmentCard);
         break;
