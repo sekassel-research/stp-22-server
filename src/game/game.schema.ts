@@ -57,6 +57,15 @@ export class GameSettings {
   @IsOptional()
   @IsMongoId()
   mapTemplate?: string;
+
+  @Prop()
+  @ApiPropertyOptional({
+    default: true,
+    description: 'If set to false, the server will no longer roll 7s.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  roll7?: boolean;
 }
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)

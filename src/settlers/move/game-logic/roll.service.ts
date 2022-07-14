@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { GameService } from '../../../game/game.service';
 import { BuildingService } from '../../building/building.service';
 import { Tile } from '../../map/map.schema';
 import { MapService } from '../../map/map.service';
@@ -19,6 +20,7 @@ export class RollService {
     private mapService: MapService,
     private buildingService: BuildingService,
     private stateService: StateService,
+    private gameService: GameService,
   ) {
   }
 
@@ -42,7 +44,14 @@ export class RollService {
   }
 
   async roll(gameId: string, userId: string, move: CreateMoveDto): Promise<Move> {
-    const roll = this.d6() + this.d6();
+    let roll = this.d6() + this.d6();
+
+    if (roll === 7 && (await this.gameService.findOne(gameId))?.settings?.roll7 === false) {
+      while (roll === 7) {
+        roll = this.d6() + this.d6();
+      }
+    }
+
     if (roll === 7) {
       await this.roll7(gameId);
     } else {
