@@ -312,3 +312,19 @@
 
 * The Achievement endpoints now properly include the `id` property. [STP22SRV-30](https://jira.uniks.de/browse/STP22SRV-30)
 * Reduced the number of generated harbors to omit one at every fourth outer hexagon (the default map now has 9 harbors as usual).
+
+# v4.0.0
+
+## New Features
+
++ Added Map Templates.
++ Added Map Template Votes.
++ Added the `Move` `developmentCard` property and functionality for development cards.
++ Added the `Player` `developmentCards` property.
++ Added the `monopoly`, `year-of-plenty` and `road-building` actions.
++ Added the `GameSettings` `roll7` property.
++ Added the `GameSettings` `startingResources` property.
+
+## Improvements
+
+* The `Player` `longestRoad` property is now always updated.
