@@ -13,7 +13,7 @@ export class PlayerHandler {
   @OnEvent('games.*.updated')
   async onGameUpdated(game: Game): Promise<void> {
     if (game.started) {
-      await this.playerService.createForGame(game._id.toString());
+      await this.playerService.createForGame(game);
     }
   }
 

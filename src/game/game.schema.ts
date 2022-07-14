@@ -66,6 +66,17 @@ export class GameSettings {
   @IsOptional()
   @IsBoolean()
   roll7?: boolean;
+
+  @Prop()
+  @ApiPropertyOptional({
+    type: 'integer',
+    minimum: 0,
+    description: 'If set, every player starts with the specified number of each resource.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  startingResources?: number;
 }
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)

@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { EventService } from '../../event/event.service';
+import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
-import { INITIAL_BUILDINGS } from '../shared/constants';
+import { INITIAL_BUILDINGS, RESOURCE_TYPES } from '../shared/constants';
 import { Player, PlayerDocument } from './player.schema';
 
 const COLOR_PALETTE = [
@@ -54,17 +55,20 @@ export class PlayerService {
     };
   }
 
-  async createForGame(gameId: string): Promise<PlayerDocument[]> {
+  async createForGame(game: Game): Promise<PlayerDocument[]> {
+    const gameId = game._id.toString();
+
     const members = await this.memberService.findAll(gameId, {
       spectator: { $ne: true },
     });
 
+    const startingResources = game.settings?.startingResources;
     const players: Player[] = members.map((m, index) => ({
       gameId,
       userId: m.userId,
       color: m.color ?? COLOR_PALETTE[index % COLOR_PALETTE.length],
       active: true,
-      resources: {},
+      resources: startingResources ? Object.fromEntries(RESOURCE_TYPES.map(r => [r, startingResources])) : {},
       remainingBuildings: INITIAL_BUILDINGS,
       victoryPoints: 0,
       developmentCards: [],
