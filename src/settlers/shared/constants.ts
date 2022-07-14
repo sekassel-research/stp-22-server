@@ -43,18 +43,21 @@ export const DEVELOPMENT_TYPES = [
 ] as const;
 export type DevelopmentType = (typeof DEVELOPMENT_TYPES)[number];
 
+export const PLAYABLE_DEVELOPMENT_TYPES = ['new', ...DEVELOPMENT_TYPES.filter(s => s !== 'victory-point')];
+export type PlayableDevelopmentType = 'new' | Exclude<DevelopmentType, 'victory-point'>;
+
 export const DEVELOPMENT_COST: Partial<Record<ResourceType, number>> = {
   grain: -1,
   ore: -1,
   wool: -1,
 };
 
-export const DEVELOPMENT_WEIGHT: Record<DevelopmentType, number> = {
-  knight: 14,
-  'victory-point': 5,
-  'road-building': 2,
-  monopoly: 2,
-  'year-of-plenty': 2,
+export const DEVELOPMENT_WEIGHT: Record<DevelopmentType, [number, number]> = {
+  knight: [14, 6],
+  'victory-point': [5, 0],
+  'road-building': [2, 1],
+  monopoly: [2, 1],
+  'year-of-plenty': [2, 1],
 };
 
 export const DEVELOPMENT_ACTION: Record<DevelopmentType, Task[]> = {

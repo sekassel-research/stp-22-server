@@ -4,7 +4,14 @@ import { Type } from 'class-transformer';
 import { IsIn, IsMongoId, IsObject, IsOptional, Max, Min, ValidateNested } from 'class-validator';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
 import { ResourceCount } from '../player/player.schema';
-import { DEVELOPMENT_TYPES, DevelopmentType, RESOURCE_TYPES, Task, TASKS } from '../shared/constants';
+import {
+  DEVELOPMENT_WEIGHT,
+  PLAYABLE_DEVELOPMENT_TYPES,
+  PlayableDevelopmentType,
+  RESOURCE_TYPES,
+  Task,
+  TASKS,
+} from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
 const RESOURCE_COUNT_OPTIONS: ApiPropertyOptions = {
@@ -21,6 +28,7 @@ export class RobDto extends Point3D {
   @IsMongoId()
   target?: string;
 }
+
 
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, timestamps: { createdAt: true, updatedAt: false } })
 export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
@@ -86,12 +94,17 @@ export class Move extends OmitType(GlobalSchema, ['updatedAt'] as const) {
 
   @Prop({ type: String })
   @ApiPropertyOptional({
-    description: 'Can be used with the "build" action to buy or play a development card.',
-    enum: ['new', ...DEVELOPMENT_TYPES],
+    description: 'Can be used with the "build" action to buy or play a development card. ' +
+      'If "new", the card will be drawn at random from the deck. ' +
+      'The starting weights are as follows: \n' +
+      Object.entries(DEVELOPMENT_WEIGHT).map(([key, [base, add]]) => `* ${key}: ${base} + ${add} &times; multiplier`).join('\n') + '\n\n' +
+      'Where multiplier = ceil((players - 4) / 2) if players > 4 otherwise 0.\n\n' +
+      'Also see https://colonist.io/catan-rules/5-6-player.',
+    enum: PLAYABLE_DEVELOPMENT_TYPES,
   })
   @IsOptional()
-  @IsIn(['new', ...DEVELOPMENT_TYPES.filter(s => s !== 'victory-point')])
-  developmentCard?: 'new' | Exclude<DevelopmentType, 'victory-point'>;
+  @IsIn(PLAYABLE_DEVELOPMENT_TYPES)
+  developmentCard?: PlayableDevelopmentType;
 }
 
 

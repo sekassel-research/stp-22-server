@@ -73,17 +73,7 @@ export class DevelopmentService {
   }
 
   private async randomDevelopmentType(players: Player[]): Promise<DevelopmentType> {
-    const weights = { ...DEVELOPMENT_WEIGHT };
-    for (const player of players) {
-      for (const card of player.developmentCards ?? []) {
-        if (card.type === 'unknown') {
-          // not actually reachable, but required for type checking
-          continue;
-        }
-        weights[card.type]--;
-      }
-    }
-
+    const weights = this.computeWeights(players);
     const remaining = Object.values(weights).sum();
     let rand = Math.randInt(remaining);
     for (const [type, weight] of Object.entries(weights)) {
@@ -93,6 +83,25 @@ export class DevelopmentService {
       rand -= weight;
     }
     throw new ConflictException('No development cards available');
+  }
+
+  private computeWeights(players: Player[]) {
+    const weights = this.computeBaseWeights(players.length);
+    for (const player of players) {
+      for (const card of player.developmentCards ?? []) {
+        if (card.type === 'unknown') {
+          // not actually reachable, but required for type checking
+          continue;
+        }
+        weights[card.type]--;
+      }
+    }
+    return weights;
+  }
+
+  private computeBaseWeights(players: number) {
+    const multiplier = players > 4 ? Math.ceil((players - 4) / 2) : 0;
+    return Object.fromEntries(Object.entries(DEVELOPMENT_WEIGHT).map(([type, [base, extra]]) => [type, base + extra * multiplier]));
   }
 
   private async reveal(gameId: string, userId: string, developmentCard: DevelopmentType) {
