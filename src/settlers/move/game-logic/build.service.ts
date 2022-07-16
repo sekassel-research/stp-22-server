@@ -110,17 +110,22 @@ export class BuildService {
       const longestRoad = await this.findLongestRoad(gameId, userId, move.building as Point3DWithEdgeSide);
       update.$set = {longestRoad};
       if (longestRoad >= 5) {
-        const otherPlayers = await this.playerService.findAll(gameId, {
-          userId: { $ne: userId },
-        });
-        const bestPlayer = otherPlayers.length ? otherPlayers.maxBy(p => p.longestRoad ?? 0) : undefined;
-        if (!bestPlayer || longestRoad > (bestPlayer.longestRoad || 0)) {
-          update.$inc.victoryPoints = +2;
-        }
-        if (bestPlayer && longestRoad >= (bestPlayer.longestRoad || 0)) {
-          await this.playerService.update(gameId, bestPlayer.userId, {
-            $inc: { victoryPoints: -2 },
-          });
+        const players = await this.playerService.findAll(gameId);
+        const bestPlayer = players.length ? players.maxBy(p => p.longestRoad ?? 0) : undefined;
+        if (bestPlayer && bestPlayer.userId === userId && bestPlayer.longestRoad) {
+          // grant victory points only if not previous owner of longest road
+          if (bestPlayer.longestRoad < 5) {
+            update.$inc.victoryPoints = +2;
+          }
+        } else {
+          if (!bestPlayer || longestRoad > (bestPlayer.longestRoad || 0)) {
+            update.$inc.victoryPoints = +2;
+          }
+          if (bestPlayer && longestRoad >= (bestPlayer.longestRoad || 0)) {
+            await this.playerService.update(gameId, bestPlayer.userId, {
+              $inc: { victoryPoints: -2 },
+            });
+          }
         }
       }
     } else {
