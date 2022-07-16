@@ -122,6 +122,47 @@ describe('LongestRoadService', () => {
         },
       ],
     },
+    {
+      longestRoad: 6,
+      roads: [
+        {
+          'x': -1,
+          'y': 1,
+          'z': 0,
+          'side': 3,
+        },
+        {
+          'x': 0,
+          'y': -1,
+          'z': 1,
+          'side': 11,
+        },
+        {
+          'x': 0,
+          'y': 0,
+          'z': 0,
+          'side': 3,
+        },
+        {
+          'x': 0,
+          'y': 0,
+          'z': 0,
+          'side': 7,
+        },
+        {
+          'x': 0,
+          'y': 0,
+          'z': 0,
+          'side': 11,
+        },
+        {
+          'x': 1,
+          'y': 0,
+          'z': -1,
+          'side': 7,
+        },
+      ],
+    },
   ];
 
   for (let i = 0; i < cases.length; i++) {
