@@ -34,19 +34,19 @@ export class LongestRoadService {
 
   private* dfs(roads: Point3DWithEdgeSide[], current: Point3DWithEdgeSide, seen: Set<Point3DWithEdgeSide>, path: number, allSeen?: Map<Point3DWithEdgeSide, number>): Generator<number> {
     seen.add(current);
-    let connected = 0;
-    for (const a of edgeAdjacentEdges(current)) {
-      const road = roads.find(r => r.x === a.x && r.y === a.y && r.z === a.z && r.side === a.side);
-      if (!road || seen.has(road)) {
+    const adjacentRoads = edgeAdjacentEdges(current)
+      .flatMap(a => roads.find(r => r.x === a.x && r.y === a.y && r.z === a.z && r.side === a.side) ?? []);
+    const newSeen = new Set([...seen, ...adjacentRoads]);
+    for (const road of adjacentRoads) {
+      if (seen.has(road)) {
         continue;
       }
 
-      connected++;
       const newPath = path + 1;
       yield newPath;
-      yield* this.dfs(roads, road, new Set(seen), newPath, allSeen);
+      yield* this.dfs(roads, road, newSeen, newPath, allSeen);
     }
 
-    allSeen?.set(current, connected);
+    allSeen?.set(current, adjacentRoads.length);
   }
 }
