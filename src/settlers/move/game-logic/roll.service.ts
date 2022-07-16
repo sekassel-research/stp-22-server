@@ -148,7 +148,12 @@ export class RollService {
         $or: cubeCorners(move.rob),
       });
       if (buildings.length) {
-        throw new ForbiddenException('There are buildings adjacent to the tile - you must specify a target player');
+        // check if any adjacent player has any resources
+        // See https://jira.uniks.de/browse/STP22SRV-32
+        const owners = await this.playerService.findAll(gameId, {_id: { $in: buildings.map(b => b.owner) }});
+        if (owners.find(o => Object.values(o.resources).find(r => r > 0))) {
+          throw new ForbiddenException('There are buildings adjacent to the tile - you must specify a target player');
+        }
       }
     }
 
