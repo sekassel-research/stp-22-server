@@ -26,6 +26,7 @@ import { Point3D } from '../../shared/schema';
 import { CreateMoveDto } from '../move.dto';
 import { Move } from '../move.schema';
 import { MoveService } from '../move.service';
+import { LongestRoadService } from './longest-road.service';
 
 @Injectable()
 export class BuildService {
@@ -34,6 +35,7 @@ export class BuildService {
     private playerService: PlayerService,
     private buildingService: BuildingService,
     private moveService: MoveService,
+    private longestRoadService: LongestRoadService,
   ) {
   }
 
@@ -336,32 +338,6 @@ export class BuildService {
   private async findLongestRoad(gameId: string, userId: string, start: Point3DWithEdgeSide): Promise<number> {
     const allRoads: Point3DWithEdgeSide[] = await this.buildingService.findAll(gameId, { owner: userId, type: 'road' }) as Point3DWithEdgeSide[];
     allRoads.push(start);
-
-    return this._findLongestRoad(allRoads, start);
-  }
-
-  _findLongestRoad(allRoads: Point3DWithEdgeSide[], start: Point3DWithEdgeSide) {
-    let longestPath: Point3DWithEdgeSide[] = [];
-    for (const path of this.dfs(allRoads, start, new Set(), [start])) {
-      if (path.length >= longestPath.length) {
-        longestPath = path;
-      }
-    }
-
-    return longestPath.length;
-  }
-
-  private *dfs(roads: Point3DWithEdgeSide[], current: Point3DWithEdgeSide, seen: Set<Point3DWithEdgeSide>, path: Point3DWithEdgeSide[]): Generator<Point3DWithEdgeSide[]> {
-    seen.add(current);
-    for (const a of edgeAdjacentEdges(current)) {
-      const road = roads.find(r => r.x === a.x && r.y === a.y && r.z === a.z && r.side === a.side);
-      if (!road || seen.has(road)) {
-        continue;
-      }
-
-      const newPath = [...path, road];
-      yield newPath;
-      yield* this.dfs(roads, road, new Set(seen), newPath)
-    }
+    return this.longestRoadService.findLongestRoad(allRoads, start);
   }
 }

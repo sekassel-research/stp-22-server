@@ -17,6 +17,7 @@ import { MoveHandler } from './move.handler';
 import { MoveSchema } from './move.schema';
 import { MoveService } from './move.service';
 import { DevelopmentService } from './game-logic/development.service';
+import { LongestRoadService } from './game-logic/longest-road.service';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { DevelopmentService } from './game-logic/development.service';
     BuildService,
     TradeService,
     DevelopmentService,
+    LongestRoadService,
   ],
 })
 export class MoveModule {
