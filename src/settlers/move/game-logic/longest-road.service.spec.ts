@@ -15,7 +15,7 @@ describe('LongestRoadService', () => {
 
   // Example setup from https://jira.uniks.de/browse/STP22SRV-31
   const roads: Point3DWithEdgeSide[] = [
-    {
+    { // endpoint
       'x': -1,
       'y': 0,
       'z': 1,
@@ -27,7 +27,7 @@ describe('LongestRoadService', () => {
       'z': 0,
       'side': 3,
     },
-    {
+    { // endpoint
       'x': -1,
       'y': 1,
       'z': 0,
@@ -57,13 +57,13 @@ describe('LongestRoadService', () => {
       'z': -1,
       'side': 7,
     },
-    {
+    { // endpoint
       'x': 0,
       'y': 1,
       'z': -1,
       'side': 11,
     },
-    {
+    { // endpoint
       'x': 1,
       'y': 0,
       'z': -1,
