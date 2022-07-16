@@ -12,7 +12,7 @@ describe('BuildService', () => {
     service = module.get<BuildService>(BuildService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should find the longest road', () => {
+    expect(service._findLongestRoad([], {x: 0, y: 0, z: 0, side: 3})).toBeDefined();
   });
 });

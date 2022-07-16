@@ -111,7 +111,7 @@ export class BuildService {
         const otherPlayers = await this.playerService.findAll(gameId, {
           userId: { $ne: userId },
         });
-        const bestPlayer = otherPlayers.maxBy(p => p.longestRoad ?? 0);
+        const bestPlayer = otherPlayers.length ? otherPlayers.maxBy(p => p.longestRoad ?? 0) : undefined;
         if (!bestPlayer || longestRoad > (bestPlayer.longestRoad || 0)) {
           update.$inc.victoryPoints = +2;
         }
@@ -337,6 +337,10 @@ export class BuildService {
     const allRoads: Point3DWithEdgeSide[] = await this.buildingService.findAll(gameId, { owner: userId, type: 'road' }) as Point3DWithEdgeSide[];
     allRoads.push(start);
 
+    return this._findLongestRoad(allRoads, start);
+  }
+
+  _findLongestRoad(allRoads: Point3DWithEdgeSide[], start: Point3DWithEdgeSide) {
     let longestPath: Point3DWithEdgeSide[] = [];
     for (const path of this.dfs(allRoads, start, new Set(), [start])) {
       if (path.length >= longestPath.length) {
