@@ -6,6 +6,7 @@ export enum Namespace {
   groups = 'groups',
   games = 'games',
   global = 'global',
+  maps = 'maps',
 }
 
 export type UserFilter = string[] | 'global';
@@ -25,6 +26,7 @@ export class MemberResolverService {
         return group?.members ?? [];
       case Namespace.games:
         return this.getGameMembers(id);
+      case Namespace.maps:
       case Namespace.global:
         return 'global';
       default:
