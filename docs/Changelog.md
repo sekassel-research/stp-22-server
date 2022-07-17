@@ -319,6 +319,7 @@
 
 + Added Map Templates.
 + Added Map Template Votes.
++ Added the `maps` message namespace.
 + Added the `Move` `developmentCard` property and functionality for development cards.
 + Added the `Player` `developmentCards` property.
 + Added the `monopoly`, `year-of-plenty` and `road-building` actions.
@@ -328,3 +329,10 @@
 ## Improvements
 
 * The `Player` `longestRoad` property is now always updated.
+* Robbing a tile with adjacent players without specifying a target is now allowed if none of the players has any resources. [STP22SRV-32](https://jira.uniks.de/browse/STP22SRV-32)
+
+## Bugfixes
+
+* Fixed an error when playing alone and getting the longest road.
+* Fixed a number of issues with the longest road algorithm. [STP22SRV-31](https://jira.uniks.de/browse/STP22SRV-31)
+* Fixed a problem in which the player with the longest road would get additional victory points when building more roads.
