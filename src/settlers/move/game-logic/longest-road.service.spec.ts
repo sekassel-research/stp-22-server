@@ -15,6 +15,18 @@ describe('LongestRoadService', () => {
 
   const cases: { roads: Point3DWithEdgeSide[], longestRoad: number }[] = [
     {
+      // Just a single road
+      longestRoad: 1,
+      roads: [
+        {
+          'x': 0,
+          'y': 0,
+          'z': 0,
+          'side': 11,
+        },
+      ],
+    },
+    {
       // Example setup from https://jira.uniks.de/browse/STP22SRV-31 comments
       longestRoad: 5,
       roads: [

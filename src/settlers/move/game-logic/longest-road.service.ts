@@ -8,6 +8,10 @@ export class LongestRoadService {
    * @param hint a hint where to start (e.g. the last road placed). Determines the group that will be examined.
    */
   findLongestRoad(allRoads: Point3DWithEdgeSide[], hint: Point3DWithEdgeSide): number {
+    if (allRoads.length === 1) {
+      return 1;
+    }
+
     // From https://stackoverflow.com/a/3192726/4138801
 
     // find the local group and neighbor count for each edge in first DFS pass
