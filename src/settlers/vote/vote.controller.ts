@@ -1,4 +1,14 @@
-import { Body, ConflictException, Controller, Delete, ForbiddenException, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth, AuthUser } from '../../auth/auth.decorator';
 import { User } from '../../user/user.schema';
@@ -55,6 +65,22 @@ export class VoteController {
     @Param('userId', ParseObjectIdPipe) userId: string,
   ): Promise<Vote | null> {
     return this.voteService.find(mapId, userId);
+  }
+
+  @Patch(':userId')
+  @ApiOkResponse({ type: Vote })
+  @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s vote.' })
+  @NotFound()
+  async update(
+    @AuthUser() user: User,
+    @Param('mapId', ParseObjectIdPipe) mapId: string,
+    @Param('userId', ParseObjectIdPipe) userId: string,
+    @Body() dto: CreateVoteDto,
+  ): Promise<Vote | null> {
+    if (user._id.toString() !== userId) {
+      throw new ForbiddenException('You cannot update someone else\'s vote.');
+    }
+    return this.voteService.update(mapId, userId, dto);
   }
 
   @Delete(':userId')
