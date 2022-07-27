@@ -336,3 +336,14 @@
 * Fixed an error when playing alone and getting the longest road.
 * Fixed a number of issues with the longest road algorithm. [STP22SRV-31](https://jira.uniks.de/browse/STP22SRV-31)
 * Fixed a problem in which the player with the longest road would get additional victory points when building more roads.
+
+# v4.0.1
+
+## Improvements
+
+* Added the missing `PATCH /api/v4/maps/{mapId}/votes/{userId}` endpoint.
+
+## Bugfixes
+
+* Single road segments are now properly counted for the longest road. [STP22SRV-33](https://jira.uniks.de/browse/STP22SRV-33)
+* The longest road is no longer updated to a smaller value when adding a road to a disconnected network. [STP22SRV-33](https://jira.uniks.de/browse/STP22SRV-33)
