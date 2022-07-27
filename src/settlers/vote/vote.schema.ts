@@ -3,6 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsMongoId } from 'class-validator';
 import { GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS, GlobalSchemaWithoutID, MONGO_ID_FORMAT } from '../../util/schema';
 
+const SCORES = [+1, -1] as const;
+type Score = typeof SCORES[number];
+
 @Schema(GLOBAL_SCHEMA_WITHOUT_ID_OPTIONS)
 export class Vote extends GlobalSchemaWithoutID {
   @Prop()
@@ -16,9 +19,9 @@ export class Vote extends GlobalSchemaWithoutID {
   userId: string;
 
   @Prop()
-  @ApiProperty()
-  @IsIn([+1, -1])
-  score: 1 | -1;
+  @ApiProperty({ enum: SCORES })
+  @IsIn(SCORES)
+  score: Score;
 }
 
 export const VoteSchema = SchemaFactory.createForClass(Vote)
