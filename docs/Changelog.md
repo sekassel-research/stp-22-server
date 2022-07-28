@@ -347,3 +347,23 @@
 
 * Single road segments are now properly counted for the longest road. [STP22SRV-33](https://jira.uniks.de/browse/STP22SRV-33)
 * The longest road is no longer updated to a smaller value when adding a road to a disconnected network. [STP22SRV-33](https://jira.uniks.de/browse/STP22SRV-33)
+
+# v4.1.0
+
+## New Features
+
++ Added the `MapTemplate` `description` property. [STP22SRV-35](https://jira.uniks.de/browse/STP22SRV-35)
+
+## Improvements
+
+* Specified a maximum length for the `Achievement` `id`.
+
+## Documentation
+
+* Documented the allowed values of the `Vote` `score` property.
+
+## Bugfixes
+
+* Updating a `Vote` `score` with `PATCH` now properly updates the `MapTemplate` `votes`. [STP22SRV-34](https://jira.uniks.de/browse/STP22SRV-34)
+* Fixed a `500 Internal Server Error` when revealing the third knight card as the only player.
+* Victory Points from the Largest Army are now properly added and deducted.
