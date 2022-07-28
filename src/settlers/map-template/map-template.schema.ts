@@ -41,6 +41,7 @@ export class HarborTemplate extends Harbor {
 
 const MAX_ICON_LENGTH = 64 * 1024;
 const MAX_TILES = 100;
+const MAX_DESCRIPTION_LENGTH = 1024;
 
 @Schema(GLOBAL_SCHEMA_OPTIONS)
 export class MapTemplate extends GlobalSchema {
@@ -57,6 +58,12 @@ export class MapTemplate extends GlobalSchema {
   @IsUrlOrUri()
   @IsByteLength(0, MAX_ICON_LENGTH)
   icon?: string;
+
+  @Prop()
+  @ApiPropertyOptional({ maxLength: MAX_DESCRIPTION_LENGTH })
+  @IsOptional()
+  @IsByteLength(0, MAX_DESCRIPTION_LENGTH)
+  description?: string;
 
   @Prop()
   @ApiProperty(MONGO_ID_FORMAT)
