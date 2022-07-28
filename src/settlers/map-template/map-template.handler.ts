@@ -17,6 +17,18 @@ export class MapTemplateHandler {
     });
   }
 
+  @OnEvent('maps.*.votes.*.updated')
+  async onVoteUpdated(vote: Vote, users: any, oldVote: Vote) {
+    const delta = vote.score - oldVote.score;
+    if (!delta) {
+      return;
+    }
+
+    await this.mapTemplateService.update(vote.mapId, {
+      $inc: { votes: delta },
+    });
+  }
+
   @OnEvent('maps.*.votes.*.deleted')
   async onVoteDelete(vote: Vote) {
     await this.mapTemplateService.update(vote.mapId, {

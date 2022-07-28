@@ -30,8 +30,9 @@ export class VoteService {
   }
 
   async update(mapId: string, userId: string, dto: UpdateVoteDto): Promise<Vote | null> {
+    const original = await this.find(mapId, userId);
     const updated = await this.model.findOneAndUpdate({ mapId, userId }, dto, { new: true }).exec();
-    updated && this.emit('updated', updated);
+    original && updated && this.emit('updated', updated, original);
     return updated;
   }
 
@@ -50,7 +51,7 @@ export class VoteService {
     return votes;
   }
 
-  private emit(event: string, vote: Vote): void {
-    this.eventEmitter.emit(`maps.${vote.mapId}.votes.${vote.userId}.${event}`, vote);
+  private emit(event: string, vote: Vote, oldVote?: Vote): void {
+    this.eventEmitter.emit(`maps.${vote.mapId}.votes.${vote.userId}.${event}`, vote, undefined, oldVote);
   }
 }
