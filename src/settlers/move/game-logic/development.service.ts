@@ -120,20 +120,26 @@ export class DevelopmentService {
       [`developmentCards.${index}.revealed`]: true,
     };
     if (developmentCard === 'knight') {
-      const knights = this.countKnights(developmentCards) + 1;
+      const oldKnights = this.countKnights(developmentCards);
+      const knights = oldKnights + 1;
       if (knights >= 3) {
-        const otherPlayers = await this.playerService.findAll(gameId, {
-          userId: { $ne: userId },
-        });
-        const bestOtherPlayer = otherPlayers.maxBy(p => this.countKnights(p.developmentCards));
-        const otherKnights = this.countKnights(bestOtherPlayer?.developmentCards);
-        if (!bestOtherPlayer || knights > otherKnights) {
-          update.$inc = { victoryPoints: +2 };
-        }
-        if (bestOtherPlayer && knights >= otherKnights) {
-          await this.playerService.update(gameId, bestOtherPlayer.userId, {
-            $inc: { victoryPoints: -2 },
-          });
+        const players = await this.playerService.findAll(gameId);
+        const bestPlayer = players.length ? players.maxBy(p => this.countKnights(p.developmentCards)) : undefined;
+        const otherKnights = this.countKnights(bestPlayer?.developmentCards);
+        if (bestPlayer && bestPlayer.userId === userId && bestPlayer.longestRoad) {
+          // grant victory points only if not previous owner of most knights
+          if (oldKnights < 3) {
+            update.$inc = { victoryPoints: +2 };
+          }
+        } else {
+          if (!bestPlayer || knights > otherKnights) {
+            update.$inc = { victoryPoints: +2 };
+          }
+          if (bestPlayer && knights >= otherKnights) {
+            await this.playerService.update(gameId, bestPlayer.userId, {
+              $inc: { victoryPoints: -2 },
+            });
+          }
         }
       }
     }
