@@ -20,7 +20,7 @@ import { CreateVoteDto } from './vote.dto';
 import { Vote } from './vote.schema';
 import { VoteService } from './vote.service';
 
-@Controller('maps/:mapId/votes')
+@Controller()
 @ApiTags('Map Votes')
 @Validated()
 @Auth()
@@ -31,7 +31,15 @@ export class VoteController {
   ) {
   }
 
-  @Post()
+  @Get('users/:userId/votes')
+  @ApiOkResponse({ type: [Vote] })
+  async findAllByUser(
+    @Param('userId', ParseObjectIdPipe) userId: string,
+  ): Promise<Vote[]> {
+    return this.voteService.findAll({ userId });
+  }
+
+  @Post('maps/:mapId/votes')
   @ApiCreatedResponse({ type: Vote })
   @ApiConflictResponse({ description: 'Attempt to cast another vote' })
   async create(
@@ -49,7 +57,7 @@ export class VoteController {
     }
   }
 
-  @Get()
+  @Get('maps/:mapId/votes')
   @ApiOkResponse({ type: [Vote] })
   async findAll(
     @Param('mapId', ParseObjectIdPipe) mapId: string,
@@ -57,7 +65,7 @@ export class VoteController {
     return this.voteService.findAll({ mapId });
   }
 
-  @Get(':userId')
+  @Get('maps/:mapId/votes/:userId')
   @ApiOkResponse({ type: Vote })
   @NotFound()
   async findOne(
@@ -67,7 +75,7 @@ export class VoteController {
     return this.voteService.find(mapId, userId);
   }
 
-  @Patch(':userId')
+  @Patch('maps/:mapId/votes/:userId')
   @ApiOkResponse({ type: Vote })
   @ApiForbiddenResponse({ description: 'Attempt to change someone else\'s vote.' })
   @NotFound()
@@ -83,7 +91,7 @@ export class VoteController {
     return this.voteService.update(mapId, userId, dto);
   }
 
-  @Delete(':userId')
+  @Delete('maps/:mapId/votes/:userId')
   @ApiOkResponse({ type: Vote })
   @ApiForbiddenResponse({ description: 'Attempt to delete a vote that was not cast by the current user.' })
   @NotFound()
