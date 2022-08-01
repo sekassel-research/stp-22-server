@@ -367,3 +367,13 @@
 * Updating a `Vote` `score` with `PATCH` now properly updates the `MapTemplate` `votes`. [STP22SRV-34](https://jira.uniks.de/browse/STP22SRV-34)
 * Fixed a `500 Internal Server Error` when revealing the third knight card as the only player.
 * Victory Points from the Largest Army are now properly added and deducted.
+
+# v4.2.0
+
+## New Features
+
++ Added the `GET /api/v4/users/{userId}/votes` endpoint. [STP22SRV-36](https://jira.uniks.de/browse/STP22SRV-36)
+
+## Bugfixes
+
+* The robber can no longer be placed on the same tile it is already on. [STP22SRV-37](https://jira.uniks.de/browse/STP22SRV-37)
