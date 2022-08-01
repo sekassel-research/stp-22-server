@@ -118,6 +118,15 @@ export class RollService {
       throw new ForbiddenException('You cannot rob yourself');
     }
 
+    const state = await this.stateService.findByGame(gameId);
+    if (!state) {
+      throw new NotFoundException(gameId);
+    }
+
+    if (state.robber && state.robber.x === robber.x && state.robber.y === robber.y && state.robber.z === robber.z) {
+      throw new ForbiddenException('You cannot place the robber on the same tile again');
+    }
+
     if (targetId) {
       const target = await this.playerService.findOne(gameId, targetId);
       if (!target) {
