@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { EventService } from '../../event/event.service';
 import { Game } from '../../game/game.schema';
 import { MemberService } from '../../member/member.service';
-import { MapTemplate, TileTemplate } from '../map-template/map-template.schema';
+import { HarborTemplate, MapTemplate, TileTemplate } from '../map-template/map-template.schema';
 import { MapTemplateService } from '../map-template/map-template.service';
 import {
   RESOURCE_TILE_TYPES,
@@ -39,7 +39,7 @@ export class MapService {
     let template: MapTemplate | null;
     if (mapTemplate && (template = await this.mapTemplateService.find(mapTemplate))) {
       tiles = this.completeTiles(template.tiles);
-      harbors = template.harbors;
+      harbors = this.completeHarbors(template.harbors);
     } else {
       const radius = game.settings?.mapRadius ?? 2;
       tiles = this.generateTiles(radius);
@@ -91,6 +91,21 @@ export class MapService {
       ...t,
       type: t.type || tileTypes[i],
       numberToken: t.numberToken || numberTokens[i],
+    }));
+  }
+
+  private completeHarbors(harbors: HarborTemplate[]): Harbor[] {
+    const resourcesCount = harbors.filter(h => h.type === 'random').length;
+    const resourcesPool: ResourceType[] = [];
+    while (resourcesPool.length < resourcesCount) {
+      resourcesPool.push(...RESOURCE_TYPES);
+      resourcesPool.push(...Array(RESOURCE_TYPES.length));
+    }
+    resourcesPool.shuffle();
+
+    return harbors.map(h => ({
+      ...h,
+      type: h.type !== 'random' ? h.type : resourcesPool.pop(),
     }));
   }
 

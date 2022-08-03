@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -18,7 +18,7 @@ import {
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../../util/schema';
 import { IsUrlOrUri } from '../../util/url-or-uri.validator';
 import { Harbor } from '../map/map.schema';
-import { TILE_TYPES, TileType } from '../shared/constants';
+import { RESOURCE_TYPES, TILE_TYPES, TileType } from '../shared/constants';
 import { Point3D } from '../shared/schema';
 
 export class TileTemplate extends Point3D {
@@ -36,7 +36,15 @@ export class TileTemplate extends Point3D {
   numberToken?: number;
 }
 
-export class HarborTemplate extends Harbor {
+const HARBOR_TYPES = [...RESOURCE_TYPES, 'random'] as const;
+type HarborType = typeof HARBOR_TYPES[number];
+
+export class HarborTemplate extends OmitType(Harbor, ['type']) {
+  @Prop()
+  @ApiPropertyOptional({ enum: HARBOR_TYPES })
+  @IsOptional()
+  @IsIn(HARBOR_TYPES)
+  type?: HarborType;
 }
 
 const MAX_ICON_LENGTH = 64 * 1024;
