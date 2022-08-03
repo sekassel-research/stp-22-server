@@ -377,3 +377,9 @@
 ## Bugfixes
 
 * The robber can no longer be placed on the same tile it is already on. [STP22SRV-37](https://jira.uniks.de/browse/STP22SRV-37)
+
+## v4.3.0
+
+## New Features
+
++ Added the `HarborTemplate` `type` `random` option.
