@@ -19,10 +19,7 @@ import { AchievementSummaryModule } from './achievement-summary/achievement-summ
 
 @Module({
   imports: [
-    MongooseModule.forRoot(environment.mongo.uri, {
-      useFindAndModify: true,
-      useCreateIndex: true,
-    }),
+    MongooseModule.forRoot(environment.mongo.uri),
     ThrottlerModule.forRoot(environment.rateLimit),
     EventEmitterModule.forRoot({
       wildcard: true,

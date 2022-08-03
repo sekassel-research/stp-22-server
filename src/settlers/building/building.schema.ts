@@ -10,7 +10,7 @@ import { Point3D } from '../shared/schema';
 @Schema({ ...GLOBAL_SCHEMA_OPTIONS, versionKey: false, timestamps: false })
 export class Building extends Point3D {
   @ApiProperty(MONGO_ID_FORMAT)
-  _id!: string;
+  _id!: Types.ObjectId;
 
   @Prop()
   @ApiProperty({

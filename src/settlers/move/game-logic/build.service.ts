@@ -56,7 +56,7 @@ export class BuildService {
       ...move,
       gameId,
       userId,
-      building: building?._id,
+      building: building?._id?.toString(),
     });
   }
 
@@ -150,7 +150,7 @@ export class BuildService {
     await this.playerService.update(gameId, userId, update);
 
     if (existing) {
-      return this.buildingService.update(existing._id, {
+      return this.buildingService.update(existing._id.toString(), {
         type: move.building.type,
       });
     }
