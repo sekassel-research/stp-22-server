@@ -16,13 +16,18 @@ export class AchievementService {
   }
 
   async create(userId: string, id: string, achievement: CreateAchievementDto): Promise<Achievement> {
-    const now = new Date();
-    const created = await this.model.findOneAndUpdate({ userId, id }, { ...achievement, userId, id }, {
+    const res = await this.model.findOneAndUpdate({ userId, id }, { ...achievement, userId, id }, {
       upsert: true,
       new: true,
-    }).exec();
-    this.emit(created.createdAt >= now ? 'created' : 'updated', created);
-    return created;
+      rawResult: true,
+    });
+    const { value } = res;
+    if (!value) {
+      throw new Error('Failed to create achievement');
+    }
+
+    this.emit(res.lastErrorObject?.updatedExisting ? 'updated' : 'created', value);
+    return value;
   }
 
   async findAll(userId: string, filter?: FilterQuery<Achievement>): Promise<Achievement[]> {
