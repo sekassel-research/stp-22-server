@@ -383,3 +383,16 @@
 ## New Features
 
 + Added the `HarborTemplate` `type` `random` option.
+
+## v4.4.0
+
+## New Features
+
++ Added the `Player` `hasLongestRoad` and `hasLargestArmy` properties.
++ Added the `State` `winner` property. [STP22SRV-44](https://jira.uniks.de/browse/STP22SRV-44)
+
+## Improvements
+
+* If two players have the same longest road / largest army, the first player will now keep the title, unless someone actually tops them. [STP22SRV-40](https://jira.uniks.de/browse/STP22SRV-40)
+* Player resources, victory points and development cards are no longer hidden to others when the game ends with a winner. [STP22SRV-43](https://jira.uniks.de/browse/STP22SRV-43)
+* When someone wins the game by reaching the victory points goal, the game will no longer expect any moves. [STP22SRV-44](https://jira.uniks.de/browse/STP22SRV-44)
