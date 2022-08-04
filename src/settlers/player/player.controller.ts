@@ -7,6 +7,7 @@ import { NotFound } from '../../util/not-found.decorator';
 import { ParseObjectIdPipe } from '../../util/parse-object-id.pipe';
 import { Throttled } from '../../util/throttled.decorator';
 import { Validated } from '../../util/validated.decorator';
+import { StateService } from '../state/state.service';
 import { UpdatePlayerDto } from './player.dto';
 import { Player, PlayerDocument } from './player.schema';
 import { PlayerService } from './player.service';
@@ -19,6 +20,7 @@ import { PlayerService } from './player.service';
 export class PlayerController {
   constructor(
     private playerService: PlayerService,
+    private stateService: StateService,
   ) {
   }
 
@@ -29,7 +31,8 @@ export class PlayerController {
     @Param('gameId', ParseObjectIdPipe) gameId: string,
   ): Promise<Player[]> {
     const players = await this.playerService.findAll(gameId);
-    return players.map(p => this.maskResourcesIfOpponent(user, p));
+    const gameOver = await this.isGameOver(gameId);
+    return gameOver ? players : players.map(p => this.maskResourcesIfOpponent(user, p));
   }
 
   @Get(':userId')
@@ -45,7 +48,8 @@ export class PlayerController {
       return undefined;
     }
 
-    return this.maskResourcesIfOpponent(user, player);
+    const gameOver = await this.isGameOver(gameId);
+    return gameOver ? player : this.maskResourcesIfOpponent(user, player);
   }
 
   @Patch(':userId')
@@ -62,6 +66,10 @@ export class PlayerController {
       throw new ForbiddenException('You may only update your own player');
     }
     return this.playerService.update(gameId, userId, dto);
+  }
+
+  private async isGameOver(gameId: string): Promise<boolean> {
+    return !!(await this.stateService.findByGame(gameId))?.winner;
   }
 
   private maskResourcesIfOpponent(user: User, player: PlayerDocument): Player {
