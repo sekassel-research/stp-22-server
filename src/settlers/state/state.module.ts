@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventModule } from '../../event/event.module';
 import { MemberModule } from '../../member/member.module';
@@ -18,7 +18,7 @@ import { StateService } from './state.service';
     ]),
     MemberModule,
     EventModule,
-    PlayerModule,
+    forwardRef(() => PlayerModule),
   ],
   providers: [StateService, StateHandler],
   controllers: [StateController],
