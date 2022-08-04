@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from 'src/settlers/state/state.service';
+import { GameService } from '../../../game/game.service';
 import { PlayerService } from '../../player/player.service';
-import { DEVELOPMENT_ACTION } from '../../shared/constants';
+import { DEFAULT_VICTORY_POINTS, DEVELOPMENT_ACTION } from '../../shared/constants';
 import { ExpectedMove } from '../../state/state.schema';
 import { BANK_TRADE_ID, Move } from '../move.schema';
 
@@ -10,10 +11,22 @@ export class StateTransitionService {
   constructor(
     private stateService: StateService,
     private playerService: PlayerService,
+    private gameService: GameService,
   ) {
   }
 
   async transition(gameId: string, userId: string, move: Move): Promise<void> {
+    const players = await this.playerService.findAll(gameId, { active: { $ne: false } }, { foundingRoll: -1 });
+    const victoryPoints = (await this.gameService.findOne(gameId))?.settings?.victoryPoints ?? DEFAULT_VICTORY_POINTS;
+    const winner = players.find(p => (p.victoryPoints ?? 0) >= victoryPoints);
+    if (winner) {
+      await this.stateService.update(gameId, {
+        expectedMoves: [],
+        winner: winner.userId,
+      });
+      return;
+    }
+
     if (move.action === 'build') {
       if (move.resources) {
         if (move.partner !== BANK_TRADE_ID) {
@@ -43,7 +56,6 @@ export class StateTransitionService {
         return;
       }
 
-      const players = await this.playerService.findAll(gameId, { active: { $ne: false } }, { foundingRoll: -1 });
       const currentIndex = players.findIndex(p => p.userId === userId);
       const nextPlayer = players[(currentIndex + 1) % players.length];
       await this.stateService.update(gameId, {
@@ -55,14 +67,13 @@ export class StateTransitionService {
 
     if (move.action === 'roll') {
       if (move.roll === 7) {
-        const allPlayers = await this.playerService.findAll(gameId, { active: { $ne: false } });
-        const players = allPlayers.filter(p => Object.values(p.resources).sum() > 7);
+        const dropPlayers = players.filter(p => Object.values(p.resources).sum() > 7);
         const expectedMoves: ExpectedMove[] = [
           { action: 'rob', players: [userId] },
           { action: 'build', players: [userId] },
         ];
-        if (players.length) {
-          expectedMoves.splice(0, 0, { action: 'drop', players: players.map(p => p.userId) });
+        if (dropPlayers.length) {
+          expectedMoves.splice(0, 0, { action: 'drop', players: dropPlayers.map(p => p.userId) });
         }
         await this.stateService.update(gameId, {
           expectedMoves,
@@ -76,8 +87,6 @@ export class StateTransitionService {
     }
 
     if (move.action === 'founding-roll') {
-      const players = await this.playerService.findAll(gameId, { active: { $ne: false } }, { foundingRoll: -1 });
-
       if (!players.find(p => !p.foundingRoll)) {
         const ids = players.map(m => m.userId);
         const expectedMoves: ExpectedMove[] = [];

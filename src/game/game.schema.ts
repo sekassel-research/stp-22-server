@@ -14,11 +14,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Document, Types } from 'mongoose';
-import { INITIAL_BUILDINGS } from '../settlers/shared/constants';
+import { DEFAULT_VICTORY_POINTS, MAX_VICTORY_POINTS } from '../settlers/shared/constants';
 import { GLOBAL_SCHEMA_OPTIONS, GlobalSchema, MONGO_ID_FORMAT } from '../util/schema';
-
-// TODO add +2 for most knights and +5 for victory cards
-const MAX_VICTORY_POINTS = INITIAL_BUILDINGS.settlement + INITIAL_BUILDINGS.city * 2 + 2;
 
 export class GameSettings {
   @Prop()
@@ -40,7 +37,7 @@ export class GameSettings {
     type: 'integer',
     minimum: 3,
     maximum: MAX_VICTORY_POINTS,
-    default: 10,
+    default: DEFAULT_VICTORY_POINTS,
     description: 'Specifies how many victory points are required to win the game.',
   })
   @IsOptional()

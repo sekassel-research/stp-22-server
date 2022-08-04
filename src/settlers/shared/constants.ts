@@ -113,3 +113,7 @@ export const TASKS = [
   'year-of-plenty',
 ] as const;
 export type Task = (typeof TASKS)[number];
+
+export const DEFAULT_VICTORY_POINTS = 10;
+// NB ignores +2 for largest army and +5 for victory points, because it's unrealistic someone will get ALL of that
+export const MAX_VICTORY_POINTS = INITIAL_BUILDINGS.settlement + INITIAL_BUILDINGS.city * 2 + 2;

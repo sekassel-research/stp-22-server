@@ -48,6 +48,12 @@ export class State extends PickType(GlobalSchemaWithoutID, ['updatedAt'] as cons
   @ValidateNested()
   @Type(() => Point3D)
   robber?: Point3D;
+
+  @Prop()
+  @ApiPropertyOptional(MONGO_ID_FORMAT)
+  @IsOptional()
+  @IsMongoId()
+  winner?: string;
 }
 
 export const StateSchema = SchemaFactory.createForClass(State)
