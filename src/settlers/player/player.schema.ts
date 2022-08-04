@@ -107,6 +107,18 @@ export class Player {
   @IsInt()
   longestRoad?: number;
 
+  @Prop()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  hasLongestRoad?: boolean;
+
+  @Prop()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  hasLargestArmy?: boolean;
+
   @Prop({ type: Object })
   @ApiPropertyOptional()
   @IsOptional()

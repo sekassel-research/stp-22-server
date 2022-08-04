@@ -123,23 +123,21 @@ export class DevelopmentService {
       const oldKnights = this.countKnights(developmentCards);
       const knights = oldKnights + 1;
       if (knights >= 3) {
-        const players = await this.playerService.findAll(gameId);
-        const bestPlayer = players.length ? players.maxBy(p => this.countKnights(p.developmentCards)) : undefined;
-        const otherKnights = this.countKnights(bestPlayer?.developmentCards);
-        if (bestPlayer && bestPlayer.userId === userId && bestPlayer.longestRoad) {
-          // grant victory points only if not previous owner of most knights
-          if (oldKnights < 3) {
-            update.$inc = { victoryPoints: +2 };
-          }
-        } else {
-          if (!bestPlayer || knights > otherKnights) {
-            update.$inc = { victoryPoints: +2 };
-          }
-          if (bestPlayer && knights >= otherKnights) {
-            await this.playerService.update(gameId, bestPlayer.userId, {
-              $inc: { victoryPoints: -2 },
-            });
-          }
+        const bestPlayer = (await this.playerService.findAll(gameId, {hasLargestArmy: true}))[0];
+        if (!bestPlayer) {
+          // nobody had the largest army yet
+          update.$inc = { victoryPoints: +2 };
+          update.hasLargestArmy = true;
+        } else if (bestPlayer.userId === userId) {
+          // current player already has largest army
+        } else if (knights > this.countKnights(bestPlayer.developmentCards)) {
+          // take the title from the other player
+          update.$inc = { victoryPoints: +2 };
+          update.hasLargestArmy = true;
+          await this.playerService.update(gameId, bestPlayer.userId, {
+            $inc: { victoryPoints: -2 },
+            hasLargestArmy: false,
+          });
         }
       }
     }
