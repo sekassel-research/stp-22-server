@@ -105,28 +105,7 @@ export class BuildService {
 
     switch (move.building.type) {
       case 'road':
-        const longestRoad = await this.findLongestRoad(gameId, userId, move.building);
-        update.$max = { longestRoad };
-        // NB: the value of longestRoad may not necessarily be the longest road of this player,
-        //     but that does not matter, since adding roads to a shorter group will not affect the title anyway.
-        if (longestRoad >= 5) {
-          const bestPlayer = (await this.playerService.findAll(gameId, { hasLongestRoad: true }))[0];
-          if (!bestPlayer) {
-            // nobody had the longest road yet
-            update.$inc = { victoryPoints: +2 };
-            update.hasLongestRoad = true;
-          } else if (bestPlayer.userId === userId) {
-            // current player already has longest road
-          } else if (longestRoad > (bestPlayer.longestRoad ?? 0)) {
-            // take the title from the other player
-            update.$inc = { victoryPoints: +2 };
-            update.hasLongestRoad = true;
-            await this.playerService.update(gameId, bestPlayer.userId, {
-              $inc: { victoryPoints: -2 },
-              hasLongestRoad: false,
-            });
-          }
-        }
+        await this.checkLongestRoad(gameId, userId, move.building, update);
         break;
       case 'settlement':
         update.$inc.victoryPoints = +1;
@@ -159,6 +138,29 @@ export class BuildService {
       });
     }
     return this.buildingService.create(gameId, userId, move.building);
+  }
+
+  private async checkLongestRoad(gameId: string, userId: string, dto: CreateBuildingDto, update: UpdateQuery<Player> & {$inc: any}) {
+    const longestRoad = await this.findLongestRoad(gameId, userId, dto);
+    update.longestRoad = longestRoad;
+    if (longestRoad >= 5) {
+      const bestPlayer = (await this.playerService.findAll(gameId, { hasLongestRoad: true }))[0];
+      if (!bestPlayer) {
+        // nobody had the longest road yet
+        update.$inc.victoryPoints = +2;
+        update.hasLongestRoad = true;
+      } else if (bestPlayer.userId === userId) {
+        // current player already has longest road
+      } else if (longestRoad > (bestPlayer.longestRoad ?? 0)) {
+        // take the title from the other player
+        update.$inc.victoryPoints = +2;
+        update.hasLongestRoad = true;
+        await this.playerService.update(gameId, bestPlayer.userId, {
+          $inc: { victoryPoints: -2 },
+          hasLongestRoad: false,
+        });
+      }
+    }
   }
 
   private checkExpectedType(move: CreateMoveDto) {
@@ -344,15 +346,15 @@ export class BuildService {
     }
   }
 
-  private async findLongestRoad(gameId: string, userId: string, start: CreateBuildingDto): Promise<number> {
+  private async findLongestRoad(gameId: string, userId: string, dto: CreateBuildingDto): Promise<number> {
     const buildings: Building[] = await this.buildingService.findAll(gameId);
-    const startBuilding: Building = {
-      ...start,
+    const newBuilding: Building = {
+      ...dto,
       _id: new Types.ObjectId,
       owner: userId,
       gameId,
     };
-    buildings.push(startBuilding);
+    buildings.push(newBuilding);
     return this.longestRoadService.findLongestRoad(buildings, userId);
   }
 }
