@@ -109,6 +109,7 @@ export class BuildService {
         break;
       case 'settlement':
         update.$inc.victoryPoints = +1;
+        await this.checkForBrokenRoad(gameId, userId, move.building);
         break;
       case 'city':
         update.$inc['remainingBuildings.settlement'] = +1;
@@ -161,6 +162,31 @@ export class BuildService {
         });
       }
     }
+  }
+
+  private async checkForBrokenRoad(gameId: string, userId: string, dto: CreateBuildingDto) {
+    const adjacentEnemyRoads = await this.buildingService.findAll(gameId, {
+      owner: { $ne: userId },
+      type: 'road',
+      $or: cornerAdjacentEdges(dto as Point3DWithCornerSide),
+    });
+    const ownerWith2Roads = adjacentEnemyRoads.find(b => adjacentEnemyRoads.countIf(b2 => b2.owner === b.owner) === 2)?.owner;
+    if (!ownerWith2Roads) {
+      return;
+    }
+
+    const longestRoad = await this.findLongestRoad(gameId, ownerWith2Roads, dto);
+    const updatedPlayer = await this.playerService.findOne(gameId, ownerWith2Roads);
+    if (!updatedPlayer?.hasLongestRoad) {
+      // they did not have the longest road before, now it may be shorter,
+      // just update and move on.
+      await this.playerService.update(gameId, ownerWith2Roads, {
+        longestRoad,
+      });
+      return;
+    }
+
+    // TODO this is where it gets complicated.
   }
 
   private checkExpectedType(move: CreateMoveDto) {
