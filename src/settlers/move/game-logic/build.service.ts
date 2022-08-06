@@ -103,34 +103,37 @@ export class BuildService {
       }
     };
 
-    if (move.building.type === 'city') {
-      update.$inc['remainingBuildings.settlement'] = +1;
-    }
-    if (move.building.type === 'road') {
-      const longestRoad = await this.findLongestRoad(gameId, userId, move.building);
-      update.$max = {longestRoad};
-      // NB: the value of longestRoad may not necessarily be the longest road of this player,
-      //     but that does not matter, since adding roads to a shorter group will not affect the title anyway.
-      if (longestRoad >= 5) {
-        const bestPlayer = (await this.playerService.findAll(gameId, {hasLongestRoad: true}))[0];
-        if (!bestPlayer) {
-          // nobody had the longest road yet
-          update.$inc = { victoryPoints: +2 };
-          update.hasLongestRoad = true;
-        } else if (bestPlayer.userId === userId) {
-          // current player already has longest road
-        } else if (longestRoad > (bestPlayer.longestRoad ?? 0)) {
-          // take the title from the other player
-          update.$inc = { victoryPoints: +2 };
-          update.hasLongestRoad = true;
-          await this.playerService.update(gameId, bestPlayer.userId, {
-            $inc: { victoryPoints: -2 },
-            hasLongestRoad: false,
-          });
+    switch (move.building.type) {
+      case 'road':
+        const longestRoad = await this.findLongestRoad(gameId, userId, move.building);
+        update.$max = { longestRoad };
+        // NB: the value of longestRoad may not necessarily be the longest road of this player,
+        //     but that does not matter, since adding roads to a shorter group will not affect the title anyway.
+        if (longestRoad >= 5) {
+          const bestPlayer = (await this.playerService.findAll(gameId, { hasLongestRoad: true }))[0];
+          if (!bestPlayer) {
+            // nobody had the longest road yet
+            update.$inc = { victoryPoints: +2 };
+            update.hasLongestRoad = true;
+          } else if (bestPlayer.userId === userId) {
+            // current player already has longest road
+          } else if (longestRoad > (bestPlayer.longestRoad ?? 0)) {
+            // take the title from the other player
+            update.$inc = { victoryPoints: +2 };
+            update.hasLongestRoad = true;
+            await this.playerService.update(gameId, bestPlayer.userId, {
+              $inc: { victoryPoints: -2 },
+              hasLongestRoad: false,
+            });
+          }
         }
-      }
-    } else {
-      update.$inc.victoryPoints = +1;
+        break;
+      case 'settlement':
+        update.$inc.victoryPoints = +1;
+        break;
+      case 'city':
+        update.$inc['remainingBuildings.settlement'] = +1;
+        break;
     }
 
     if (move.action === 'build') {
