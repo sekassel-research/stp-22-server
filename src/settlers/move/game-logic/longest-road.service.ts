@@ -1,58 +1,69 @@
 import { Injectable } from '@nestjs/common';
 import { Building } from '../../building/building.schema';
-import { edgeAdjacentEdges, Point3DWithEdgeSide } from '../../shared/hexagon';
+import { cornerAdjacentEdges, edgeAdjacentCorners, Point3DWithEdgeSide } from '../../shared/hexagon';
+import { Point3D } from '../../shared/schema';
 
 @Injectable()
 export class LongestRoadService {
-  /**
-   * @param buildings all buildings in the current game.
-   * @param hint a hint where to start (e.g. the last road placed). Determines the group that will be examined.
-   */
-  findLongestRoad(buildings: Building[], hint: Building): number {
-    const allRoads = buildings.filter(b => b.type === 'road' && b.owner === hint.owner);
-    if (allRoads.length === 1) {
-      return 1;
-    }
+  findLongestRoad(buildings: Building[], player: string): number {
+    // from https://stackoverflow.com/a/47573447/4138801
 
-    // From https://stackoverflow.com/a/3192726/4138801
+    let longestRoad = 0;
 
-    // find the local group and neighbor count for each edge in first DFS pass
-    const group = new Map<Building, number>();
-    for (const {} of this.dfs(allRoads, hint, new Set(), 0, group)) {
-    }
-    const groupRoads = [...group.keys()];
-
-    // find all endpoints, or fall back to all roads if looping
-    const endpoints = [...group.entries()].filter(([, v]) => v === 1).map(([k]) => k);
-    const starts = endpoints.length ? endpoints : groupRoads;
-
-    let longestPath = 0;
-    for (const start of starts) {
-      for (const path of this.dfs(groupRoads, start, new Set(), 1)) {
-        if (path >= longestPath) {
-          longestPath = path;
-        }
+    function checkIfLongestRoad(roadLength: number) {
+      if (roadLength > longestRoad) {
+        longestRoad = roadLength;
       }
     }
 
-    return longestPath;
+    const mainLoop = (currentLongestRoad: number, tileEdge: Point3DWithEdgeSide, passedCorners: Set<string>, passedEdges: Set<string>) => {
+      const tileEdgeId = this.id(tileEdge);
+      if (!passedEdges.has(tileEdgeId) && this.owner(tileEdge, buildings) === player) {
+        passedEdges.add(tileEdgeId);
+        currentLongestRoad++;
+        for (const corner of edgeAdjacentCorners(tileEdge)) {
+          const cornerOwner = this.owner(corner, buildings);
+          const cornerId = this.id(corner);
+          if ((cornerOwner === player || !cornerOwner) && !passedCorners.has(cornerId)) {
+            passedCorners.add(cornerId);
+            for (const edge of cornerAdjacentEdges(corner)) {
+              if (!this.equal(edge, tileEdge)) {
+                mainLoop(currentLongestRoad, edge, passedCorners, passedEdges);
+              }
+            }
+          } else {
+            checkIfLongestRoad(currentLongestRoad);
+          }
+        }
+      } else {
+        checkIfLongestRoad(currentLongestRoad);
+      }
+    };
+
+    for (const building of buildings) {
+      if (building.type === 'road' && building.owner === player) {
+        // TODO this may be inefficient - it starts from every road instead of endpoints only
+        mainLoop(0, building as Point3DWithEdgeSide, new Set(), new Set());
+      }
+    }
+
+    return longestRoad;
   }
 
-  private* dfs(roads: Building[], current: Building, seen: Set<Building>, path: number, allSeen?: Map<Building, number>): Generator<number> {
-    seen.add(current);
-    const adjacentRoads = edgeAdjacentEdges(current as Point3DWithEdgeSide)
-      .flatMap(a => roads.find(r => r.x === a.x && r.y === a.y && r.z === a.z && r.side === a.side) ?? []);
-    const newSeen = new Set([...seen, ...adjacentRoads]);
-    for (const road of adjacentRoads) {
-      if (seen.has(road)) {
-        continue;
+  private owner(a: Point3D & { side: number }, buildings: Building[]): string | undefined {
+    for (const building of buildings) {
+      if (this.equal(building, a)) {
+        return building.owner;
       }
-
-      const newPath = path + 1;
-      yield newPath;
-      yield* this.dfs(roads, road, newSeen, newPath, allSeen);
     }
+    return undefined;
+  }
 
-    allSeen?.set(current, adjacentRoads.length);
+  private equal(a: Point3D & { side: number }, b: Point3D & { side: number }): boolean {
+    return a.x === b.x && a.y === b.y && a.z === b.z && a.side === b.side;
+  }
+
+  private id(a: Point3D & { side: number }): string {
+    return `${a.x},${a.y},${a.z},${a.side}`;
   }
 }

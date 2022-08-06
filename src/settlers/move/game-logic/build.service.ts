@@ -350,6 +350,6 @@ export class BuildService {
       gameId,
     };
     buildings.push(startBuilding);
-    return this.longestRoadService.findLongestRoad(buildings, startBuilding);
+    return this.longestRoadService.findLongestRoad(buildings, userId);
   }
 }

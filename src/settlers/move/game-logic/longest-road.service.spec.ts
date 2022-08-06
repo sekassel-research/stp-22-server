@@ -184,7 +184,7 @@ describe('LongestRoadService', () => {
     const buildings: Building[] = roads.map(r => ({ _id: new Types.ObjectId(), owner: 'a', gameId: 'g1', type: 'road', ...r }));
     for (const road of buildings) {
       it(`should find the longest road of length ${longestRoad} in example ${i} starting at ${JSON.stringify(road)}`, () => {
-        expect(service.findLongestRoad(buildings, road)).toEqual(longestRoad);
+        expect(service.findLongestRoad(buildings, 'a')).toEqual(longestRoad);
       });
     }
   }
