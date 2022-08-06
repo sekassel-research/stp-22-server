@@ -109,7 +109,7 @@ export class BuildService {
         break;
       case 'settlement':
         update.$inc.victoryPoints = +1;
-        await this.checkForBrokenRoad(gameId, userId, move.building);
+        await this.checkForBrokenRoad(gameId, userId, move.building, update);
         break;
       case 'city':
         update.$inc['remainingBuildings.settlement'] = +1;
@@ -164,7 +164,7 @@ export class BuildService {
     }
   }
 
-  private async checkForBrokenRoad(gameId: string, userId: string, dto: CreateBuildingDto) {
+  private async checkForBrokenRoad(gameId: string, userId: string, dto: CreateBuildingDto, update: UpdateQuery<Player> & {$inc: any}) {
     const adjacentEnemyRoads = await this.buildingService.findAll(gameId, {
       owner: { $ne: userId },
       type: 'road',
@@ -176,17 +176,54 @@ export class BuildService {
     }
 
     const longestRoad = await this.findLongestRoad(gameId, ownerWith2Roads, dto);
-    const updatedPlayer = await this.playerService.findOne(gameId, ownerWith2Roads);
-    if (!updatedPlayer?.hasLongestRoad) {
-      // they did not have the longest road before, now it may be shorter,
-      // just update and move on.
+    const players = await this.playerService.findAll(gameId);
+    const playerWith2Roads = players.find(p => p.userId === ownerWith2Roads);
+    if (!playerWith2Roads) {
+      // for some reason the player no longer exists -- whatever
+      return;
+    }
+
+    // Special Case: If your longest road is broken and you are
+    // tied for longest road, you still keep the "Longest Road" card. (1)
+    // However, if you no longer have the longest road, but two or
+    // more players tie for the new longest road (2), set the "Longest
+    // Road' card aside. Do the same if no one has a 5+ segment
+    // road. The "Longest Road' card comes into play again when only
+    // 1 player has the longest road (of at least 5 road pieces).
+
+    const newLongestRoad = players.maxBy(p => p === playerWith2Roads ? longestRoad : p.longestRoad ?? 0).longestRoad ?? 0;
+    if (!playerWith2Roads.hasLongestRoad || longestRoad === newLongestRoad) {
+      // they did not have the longest road before, or they still have the longest road (1)
       await this.playerService.update(gameId, ownerWith2Roads, {
         longestRoad,
       });
       return;
     }
 
-    // TODO this is where it gets complicated.
+    // old player loses the title
+    await this.playerService.update(gameId, ownerWith2Roads, {
+      longestRoad,
+      hasLongestRoad: false,
+      $inc: {victoryPoints: -2},
+    })
+
+    const newPlayersWithLongestRoad = players.filter(p => p.longestRoad === newLongestRoad);
+    if (newPlayersWithLongestRoad.length === 1 && newLongestRoad >= 5) {
+      // (2)
+      // new player gets the title
+      const newBestPlayerId = newPlayersWithLongestRoad[0].userId;
+      if (newBestPlayerId === userId) {
+        // the current user can be updated with the primary update
+        update.hasLongestRoad = true;
+        update.$inc.victoryPoints = +2;
+      } else {
+        await this.playerService.update(gameId, newBestPlayerId, {
+          hasLongestRoad: true,
+          $inc: {victoryPoints: +2},
+        });
+      }
+      return;
+    }
   }
 
   private checkExpectedType(move: CreateMoveDto) {
