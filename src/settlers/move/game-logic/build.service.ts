@@ -222,7 +222,7 @@ export class BuildService {
     if (newBestPlayerId === userId) {
       // the current user can be updated with the primary update
       update.hasLongestRoad = true;
-      update.$inc.victoryPoints = +2;
+      update.$inc.victoryPoints = +3; // +1 for the new settlement, +2 for the longest road
     } else {
       await this.playerService.update(gameId, newBestPlayerId, {
         hasLongestRoad: true,
