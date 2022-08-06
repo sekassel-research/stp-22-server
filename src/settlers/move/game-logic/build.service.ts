@@ -142,7 +142,7 @@ export class BuildService {
   }
 
   private async checkLongestRoad(gameId: string, userId: string, dto: CreateBuildingDto, update: UpdateQuery<Player> & {$inc: any}) {
-    const longestRoad = await this.findLongestRoad(gameId, userId, dto);
+    const longestRoad = await this.findLongestRoad(gameId, userId, dto, userId);
     update.longestRoad = longestRoad;
     if (longestRoad >= 5) {
       const bestPlayer = (await this.playerService.findAll(gameId, { hasLongestRoad: true }))[0];
@@ -179,7 +179,7 @@ export class BuildService {
       return;
     }
 
-    const longestRoad = await this.findLongestRoad(gameId, ownerWith2Roads, dto);
+    const longestRoad = await this.findLongestRoad(gameId, userId, dto, ownerWith2Roads);
     const players = await this.playerService.findAll(gameId);
     const playerWith2Roads = players.find(p => p.userId === ownerWith2Roads);
     if (!playerWith2Roads) {
@@ -415,7 +415,14 @@ export class BuildService {
     }
   }
 
-  private async findLongestRoad(gameId: string, userId: string, dto: CreateBuildingDto): Promise<number> {
+  /**
+   * @param gameId
+   * @param userId the user who is building
+   * @param dto the new building
+   * @param owner the owner to find the longest road of
+   * @private
+   */
+  private async findLongestRoad(gameId: string, userId: string, dto: CreateBuildingDto, owner: string): Promise<number> {
     const buildings: Building[] = await this.buildingService.findAll(gameId);
     const newBuilding: Building = {
       ...dto,
@@ -424,6 +431,6 @@ export class BuildService {
       gameId,
     };
     buildings.push(newBuilding);
-    return this.longestRoadService.findLongestRoad(buildings, userId);
+    return this.longestRoadService.findLongestRoad(buildings, owner);
   }
 }
