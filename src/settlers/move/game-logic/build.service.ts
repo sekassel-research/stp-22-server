@@ -166,10 +166,14 @@ export class BuildService {
 
   private async checkForBrokenRoad(gameId: string, userId: string, dto: CreateBuildingDto, update: UpdateQuery<Player> & {$inc: any}) {
     const adjacentEnemyRoads = await this.buildingService.findAll(gameId, {
-      owner: { $ne: userId },
+      owner: { $ne: userId }, // can't break your own longest road
       type: 'road',
       $or: cornerAdjacentEdges(dto as Point3DWithCornerSide),
     });
+
+    // NB: we only consider the case of 2 roads, because
+    // - 1 road cannot be broken
+    // - 3 roads would not allow someone else to build a settlement between them
     const ownerWith2Roads = adjacentEnemyRoads.find(b => adjacentEnemyRoads.countIf(b2 => b2.owner === b.owner) === 2)?.owner;
     if (!ownerWith2Roads) {
       return;
@@ -208,22 +212,24 @@ export class BuildService {
     })
 
     const newPlayersWithLongestRoad = players.filter(p => p.longestRoad === newLongestRoad);
-    if (newPlayersWithLongestRoad.length === 1 && newLongestRoad >= 5) {
-      // (2)
-      // new player gets the title
-      const newBestPlayerId = newPlayersWithLongestRoad[0].userId;
-      if (newBestPlayerId === userId) {
-        // the current user can be updated with the primary update
-        update.hasLongestRoad = true;
-        update.$inc.victoryPoints = +2;
-      } else {
-        await this.playerService.update(gameId, newBestPlayerId, {
-          hasLongestRoad: true,
-          $inc: {victoryPoints: +2},
-        });
-      }
+    if (newPlayersWithLongestRoad.length !== 1 || newLongestRoad < 5) {
+      // tie for the new longest road, or not even eligible for the title (2)
       return;
     }
+
+    // new player gets the title
+    const newBestPlayerId = newPlayersWithLongestRoad[0].userId;
+    if (newBestPlayerId === userId) {
+      // the current user can be updated with the primary update
+      update.hasLongestRoad = true;
+      update.$inc.victoryPoints = +2;
+    } else {
+      await this.playerService.update(gameId, newBestPlayerId, {
+        hasLongestRoad: true,
+        $inc: { victoryPoints: +2 },
+      });
+    }
+    return;
   }
 
   private checkExpectedType(move: CreateMoveDto) {
