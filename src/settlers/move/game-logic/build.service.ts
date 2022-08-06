@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateQuery } from 'mongoose';
+import { Types, UpdateQuery } from 'mongoose';
 import { CreateBuildingDto } from '../../building/building.dto';
 import { Building } from '../../building/building.schema';
 import { BuildingService } from '../../building/building.service';
@@ -107,7 +107,7 @@ export class BuildService {
       update.$inc['remainingBuildings.settlement'] = +1;
     }
     if (move.building.type === 'road') {
-      const longestRoad = await this.findLongestRoad(gameId, userId, move.building as Point3DWithEdgeSide);
+      const longestRoad = await this.findLongestRoad(gameId, userId, move.building);
       update.$max = {longestRoad};
       // NB: the value of longestRoad may not necessarily be the longest road of this player,
       //     but that does not matter, since adding roads to a shorter group will not affect the title anyway.
@@ -341,9 +341,15 @@ export class BuildService {
     }
   }
 
-  private async findLongestRoad(gameId: string, userId: string, start: Point3DWithEdgeSide): Promise<number> {
-    const allRoads: Point3DWithEdgeSide[] = await this.buildingService.findAll(gameId, { owner: userId, type: 'road' }) as Point3DWithEdgeSide[];
-    allRoads.push(start);
-    return this.longestRoadService.findLongestRoad(allRoads, start);
+  private async findLongestRoad(gameId: string, userId: string, start: CreateBuildingDto): Promise<number> {
+    const buildings: Building[] = await this.buildingService.findAll(gameId);
+    const startBuilding: Building = {
+      ...start,
+      _id: new Types.ObjectId,
+      owner: userId,
+      gameId,
+    };
+    buildings.push(startBuilding);
+    return this.longestRoadService.findLongestRoad(buildings, startBuilding);
   }
 }

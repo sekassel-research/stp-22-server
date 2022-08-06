@@ -1,4 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Types } from 'mongoose';
+import { Building } from '../../building/building.schema';
 import { Point3DWithEdgeSide } from '../../shared/hexagon';
 import { LongestRoadService } from './longest-road.service';
 
@@ -179,9 +181,10 @@ describe('LongestRoadService', () => {
 
   for (let i = 0; i < cases.length; i++) {
     const { roads, longestRoad } = cases[i];
-    for (const road of roads) {
+    const buildings: Building[] = roads.map(r => ({ _id: new Types.ObjectId(), owner: 'a', gameId: 'g1', type: 'road', ...r }));
+    for (const road of buildings) {
       it(`should find the longest road of length ${longestRoad} in example ${i} starting at ${JSON.stringify(road)}`, () => {
-        expect(service.findLongestRoad(roads, road)).toEqual(longestRoad);
+        expect(service.findLongestRoad(buildings, road)).toEqual(longestRoad);
       });
     }
   }
