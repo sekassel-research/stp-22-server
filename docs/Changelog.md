@@ -378,13 +378,13 @@
 
 * The robber can no longer be placed on the same tile it is already on. [STP22SRV-37](https://jira.uniks.de/browse/STP22SRV-37)
 
-## v4.3.0
+# v4.3.0
 
 ## New Features
 
 + Added the `HarborTemplate` `type` `random` option.
 
-## v4.4.0
+# v4.4.0
 
 ## New Features
 
@@ -396,3 +396,13 @@
 * If two players have the same longest road / largest army, the first player will now keep the title, unless someone actually tops them. [STP22SRV-40](https://jira.uniks.de/browse/STP22SRV-40)
 * Player resources, victory points and development cards are no longer hidden to others when the game ends with a winner. [STP22SRV-43](https://jira.uniks.de/browse/STP22SRV-43)
 * When someone wins the game by reaching the victory points goal, the game will no longer expect any moves. [STP22SRV-44](https://jira.uniks.de/browse/STP22SRV-44)
+
+# v4.4.1
+
+## Improvements
+
+* The longest road calculation now considers enemy settlements that break roads. [STP22SRV-41](https://jira.uniks.de/browse/STP22SRV-41)
+
+## Bugfixes
+
+* Fixed incorrect longest road calculation for circular roads. [STP22SRV-42](https://jira.uniks.de/browse/STP22SRV-42)
