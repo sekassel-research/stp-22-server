@@ -112,6 +112,7 @@ export class BuildService {
         await this.checkForBrokenRoad(gameId, userId, move.building, update);
         break;
       case 'city':
+        update.$inc.victoryPoints = +1;
         update.$inc['remainingBuildings.settlement'] = +1;
         break;
     }
