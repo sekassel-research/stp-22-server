@@ -57,3 +57,4 @@ Cascading deletes do not apply to some resources:
 
 * Deleting a User does not delete any of their Messages.
 * Deleting a User does not delete any Group in which they are a Member.
+* Deleting a User does not delete any of their Maps.
