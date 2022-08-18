@@ -406,3 +406,10 @@
 ## Bugfixes
 
 * Fixed incorrect longest road calculation for circular roads. [STP22SRV-42](https://jira.uniks.de/browse/STP22SRV-42)
+
+# v4.4.2
+
+## Bugfixes
+
+* Cities now grant victory points again. [STP22SRV-45](https://jira.uniks.de/browse/STP22SRV-45)
+* Messages sent in the `maps` namespace are now deleted when the map is deleted.
